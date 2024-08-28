@@ -3,7 +3,7 @@ from Unit import *
 
 class Port:
     def __init__(self):
-        self.__volt = 0*V
+        self.__volt = False
 
     def __repr__(self):
         return f'Port(volt = {self.volt} V)'
