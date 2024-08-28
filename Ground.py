@@ -7,15 +7,16 @@ from Port import Port
 
 
 class Ground(Device):
-    def __init__(self):
-        self.le = Port(False)
+    def __init__(self, name):
+        self.le = Port('grd.le', self, False)
+        super().__init__(name)
 
     def __repr__(self):
-        return f"Ground({bool2int(self.le.volt)})"
+        return f"Ground({self.name})"
     
     def vol(self):
         return self.le
 
 if __name__ == '__main__':
-    grd = Ground()
+    grd = Ground('grd1')
     print(grd)

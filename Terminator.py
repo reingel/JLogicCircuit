@@ -7,15 +7,16 @@ from Port import Port
 
 
 class Terminator(Device):
-    def __init__(self):
-        self.le = Port(False)
+    def __init__(self, name):
+        self.le = Port('grd.le', self, False)
+        super().__init__(name)
 
     def __repr__(self):
-        return f"Terminator({bool2int(self.le.volt)})"
+        return f"Terminator({self.name})"
     
     def vol(self):
         return self.le
 
 if __name__ == '__main__':
-    trm = Terminator()
-    print(trm)
+    term = Terminator('term1')
+    print(term)

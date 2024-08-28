@@ -6,15 +6,19 @@ from Device import Device
 from Port import Port
 
 class Source(Device):
-    def __init__(self):
-        self.ri = Port(True)
+    def __init__(self, name):
+        self.ri = Port('ri', self, True)
+        super().__init__(name)
 
     def __repr__(self):
-        return f"Source({bool2int(self.ri.volt)})"
+        return f"Source({self.name})"
     
-    def vol(self):
-        return self.ri
+    def calc_output(self):
+        pass
+
+    def update(self):
+        pass
 
 if __name__ == '__main__':
-    src = Source()
+    src = Source('src1')
     print(src)
