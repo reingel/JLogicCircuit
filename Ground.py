@@ -2,8 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from Unit import *
 from Util import *
+from Device import Device
 
-class Ground:
+class Ground(Device):
     def __init__(self):
         self.vol = False
 
