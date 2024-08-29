@@ -31,6 +31,7 @@ class Relay(Device):
     
     def calc_output(self):
         self.up.update()
+        self.le.update()
         if self.X == HIGH: # coil is charged
             self.ru.set_volt(LOW)
             self.rd.set_volt(self.up.volt)
@@ -40,7 +41,6 @@ class Relay(Device):
         
         
     def update(self):
-        self.le.update()
         self.X = self.le.volt # next coil voltage = current coil high voltage
 
 
