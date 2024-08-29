@@ -16,9 +16,9 @@ class GateAnd(Device):
         self.nU = 2
         self.nY = 1
 
-        self.pwr1 = Power('pwr1') # left up
-        self.pwr2 = Power('pwr2') # left low
-        self.pwr3 = Power('pwr3') # up
+        self.pwr1 = Power('pwr1') # left of rly1
+        self.pwr2 = Power('pwr2') # left of rly2
+        self.pwr3 = Power('pwr3') # up of rly1
         self.sw1 = Switch('sw1')
         self.sw2 = Switch('sw2')
         self.rly1 = Relay('rly1')
@@ -60,44 +60,44 @@ class GateAnd(Device):
 
 class TestGateAnd(unittest.TestCase):
     def test_FF(self):
-        ag = GateAnd('ag1')
-        ag.set_input(LOW, LOW)
-        ag.calc_output()
-        ag.update()
-        ag.calc_output()
-        self.assertEqual(ag.get_output(), LOW)
-        print(ag)
-        ag.update()
+        gate = GateAnd('gate1')
+        gate.set_input(LOW, LOW)
+        gate.calc_output()
+        gate.update()
+        gate.calc_output()
+        self.assertEqual(gate.get_output(), LOW)
+        print(gate)
+        gate.update()
 
     def test_TF(self):
-        ag = GateAnd('ag2')
-        ag.set_input(HIGH, LOW)
-        ag.calc_output()
-        ag.update()
-        ag.calc_output()
-        self.assertEqual(ag.get_output(), LOW)
-        print(ag)
-        ag.update()
+        gate = GateAnd('gate2')
+        gate.set_input(HIGH, LOW)
+        gate.calc_output()
+        gate.update()
+        gate.calc_output()
+        self.assertEqual(gate.get_output(), LOW)
+        print(gate)
+        gate.update()
 
     def test_FT(self):
-        ag = GateAnd('ag3')
-        ag.set_input(LOW, HIGH)
-        ag.calc_output()
-        ag.update()
-        ag.calc_output()
-        self.assertEqual(ag.get_output(), LOW)
-        print(ag)
-        ag.update()
+        gate = GateAnd('gate3')
+        gate.set_input(LOW, HIGH)
+        gate.calc_output()
+        gate.update()
+        gate.calc_output()
+        self.assertEqual(gate.get_output(), LOW)
+        print(gate)
+        gate.update()
 
     def test_TT(self):
-        ag = GateAnd('ag4')
-        ag.set_input(HIGH, HIGH)
-        ag.calc_output()
-        ag.update()
-        ag.calc_output()
-        self.assertEqual(ag.get_output(), HIGH)
-        print(ag)
-        ag.update()
+        gate = GateAnd('gate4')
+        gate.set_input(HIGH, HIGH)
+        gate.calc_output()
+        gate.update()
+        gate.calc_output()
+        self.assertEqual(gate.get_output(), HIGH)
+        print(gate)
+        gate.update()
 
 
 
