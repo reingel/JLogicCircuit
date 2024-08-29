@@ -4,24 +4,23 @@ from Unit import *
 from Constant import *
 from Util import *
 from Device import Device
-from Sink import Sink
+from Source import Source
 from Port import Port
 
-
-class Terminator(Sink):
+class Power(Source):
     def __init__(self, name):
-        self.le = Port('le', self, LOW)
+        self.ri = Port('ri', self, HIGH)
         super().__init__(name)
 
     def __repr__(self):
-        return f"Terminator({self.name})"
+        return f"Power({self.name})"
     
     def calc_output(self):
-        pass
+        self.ri.set_volt(HIGH)
 
     def update(self):
         pass
 
 if __name__ == '__main__':
-    term = Terminator('term1')
-    print(term)
+    pwr = Power('pwr1')
+    print(pwr)

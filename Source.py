@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from Unit import *
+from Constant import *
 from Util import *
 from Device import Device
 from Port import Port
 
 class Source(Device):
     def __init__(self, name):
-        self.ri = Port('ri', self, True)
         super().__init__(name)
 
     def __repr__(self):

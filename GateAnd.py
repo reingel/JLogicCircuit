@@ -5,7 +5,7 @@ from Unit import *
 from Constant import *
 from Util import *
 from Device import Device
-from Source import Source
+from Power import Power
 from Ground import Ground
 from Relay import Relay
 from Switch import Switch
@@ -16,17 +16,17 @@ class GateAnd(Device):
         self.nU = 2
         self.nY = 1
 
-        self.src1 = Source('src1') # left up
-        self.src2 = Source('src2') # left low
-        self.src3 = Source('src3') # up
+        self.pwr1 = Power('pwr1') # left up
+        self.pwr2 = Power('pwr2') # left low
+        self.pwr3 = Power('pwr3') # up
         self.sw1 = Switch('sw1')
         self.sw2 = Switch('sw2')
         self.rly1 = Relay('rly1')
         self.rly2 = Relay('rly2')
 
-        self.src1.ri.connect(self.sw1.le)
-        self.src2.ri.connect(self.sw2.le)
-        self.src3.ri.connect(self.rly1.up)
+        self.pwr1.ri.connect(self.sw1.le)
+        self.pwr2.ri.connect(self.sw2.le)
+        self.pwr3.ri.connect(self.rly1.up)
         self.sw1.ri.connect(self.rly1.le)
         self.sw2.ri.connect(self.rly2.le)
         self.rly1.rd.connect(self.rly2.up)
