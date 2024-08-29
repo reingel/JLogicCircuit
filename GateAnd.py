@@ -61,41 +61,41 @@ class GateAnd(Device):
 class TestGateAnd(unittest.TestCase):
     def test_FF(self):
         ag = GateAnd('ag1')
-        ag.set_input(False, False)
+        ag.set_input(LOW, LOW)
         ag.calc_output()
         ag.update()
         ag.calc_output()
-        self.assertEqual(ag.get_output(), False)
+        self.assertEqual(ag.get_output(), LOW)
         print(ag)
         ag.update()
 
     def test_TF(self):
         ag = GateAnd('ag2')
-        ag.set_input(True, False)
+        ag.set_input(HIGH, LOW)
         ag.calc_output()
         ag.update()
         ag.calc_output()
-        self.assertEqual(ag.get_output(), False)
+        self.assertEqual(ag.get_output(), LOW)
         print(ag)
         ag.update()
 
     def test_FT(self):
         ag = GateAnd('ag3')
-        ag.set_input(False, True)
+        ag.set_input(LOW, HIGH)
         ag.calc_output()
         ag.update()
         ag.calc_output()
-        self.assertEqual(ag.get_output(), False)
+        self.assertEqual(ag.get_output(), LOW)
         print(ag)
         ag.update()
 
     def test_TT(self):
         ag = GateAnd('ag4')
-        ag.set_input(True, True)
+        ag.set_input(HIGH, HIGH)
         ag.calc_output()
         ag.update()
         ag.calc_output()
-        self.assertEqual(ag.get_output(), True)
+        self.assertEqual(ag.get_output(), HIGH)
         print(ag)
         ag.update()
 

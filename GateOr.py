@@ -63,41 +63,41 @@ class GateOr(Device):
 class TestGateOr(unittest.TestCase):
     def test_FF(self):
         og = GateOr('og1')
-        og.set_input(False, False)
+        og.set_input(LOW, LOW)
         og.calc_output()
         og.update()
         og.calc_output()
-        self.assertEqual(og.get_output(), False)
+        self.assertEqual(og.get_output(), LOW)
         print(og)
         og.update()
 
     def test_TF(self):
         og = GateOr('og2')
-        og.set_input(True, False)
+        og.set_input(HIGH, LOW)
         og.calc_output()
         og.update()
         og.calc_output()
-        self.assertEqual(og.get_output(), True)
+        self.assertEqual(og.get_output(), HIGH)
         print(og)
         og.update()
 
     def test_FT(self):
         og = GateOr('og3')
-        og.set_input(False, True)
+        og.set_input(LOW, HIGH)
         og.calc_output()
         og.update()
         og.calc_output()
-        self.assertEqual(og.get_output(), True)
+        self.assertEqual(og.get_output(), HIGH)
         print(og)
         og.update()
 
     def test_TT(self):
         og = GateOr('og4')
-        og.set_input(True, True)
+        og.set_input(HIGH, HIGH)
         og.calc_output()
         og.update()
         og.calc_output()
-        self.assertEqual(og.get_output(), True)
+        self.assertEqual(og.get_output(), HIGH)
         print(og)
         og.update()
 

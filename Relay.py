@@ -20,7 +20,7 @@ class Relay(Device):
         self.ru = Port('ru', self)
         self.rd = Port('rd', self)
 
-        self.X = False # coil's charge state
+        self.X = LOW # coil's charge state
 
         super().__init__(name)
 
@@ -31,12 +31,12 @@ class Relay(Device):
     
     def calc_output(self):
         self.up.update()
-        if self.X == True: # coil is charged
-            self.ru.set_volt(False)
+        if self.X == HIGH: # coil is charged
+            self.ru.set_volt(LOW)
             self.rd.set_volt(self.up.volt)
         else: # coil is discharged
             self.ru.set_volt(self.up.volt)
-            self.rd.set_volt(False)
+            self.rd.set_volt(LOW)
         
         
     def update(self):
@@ -46,9 +46,9 @@ class Relay(Device):
 
 if __name__ == '__main__':
     rly = Relay('rly')
-    rly.up.set_volt(True)
+    rly.up.set_volt(HIGH)
 
-    rly.le.set_volt(True)
+    rly.le.set_volt(HIGH)
     rly.calc_output()
     print(rly)
     rly.update()
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     print(rly)
     rly.update()
 
-    rly.le.set_volt(False)
+    rly.le.set_volt(LOW)
     rly.calc_output()
     print(rly)
     rly.update()

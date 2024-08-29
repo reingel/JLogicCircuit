@@ -11,7 +11,7 @@ from Relay import Relay
 
 class Switch(Device):
     def __init__(self, name):
-        self.__state = False # open
+        self.__state = LOW # open
 
         self.le = Port('le', self)
         self.ri = Port('ri', self)
@@ -33,10 +33,10 @@ class Switch(Device):
     
     def calc_output(self):
         self.le.update()
-        if self.state:
+        if self.state: # switch on
             self.ri.set_volt(self.le.volt)
-        else:
-            self.ri.set_volt(False)
+        else: # switch off
+            self.ri.set_volt(LOW)
     
     def update(self):
         pass # there is no state.
@@ -48,5 +48,5 @@ if __name__ == '__main__':
     print(sw)
     sw.invert()
     print(sw)
-    sw.set_state(False)
+    sw.set_state(LOW)
     print(sw)

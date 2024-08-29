@@ -8,7 +8,7 @@ from Port import Port
 
 class Ground(Device):
     def __init__(self, name):
-        self.le = Port('grd.le', self, False)
+        self.le = Port('le', self, LOW)
         super().__init__(name)
 
     def __repr__(self):

@@ -8,7 +8,7 @@ def bool2int(value):
 
 
 if __name__ == '__main__':
-    a = bool2int(True)
+    a = bool2int(HIGH)
     print(a)
-    b = bool2int(np.array([True, False, False]))
+    b = bool2int(np.array([HIGH, LOW, LOW]))
     print(b)

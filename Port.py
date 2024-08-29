@@ -4,7 +4,7 @@ from Device import Device
 
 
 class Port:
-    def __init__(self, name: str, parent: Device, volt=False):
+    def __init__(self, name: str, parent: Device, volt=LOW):
         self.__name = name
         self.__parent = parent
         self.__volt = volt
@@ -47,8 +47,8 @@ class Port:
 
 if __name__ == '__main__':
     dev1 = Device('dev1')
-    p1 = Port('p1', dev1, False)
-    p2 = Port('p2', dev1, True)
+    p1 = Port('p1', dev1, LOW)
+    p2 = Port('p2', dev1, HIGH)
     p1.connect(p2)
     print(p1)
     print(p2)
