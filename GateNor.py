@@ -16,44 +16,42 @@ class GateNor(Device):
         self.nU = 2
         self.nY = 1
 
-        self.pwr1 = Power('pwr1') # left of rly1
-        self.pwr2 = Power('pwr2') # left of rly2
-        self.pwr3 = Power('pwr3') # up of rly1
-        self.sw1 = Switch('sw1')
-        self.sw2 = Switch('sw2')
+        # creat devices
+        self.pwr = Power('pwr') # up of rly1
         self.rly1 = Relay('rly1')
         self.rly2 = Relay('rly2')
 
-        self.pwr1.ri.connect(self.sw1.le)
-        self.pwr2.ri.connect(self.sw2.le)
-        self.pwr3.ri.connect(self.rly1.up)
-        self.sw1.ri.connect(self.rly1.le)
-        self.sw2.ri.connect(self.rly2.le)
+        # connect
+        self.pwr.ri.connect(self.rly1.up)
         self.rly1.ru.connect(self.rly2.up)
+
+        # make ports using aliases
+        self.in1 = self.rly1.le
+        self.in2 = self.rly2.le
+        self.out = self.rly2.ru
 
         super().__init__(name)
 
     def __repr__(self):
-        in_volts = np.array([self.sw1.state, self.sw2.state])
-        out_volt = self.get_output()
-        return f'GateNor({self.name}, in = {bool2int(in_volts)}, out = {bool2int(out_volt)})'
+        return f'GateNor({self.name}, in = {bool2int(self.get_input())}, out = {bool2int(self.get_output())})'
 
-    def set_input(self, sw1, sw2):
-        self.sw1.set_state(sw1)
-        self.sw2.set_state(sw2)
+    def set_input(self, v1: bool, v2: bool):
+        # self.rly1.le.set_volt(v1)
+        # self.rly2.le.set_volt(v2)
+        self.in1.set_volt(v1)
+        self.in2.set_volt(v2)
+
+    def get_input(self):
+        return np.array([self.rly1.le.volt, self.rly2.le.volt])
     
     def get_output(self):
         return self.rly2.ru.volt
     
     def calc_output(self):
-        self.sw1.calc_output()
-        self.sw2.calc_output()
         self.rly1.calc_output()
         self.rly2.calc_output()
         
     def update(self):
-        self.sw1.update()
-        self.sw2.update()
         self.rly1.update()
         self.rly2.update()
 
