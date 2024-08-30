@@ -21,9 +21,9 @@ class GateNot(Device):
         self.sw = Switch('sw')
         self.rly = Relay('rly')
 
-        self.pwr1.ri.connect(self.sw.le)
-        self.pwr2.ri.connect(self.rly.up)
-        self.sw.ri.connect(self.rly.le)
+        self.pwr1.ri >> self.sw.le
+        self.pwr2.ri >> self.rly.up
+        self.sw.ri >> self.rly.le
 
         super().__init__(name)
     

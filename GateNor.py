@@ -24,12 +24,12 @@ class GateNor(Device):
         self.rly1 = Relay('rly1')
         self.rly2 = Relay('rly2')
 
-        self.pwr1.ri.connect(self.sw1.le)
-        self.pwr2.ri.connect(self.sw2.le)
-        self.pwr3.ri.connect(self.rly1.up)
-        self.sw1.ri.connect(self.rly1.le)
-        self.sw2.ri.connect(self.rly2.le)
-        self.rly1.ru.connect(self.rly2.up)
+        self.pwr1.ri >> self.sw1.le
+        self.pwr2.ri >> self.sw2.le
+        self.pwr3.ri >> self.rly1.up
+        self.sw1.ri >> self.rly1.le
+        self.sw2.ri >> self.rly2.le
+        self.rly1.ru >> self.rly2.up
 
         super().__init__(name)
 

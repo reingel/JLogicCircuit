@@ -1,3 +1,3 @@
 
 
-- [ ] Change connect() into operator like ->
+- [x] Change connect() into operator like ->

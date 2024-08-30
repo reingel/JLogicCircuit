@@ -32,14 +32,17 @@ class Port:
         else:
             raise(RuntimeError)
     
-    def connect(self, port):
+    def __connect(self, port):
         if self.connected:
             return
         if isinstance(port, Port):
             self.__connected = port
         else:
             raise(RuntimeError)
-        port.connect(self)
+        port.__connect(self)
+    
+    def __rshift__(self, port):
+        self.__connect(port)
     
     def update(self):
         if self.connected:
@@ -50,6 +53,6 @@ if __name__ == '__main__':
     dev1 = Device('dev1')
     p1 = Port('p1', dev1, LOW)
     p2 = Port('p2', dev1, HIGH)
-    p1.connect(p2)
+    p1 >> p2
     print(p1)
     print(p2)
