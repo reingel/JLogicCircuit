@@ -12,10 +12,6 @@ from Switch import Switch
 
 class GateAnd(Device):
     def __init__(self, name):
-        # U: input vector, X: state vector, Y: output vector
-        self.nU = 2
-        self.nY = 1
-
         self.pwr1 = Power('pwr1') # left of rly1
         self.pwr2 = Power('pwr2') # left of rly2
         self.pwr3 = Power('pwr3') # up of rly1
