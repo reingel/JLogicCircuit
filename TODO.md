@@ -1,4 +1,9 @@
 
+# Features
+- [x] Change connect() into operator like >>
+- [ ] Implement Scope
 
-- [ ] Change connect() into operator like ->
-- [ ] Creat classes for HIGH, LOW and use in function arguments type
+# Refactoring
+- [ ] Port.volt -> Port.state
+- [ ] Delete nU, nY, nX
+- [ ] Creat State classes for HIGH, LOW

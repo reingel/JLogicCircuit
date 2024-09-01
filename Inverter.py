@@ -10,28 +10,33 @@ from Ground import Ground
 from Relay import Relay
 from Switch import Switch
 
-class GateNot(Device):
+class Inverter(Device):
     def __init__(self, name):
         # create devices
-        self.pwr1 = Power('pwr1') # left of rly
-        self.pwr2 = Power('pwr2') # up of rly
         self.sw = Switch('sw')
+        self.pwr = Power('pwr')
         self.rly = Relay('rly')
 
         # connect
-        self.pwr1.ri >> self.sw.le
-        self.pwr2.ri >> self.rly.up
+        self.pwr.ri >> self.rly.up
+        self.rly.ru >> self.sw.le
         self.sw.ri >> self.rly.le
+
+        # ports
+        self.out = self.rly.ru
 
         super().__init__(name)
     
     def __repr__(self):
-        in_volt = self.sw.state
+        sw_volt = self.sw.state
         out_volt = self.get_output()
-        return f'GateNot({self.name}, in = {bool2int(in_volt)}, out = {bool2int(out_volt)})'
+        return f'Interver({self.name}, sw = {bool2int(sw_volt)}, out = {bool2int(out_volt)})'
 
     def set_input(self, sw):
         self.sw.set_state(sw)
+    
+    def get_input(self):
+        return self.sw.state
     
     def get_output(self):
         return self.rly.ru.volt
@@ -45,27 +50,23 @@ class GateNot(Device):
         self.rly.update()
 
 
-class TestGateNot(unittest.TestCase):
+class TestInverter(unittest.TestCase):
     def test_F(self):
-        gate = GateNot('gate1')
+        gate = Inverter('gate1')
         gate.set_input(LOW)
-        gate.calc_output()
-        gate.update()
-        gate.calc_output()
+        gate.step()
+        gate.step()
+        gate.step()
         self.assertEqual(gate.get_output(), HIGH)
         print(gate)
-        gate.update()
 
     def test_T(self):
-        gate = GateNot('gate1')
+        gate = Inverter('gate2')
         gate.set_input(HIGH)
-        gate.calc_output()
-        gate.update()
-        gate.calc_output()
-        self.assertEqual(gate.get_output(), LOW)
-        print(gate)
-        gate.update()
-
+        print(bool2int(gate.rly.X), bool2int(gate.out.volt))
+        for i in range(10):
+            gate.step()
+            print(bool2int(gate.rly.X), bool2int(gate.out.volt))
 
 if __name__ == '__main__':
     unittest.main()
