@@ -9,18 +9,15 @@ from Source import Source
 from Ground import Ground
 
 class Relay(Device):
-    def __init__(self, name):
-        # U: input port, Y: output port, X: state vector
-        self.nU = 2
-        self.nY = 2
-        self.nX = 1
-
+    def __init__(self, name, init_charge=LOW):
+        # create ports
         self.le = Port('le', self)
         self.up = Port('up', self)
         self.ru = Port('ru', self)
         self.rd = Port('rd', self)
 
-        self.X = LOW # coil's charge state
+        # internal states
+        self.X = init_charge
 
         super().__init__(name)
 

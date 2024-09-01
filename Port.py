@@ -12,7 +12,7 @@ class Port:
         self.__connected = []
 
     def __repr__(self):
-        return f'Port({self.__parent.name}.{self.name})'
+        return f'Port({self.__parent.name}.{self.name}, state = {bool2int(self.volt)})'
 
     @property
     def name(self):
