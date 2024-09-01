@@ -1,7 +1,8 @@
 import numpy as np
+from BitValue import *
 
 def bool2int(value):
-    if isinstance(value, bool):
+    if isinstance(value, BitValue):
         return int(1) if value else int(0)
     elif isinstance(value, np.ndarray):
         return np.array([int(x) for x in value])

@@ -26,7 +26,7 @@ class Port:
         return self.__connected
     
     def set_volt(self, volt):
-        if isinstance(volt, bool):
+        if isinstance(volt, BitValue):
             self.__volt = volt
         else:
             raise(RuntimeError)

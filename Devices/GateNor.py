@@ -30,7 +30,7 @@ class GateNor(Device):
     def __repr__(self):
         return f'GateNor({self.name}, in = {bool2int(self.get_input())}, out = {bool2int(self.get_output())})'
 
-    def set_input(self, v1: bool, v2: bool):
+    def set_input(self, v1: BitValue, v2: BitValue):
         self.in1.set_volt(v1)
         self.in2.set_volt(v2)
 
