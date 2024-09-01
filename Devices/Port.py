@@ -1,4 +1,4 @@
-from Constant import *
+from BitValue import *
 from Util import *
 from Device import Device
 

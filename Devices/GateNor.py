@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
-from Constant import *
+from BitValue import *
 from Util import *
 from Device import Device
 from Power import Power
