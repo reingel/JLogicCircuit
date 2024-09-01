@@ -33,7 +33,7 @@ class GateNot(Device):
         self.sw.set_state(sw)
     
     def get_output(self):
-        return self.rly.ru.volt
+        return self.rly.ru.value
     
     def calc_output(self):
         self.sw.calc_output()

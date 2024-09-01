@@ -15,7 +15,7 @@ class Power(Source):
         return f"Power({self.name})"
     
     def calc_output(self):
-        self.ri.set_volt(HIGH)
+        self.ri.set_value(HIGH)
 
     def update(self):
         pass

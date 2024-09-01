@@ -40,7 +40,7 @@ class GateNand(Device):
         self.sw2.set_state(sw2)
     
     def get_output(self):
-        return self.rly1.ru.volt or self.rly2.ru.volt
+        return self.rly1.ru.value or self.rly2.ru.value
     
     def calc_output(self):
         self.sw1.calc_output()

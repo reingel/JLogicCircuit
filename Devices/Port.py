@@ -4,30 +4,30 @@ from Device import Device
 
 
 class Port:
-    def __init__(self, name: str, parent: Device, volt=LOW):
+    def __init__(self, name: str, parent: Device, value=LOW):
         self.__name = name
         self.__parent = parent
-        self.__volt = volt
+        self.__value = value
         self.__connected = []
 
     def __repr__(self):
-        return f'Port({self.__parent.name}.{self.name}, state = {bool2int(self.volt)})'
+        return f'Port({self.__parent.name}.{self.name}, state = {bool2int(self.value)})'
 
     @property
     def name(self):
         return self.__name
     
     @property
-    def volt(self):
-        return self.__volt
+    def value(self):
+        return self.__value
     
     @property
     def connected(self):
         return self.__connected
     
-    def set_volt(self, volt):
-        if isinstance(volt, BitValue):
-            self.__volt = volt
+    def set_value(self, value):
+        if isinstance(value, BitValue):
+            self.__value = value
         else:
             raise(RuntimeError)
     
@@ -45,7 +45,7 @@ class Port:
     
     def update(self):
         if self.connected:
-            self.set_volt(self.connected.volt)
+            self.set_value(self.connected.value)
 
 
 if __name__ == '__main__':

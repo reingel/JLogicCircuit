@@ -33,9 +33,9 @@ class Switch(Device):
     def calc_output(self):
         self.le.update()
         if self.state: # switch on
-            self.ri.set_volt(self.le.volt)
+            self.ri.set_value(self.le.value)
         else: # switch off
-            self.ri.set_volt(LOW)
+            self.ri.set_value(LOW)
     
     def update(self):
         pass # there is no state.

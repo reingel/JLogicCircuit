@@ -31,14 +31,14 @@ class GateNor(Device):
         return f'GateNor({self.name}, in = {bool2int(self.get_input())}, out = {bool2int(self.get_output())})'
 
     def set_input(self, v1: BitValue, v2: BitValue):
-        self.in1.set_volt(v1)
-        self.in2.set_volt(v2)
+        self.in1.set_value(v1)
+        self.in2.set_value(v2)
 
     def get_input(self):
-        return np.array([self.rly1.le.volt, self.rly2.le.volt])
+        return np.array([self.rly1.le.value, self.rly2.le.value])
     
     def get_output(self):
-        return self.rly2.ru.volt
+        return self.rly2.ru.value
     
     def calc_output(self):
         self.rly1.calc_output()

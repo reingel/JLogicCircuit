@@ -21,30 +21,30 @@ class Relay(Device):
         super().__init__(name)
 
     def __repr__(self):
-        # return f'Relay(up = {bool2int(self.up.volt)}, le = {bool2int(self.le.volt)}, ru = {bool2int(self.ru.volt)}, rd = {bool2int(self.rd.volt)})'
-        port_volts = np.array([self.le.volt, self.up.volt, self.ru.volt, self.rd.volt])
+        # return f'Relay(up = {bool2int(self.up.value)}, le = {bool2int(self.le.value)}, ru = {bool2int(self.ru.value)}, rd = {bool2int(self.rd.value)})'
+        port_volts = np.array([self.le.value, self.up.value, self.ru.value, self.rd.value])
         return f'Relay({self.name}, [le up ru rd] = {bool2int(port_volts)}, X = {bool2int(self.X)})'
     
     def calc_output(self):
         self.up.update()
         self.le.update()
         if self.X == HIGH: # coil is charged
-            self.ru.set_volt(LOW)
-            self.rd.set_volt(self.up.volt)
+            self.ru.set_value(LOW)
+            self.rd.set_value(self.up.value)
         else: # coil is discharged
-            self.ru.set_volt(self.up.volt)
-            self.rd.set_volt(LOW)
+            self.ru.set_value(self.up.value)
+            self.rd.set_value(LOW)
         
         
     def update(self):
-        self.X = self.le.volt # next coil voltage = current coil high voltage
+        self.X = self.le.value # next coil voltage = current coil high voltage
 
 
 if __name__ == '__main__':
     rly = Relay('rly')
-    rly.up.set_volt(HIGH)
+    rly.up.set_value(HIGH)
 
-    rly.le.set_volt(HIGH)
+    rly.le.set_value(HIGH)
     rly.calc_output()
     print(rly)
     rly.update()
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     print(rly)
     rly.update()
 
-    rly.le.set_volt(LOW)
+    rly.le.set_value(LOW)
     rly.calc_output()
     print(rly)
     rly.update()

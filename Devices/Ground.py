@@ -19,7 +19,7 @@ class Ground(Sink):
         pass
 
     def update(self):
-        self.le.set_volt(LOW)
+        self.le.set_value(LOW)
 
 if __name__ == '__main__':
     grd = Ground('grd1')

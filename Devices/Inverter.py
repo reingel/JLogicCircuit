@@ -38,7 +38,7 @@ class Inverter(Device):
         return self.sw.state
     
     def get_output(self):
-        return self.rly.ru.volt
+        return self.rly.ru.value
     
     def calc_output(self):
         self.sw.calc_output()
@@ -62,10 +62,10 @@ class TestInverter(unittest.TestCase):
     def test_T(self):
         gate = Inverter('gate2')
         gate.set_input(HIGH)
-        print(bool2int(gate.rly.X), bool2int(gate.out.volt))
+        print(bool2int(gate.rly.X), bool2int(gate.out.value))
         for i in range(10):
             gate.step()
-            print(bool2int(gate.rly.X), bool2int(gate.out.volt))
+            print(bool2int(gate.rly.X), bool2int(gate.out.value))
 
 if __name__ == '__main__':
     unittest.main()

@@ -40,7 +40,7 @@ class GateOr(Device):
         self.sw2.set_state(sw2)
     
     def get_output(self):
-        return self.rly1.rd.volt or self.rly2.rd.volt
+        return self.rly1.rd.value or self.rly2.rd.value
     
     def calc_output(self):
         self.sw1.calc_output()
