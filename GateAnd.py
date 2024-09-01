@@ -12,6 +12,7 @@ from Switch import Switch
 
 class GateAnd(Device):
     def __init__(self, name):
+        # creat devices
         self.pwr1 = Power('pwr1') # left of rly1
         self.pwr2 = Power('pwr2') # left of rly2
         self.pwr3 = Power('pwr3') # up of rly1
