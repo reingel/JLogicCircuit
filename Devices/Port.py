@@ -1,4 +1,3 @@
-from Unit import *
 from Constant import *
 from Util import *
 from Device import Device

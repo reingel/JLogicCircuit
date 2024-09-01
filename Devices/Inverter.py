@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
-from Unit import *
 from Constant import *
 from Util import *
 from Device import Device

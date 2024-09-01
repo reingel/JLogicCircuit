@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
-from Unit import *
 from Constant import *
 from Util import *
 from Device import Device
@@ -10,7 +9,7 @@ from Ground import Ground
 from Relay import Relay
 from Switch import Switch
 
-class GateOr(Device):
+class GateNand(Device):
     def __init__(self, name):
         self.pwr1 = Power('pwr1') # left of rly1
         self.pwr2 = Power('pwr2') # left of rly2
@@ -27,21 +26,21 @@ class GateOr(Device):
         self.pwr4.ri >> self.rly2.up
         self.sw1.ri >> self.rly1.le
         self.sw2.ri >> self.rly2.le
-        # self.rly1.rd >> self.rly2.rd
+        # self.rly1.ru >> self.rly2.ru
 
         super().__init__(name)
-
+    
     def __repr__(self):
         in_volts = np.array([self.sw1.state, self.sw2.state])
         out_volt = self.get_output()
-        return f'GateOr({self.name}, in = {bool2int(in_volts)}, out = {bool2int(out_volt)})'
+        return f'GateNand({self.name}, in = {bool2int(in_volts)}, out = {bool2int(out_volt)})'
 
     def set_input(self, sw1, sw2):
         self.sw1.set_state(sw1)
         self.sw2.set_state(sw2)
     
     def get_output(self):
-        return self.rly1.rd.volt or self.rly2.rd.volt
+        return self.rly1.ru.volt or self.rly2.ru.volt
     
     def calc_output(self):
         self.sw1.calc_output()
@@ -56,46 +55,46 @@ class GateOr(Device):
         self.rly2.update()
 
 
-class TestGateOr(unittest.TestCase):
+class TestGateNand(unittest.TestCase):
     def test_FF(self):
-        og = GateOr('og1')
-        og.set_input(LOW, LOW)
-        og.calc_output()
-        og.update()
-        og.calc_output()
-        self.assertEqual(og.get_output(), LOW)
-        print(og)
-        og.update()
+        gate = GateNand('gate1')
+        gate.set_input(LOW, LOW)
+        gate.calc_output()
+        gate.update()
+        gate.calc_output()
+        self.assertEqual(gate.get_output(), HIGH)
+        print(gate)
+        gate.update()
 
     def test_TF(self):
-        og = GateOr('og2')
-        og.set_input(HIGH, LOW)
-        og.calc_output()
-        og.update()
-        og.calc_output()
-        self.assertEqual(og.get_output(), HIGH)
-        print(og)
-        og.update()
+        gate = GateNand('gate2')
+        gate.set_input(HIGH, LOW)
+        gate.calc_output()
+        gate.update()
+        gate.calc_output()
+        self.assertEqual(gate.get_output(), HIGH)
+        print(gate)
+        gate.update()
 
     def test_FT(self):
-        og = GateOr('og3')
-        og.set_input(LOW, HIGH)
-        og.calc_output()
-        og.update()
-        og.calc_output()
-        self.assertEqual(og.get_output(), HIGH)
-        print(og)
-        og.update()
+        gate = GateNand('gate3')
+        gate.set_input(LOW, HIGH)
+        gate.calc_output()
+        gate.update()
+        gate.calc_output()
+        self.assertEqual(gate.get_output(), HIGH)
+        print(gate)
+        gate.update()
 
     def test_TT(self):
-        og = GateOr('og4')
-        og.set_input(HIGH, HIGH)
-        og.calc_output()
-        og.update()
-        og.calc_output()
-        self.assertEqual(og.get_output(), HIGH)
-        print(og)
-        og.update()
+        gate = GateNand('gate4')
+        gate.set_input(HIGH, HIGH)
+        gate.calc_output()
+        gate.update()
+        gate.calc_output()
+        self.assertEqual(gate.get_output(), LOW)
+        print(gate)
+        gate.update()
 
 
 
