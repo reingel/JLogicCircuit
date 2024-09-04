@@ -1,35 +1,25 @@
-from BitValue import *
+from EStatus import *
 from Util import *
 from Device import Device
 
 
 class Port:
-    def __init__(self, name: str, parent: Device, value=LOW):
+    def __init__(self, name: str, parent: Device, status=OPEN):
         self.__name = name
         self.__parent = parent
-        self.__value = value
+        self.status = status
         self.__connected = []
 
     def __repr__(self):
-        return f'Port({self.__parent.name}.{self.name}, state = {bool2int(self.value)})'
+        return f'Port({self.__parent.name}.{self.name}, status = {bool2int(self.status)})'
 
     @property
     def name(self):
         return self.__name
     
     @property
-    def value(self):
-        return self.__value
-    
-    @property
     def connected(self):
         return self.__connected
-    
-    def set_value(self, value):
-        if isinstance(value, BitValue):
-            self.__value = value
-        else:
-            raise(RuntimeError)
     
     def __connect(self, port):
         if self.connected:
@@ -45,12 +35,12 @@ class Port:
     
     def update(self):
         if self.connected:
-            self.set_value(self.connected.value)
+            self.status = self.connected.status
 
 
 if __name__ == '__main__':
     dev1 = Device('dev1')
-    p1 = Port('p1', dev1, LOW)
+    p1 = Port('p1', dev1, OPEN)
     p2 = Port('p2', dev1, HIGH)
     p1 >> p2
     print(p1)

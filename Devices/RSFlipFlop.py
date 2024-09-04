@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
-from BitValue import *
+from EStatus import *
 from Util import *
 from Device import Device
 from Power import Power
@@ -13,8 +13,8 @@ from GateNor import GateNor
 class RSFlipFlop(Device):
     def __init__(self, name):
         # create devices
-        self.nor1 = GateNor('nor1', init_charges=[LOW, HIGH])
-        self.nor2 = GateNor('nor2', init_charges=[LOW, LOW])
+        self.nor1 = GateNor('nor1', init_charges=[OPEN, HIGH])
+        self.nor2 = GateNor('nor2', init_charges=[OPEN, OPEN])
 
         # connect
         self.nor1.out >> self.nor2.in1
@@ -29,15 +29,15 @@ class RSFlipFlop(Device):
         super().__init__(name)
     
     def __repr__(self):
-        ports = bool2int(np.array([self.R.value, self.S.value, self.Q.value, self.Qbar.value]))
+        ports = bool2int(np.array([self.R.status, self.S.status, self.Q.status, self.Qbar.status]))
         return f'RSFlipFlop({self.name}, [R S Q Qbar] = {ports}'
 
     def set_input(self, R, S):
-        self.R.set_value(R)
-        self.S.set_value(S)
+        self.R.status = R
+        self.S.status = S
     
     def get_output(self):
-        return [self.Q.value, self.Qbar.value]
+        return [self.Q.status, self.Qbar.status]
     
     def calc_output(self):
         # self.nor1.in1.update()
@@ -58,36 +58,36 @@ class TestRSFlipFlop(unittest.TestCase):
     def test_set(self):
         dev = RSFlipFlop('dev1')
 
-        dev.set_input(R=LOW, S=HIGH)
+        dev.set_input(R=OPEN, S=HIGH)
         for i in range(self.nRepeat):
             dev.step()
-            print(f'{i+1:2}: ', bool2int(dev.R.value), bool2int(dev.S.value), bool2int(dev.Q.value), bool2int(dev.Qbar.value))
+            print(f'{i+1:2}: ', bool2int(dev.R.status), bool2int(dev.S.status), bool2int(dev.Q.status), bool2int(dev.Qbar.status))
         print('')
-        self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == LOW)
+        self.assertTrue(dev.Q.status == HIGH and dev.Qbar.status == OPEN)
 
-        dev.set_input(R=LOW, S=LOW)
+        dev.set_input(R=OPEN, S=OPEN)
         for i in range(self.nRepeat):
             dev.step()
-            print(f'{i+1:2}: ', bool2int(dev.R.value), bool2int(dev.S.value), bool2int(dev.Q.value), bool2int(dev.Qbar.value))
+            print(f'{i+1:2}: ', bool2int(dev.R.status), bool2int(dev.S.status), bool2int(dev.Q.status), bool2int(dev.Qbar.status))
         print('')
-        self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == LOW)
+        self.assertTrue(dev.Q.status == HIGH and dev.Qbar.status == OPEN)
 
     def test_reset(self):
         dev = RSFlipFlop('dev2')
 
-        dev.set_input(R=HIGH, S=LOW)
+        dev.set_input(R=HIGH, S=OPEN)
         for i in range(self.nRepeat):
             dev.step()
-            print(f'{i+1:2}: ', bool2int(dev.R.value), bool2int(dev.S.value), bool2int(dev.Q.value), bool2int(dev.Qbar.value))
+            print(f'{i+1:2}: ', bool2int(dev.R.status), bool2int(dev.S.status), bool2int(dev.Q.status), bool2int(dev.Qbar.status))
         print('')
-        self.assertTrue(dev.Q.value == LOW and dev.Qbar.value == HIGH)
+        self.assertTrue(dev.Q.status == OPEN and dev.Qbar.status == HIGH)
 
-        dev.set_input(R=LOW, S=LOW)
+        dev.set_input(R=OPEN, S=OPEN)
         for i in range(self.nRepeat):
             dev.step()
-            print(f'{i+1:2}: ', bool2int(dev.R.value), bool2int(dev.S.value), bool2int(dev.Q.value), bool2int(dev.Qbar.value))
+            print(f'{i+1:2}: ', bool2int(dev.R.status), bool2int(dev.S.status), bool2int(dev.Q.status), bool2int(dev.Qbar.status))
         print('')
-        self.assertTrue(dev.Q.value == LOW and dev.Qbar.value == HIGH)
+        self.assertTrue(dev.Q.status == OPEN and dev.Qbar.status == HIGH)
 
 if __name__ == '__main__':
     unittest.main()

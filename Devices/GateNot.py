@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
-from BitValue import *
+from EStatus import *
 from Util import *
 from Device import Device
 from Power import Power
@@ -33,7 +33,7 @@ class GateNot(Device):
         self.sw.set_state(sw)
     
     def get_output(self):
-        return self.rly.ru.value
+        return self.rly.ru.status
     
     def calc_output(self):
         self.sw.calc_output()
@@ -47,7 +47,7 @@ class GateNot(Device):
 class TestGateNot(unittest.TestCase):
     def test_F(self):
         gate = GateNot('gate1')
-        gate.set_input(LOW)
+        gate.set_input(OPEN)
         gate.calc_output()
         gate.update()
         gate.calc_output()
@@ -61,7 +61,7 @@ class TestGateNot(unittest.TestCase):
         gate.calc_output()
         gate.update()
         gate.calc_output()
-        self.assertEqual(gate.get_output(), LOW)
+        self.assertEqual(gate.get_output(), OPEN)
         print(gate)
         gate.update()
 
