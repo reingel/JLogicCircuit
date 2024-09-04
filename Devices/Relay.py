@@ -26,8 +26,8 @@ class Relay(Device):
         return f'Relay({self.name}, [le up ru rd] = {bool2int(port_volts)}, X = {bool2int(self.X)})'
     
     def calc_output(self):
-        self.up.update()
-        self.le.update()
+        self.up.update_status()
+        self.le.update_status()
         if self.X == HIGH: # coil is charged
             self.ru.status = OPEN
             self.rd.status = self.up.status
@@ -36,7 +36,7 @@ class Relay(Device):
             self.rd.status = OPEN
         
         
-    def update(self):
+    def update_state(self):
         self.X = self.le.status # next coil voltage = current coil high voltage
 
 
@@ -47,15 +47,15 @@ if __name__ == '__main__':
     rly.le.status = HIGH
     rly.calc_output()
     print(rly)
-    rly.update()
+    rly.update_state()
     rly.calc_output()
     print(rly)
-    rly.update()
+    rly.update_state()
 
     rly.le.status = OPEN
     rly.calc_output()
     print(rly)
-    rly.update()
+    rly.update_state()
     rly.calc_output()
     print(rly)
-    rly.update()
+    rly.update_state()

@@ -33,7 +33,7 @@ class Port:
     def __rshift__(self, port):
         self.__connect(port)
     
-    def update(self):
+    def update_status(self):
         if self.connected:
             self.status = self.connected.status
 

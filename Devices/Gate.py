@@ -25,9 +25,9 @@ class Gate(Device):
         for device in self.devices:
             device.calc_output()
         
-    def update(self):
+    def update_state(self):
         for device in self.devices:
-            device.update()
+            device.update_state()
 
 
 class And(Gate):

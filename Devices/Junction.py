@@ -19,8 +19,8 @@ class Junction(Device):
         return f'Junction(lu = {self.lu.status}, ld = {self.ld.status}, ri = {self.ri.status})'
     
     def calc_output(self):
-        self.lu.update()
-        self.ld.update()
+        self.lu.update_status()
+        self.ld.update_status()
         if self.lu.status == OPEN and self.ld.status == OPEN:
             self.ri.status = OPEN
         elif (self.lu.status == HIGH and self.ld.status == OPEN) or \
@@ -30,7 +30,7 @@ class Junction(Device):
         else:
             raise(RuntimeError)
     
-    def update(self):
+    def update_state(self):
         pass # there is no state.
 
 if __name__ == '__main__':

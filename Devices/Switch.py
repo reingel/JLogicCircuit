@@ -31,13 +31,13 @@ class Switch(Device):
         self.__state = state
     
     def calc_output(self):
-        self.le.update()
+        self.le.update_status()
         if self.state: # switch on
             self.ri.status = self.le.status
         else: # switch off
             self.ri.status = OPEN
     
-    def update(self):
+    def update_state(self):
         pass # there is no state.
 
 if __name__ == '__main__':

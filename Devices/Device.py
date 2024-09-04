@@ -14,10 +14,10 @@ class Device:
         pass
 
     @abstractmethod
-    def update(self):
+    def update_state(self):
         pass
 
     def step(self, n=1):
         for i in range(n):
             self.calc_output()
-            self.update()
+            self.update_state()

@@ -17,7 +17,7 @@ class Power(Source):
     def calc_output(self):
         self.ri.status = HIGH
 
-    def update(self):
+    def update_state(self):
         pass
 
 if __name__ == '__main__':

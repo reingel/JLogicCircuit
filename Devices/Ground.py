@@ -18,7 +18,7 @@ class Ground(Sink):
     def calc_output(self):
         pass
 
-    def update(self):
+    def update_state(self):
         self.le.status = OPEN
 
 if __name__ == '__main__':

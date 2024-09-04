@@ -15,7 +15,7 @@ class Source(Device):
     def calc_output(self):
         pass
 
-    def update(self):
+    def update_state(self):
         pass
 
 if __name__ == '__main__':

@@ -40,16 +40,16 @@ class RSFlipFlop(Device):
         return [self.Q.status, self.Qbar.status]
     
     def calc_output(self):
-        # self.nor1.in1.update()
-        # self.nor1.in2.update()
-        # self.nor2.in1.update()
-        # self.nor2.in2.update()
+        # self.nor1.in1.update_state()
+        # self.nor1.in2.update_state()
+        # self.nor2.in1.update_state()
+        # self.nor2.in2.update_state()
         self.nor1.calc_output()
         self.nor2.calc_output()
         
-    def update(self):
-        self.nor1.update()
-        self.nor2.update()
+    def update_state(self):
+        self.nor1.update_state()
+        self.nor2.update_state()
 
 
 class TestRSFlipFlop(unittest.TestCase):
