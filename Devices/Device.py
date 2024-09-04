@@ -4,8 +4,7 @@ from abc import *
 class Device:
     def __init__(self, name):
         self.name = name
-        self.step()
-        self.step()
+        self.step(n=2)
 
     def __repr__(self):
         return f'Device({self.name})'
@@ -18,7 +17,7 @@ class Device:
     def update(self):
         pass
 
-    def step(self):
-        for i in range(2):
+    def step(self, n=1):
+        for i in range(n):
             self.calc_output()
             self.update()

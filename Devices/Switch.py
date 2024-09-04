@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from BitValue import *
+from EStatus import *
 from Util import *
 from Device import Device
 from Port import Port
@@ -10,7 +10,7 @@ from Relay import Relay
 
 class Switch(Device):
     def __init__(self, name):
-        self.__state = LOW # open
+        self.__state = OPEN # open
 
         self.le = Port('le', self)
         self.ri = Port('ri', self)
@@ -33,9 +33,9 @@ class Switch(Device):
     def calc_output(self):
         self.le.update()
         if self.state: # switch on
-            self.ri.set_value(self.le.value)
+            self.ri.status = self.le.status
         else: # switch off
-            self.ri.set_value(LOW)
+            self.ri.status = OPEN
     
     def update(self):
         pass # there is no state.
@@ -47,5 +47,5 @@ if __name__ == '__main__':
     print(sw)
     sw.invert()
     print(sw)
-    sw.set_state(LOW)
+    sw.set_state(OPEN)
     print(sw)

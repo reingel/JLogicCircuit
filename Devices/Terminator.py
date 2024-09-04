@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from BitValue import *
+from EStatus import *
 from Util import *
 from Device import Device
 from Sink import Sink
@@ -9,7 +9,7 @@ from Port import Port
 
 class Terminator(Sink):
     def __init__(self, name):
-        self.le = Port('le', self, LOW)
+        self.le = Port('le', self, OPEN)
         super().__init__(name)
 
     def __repr__(self):

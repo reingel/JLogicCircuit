@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from BitValue import *
+from EStatus import *
 from Util import *
 from Device import Device
 from Port import Port
@@ -8,7 +8,7 @@ from Source import Source
 from Ground import Ground
 
 class Relay(Device):
-    def __init__(self, name, init_charge=LOW):
+    def __init__(self, name, init_charge=OPEN):
         # create ports
         self.le = Port('le', self)
         self.up = Port('up', self)
@@ -21,30 +21,30 @@ class Relay(Device):
         super().__init__(name)
 
     def __repr__(self):
-        # return f'Relay(up = {bool2int(self.up.value)}, le = {bool2int(self.le.value)}, ru = {bool2int(self.ru.value)}, rd = {bool2int(self.rd.value)})'
-        port_volts = np.array([self.le.value, self.up.value, self.ru.value, self.rd.value])
+        # return f'Relay(up = {bool2int(self.up.status)}, le = {bool2int(self.le.status)}, ru = {bool2int(self.ru.status)}, rd = {bool2int(self.rd.status)})'
+        port_volts = np.array([self.le.status, self.up.status, self.ru.status, self.rd.status])
         return f'Relay({self.name}, [le up ru rd] = {bool2int(port_volts)}, X = {bool2int(self.X)})'
     
     def calc_output(self):
         self.up.update()
         self.le.update()
         if self.X == HIGH: # coil is charged
-            self.ru.set_value(LOW)
-            self.rd.set_value(self.up.value)
+            self.ru.status = OPEN
+            self.rd.status = self.up.status
         else: # coil is discharged
-            self.ru.set_value(self.up.value)
-            self.rd.set_value(LOW)
+            self.ru.status = self.up.status
+            self.rd.status = OPEN
         
         
     def update(self):
-        self.X = self.le.value # next coil voltage = current coil high voltage
+        self.X = self.le.status # next coil voltage = current coil high voltage
 
 
 if __name__ == '__main__':
     rly = Relay('rly')
-    rly.up.set_value(HIGH)
+    rly.up.status = HIGH
 
-    rly.le.set_value(HIGH)
+    rly.le.status = HIGH
     rly.calc_output()
     print(rly)
     rly.update()
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     print(rly)
     rly.update()
 
-    rly.le.set_value(LOW)
+    rly.le.status = OPEN
     rly.calc_output()
     print(rly)
     rly.update()

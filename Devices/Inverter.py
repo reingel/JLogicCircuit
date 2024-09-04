@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
-from BitValue import *
+from EStatus import *
 from Util import *
 from Device import Device
 from Power import Power
@@ -38,7 +38,7 @@ class Inverter(Device):
         return self.sw.state
     
     def get_output(self):
-        return self.rly.ru.value
+        return self.rly.ru.status
     
     def calc_output(self):
         self.sw.calc_output()
@@ -52,7 +52,7 @@ class Inverter(Device):
 class TestInverter(unittest.TestCase):
     def test_F(self):
         gate = Inverter('gate1')
-        gate.set_input(LOW)
+        gate.set_input(OPEN)
         gate.step()
         gate.step()
         gate.step()
@@ -62,10 +62,10 @@ class TestInverter(unittest.TestCase):
     def test_T(self):
         gate = Inverter('gate2')
         gate.set_input(HIGH)
-        print(bool2int(gate.rly.X), bool2int(gate.out.value))
+        print(bool2int(gate.rly.X), bool2int(gate.out.status))
         for i in range(10):
             gate.step()
-            print(bool2int(gate.rly.X), bool2int(gate.out.value))
+            print(bool2int(gate.rly.X), bool2int(gate.out.status))
 
 if __name__ == '__main__':
     unittest.main()

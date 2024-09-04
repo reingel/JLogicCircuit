@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from BitValue import *
+from EStatus import *
 from Util import *
 from Device import Device
 from Source import Source
@@ -15,7 +15,7 @@ class Power(Source):
         return f"Power({self.name})"
     
     def calc_output(self):
-        self.ri.set_value(HIGH)
+        self.ri.status = HIGH
 
     def update(self):
         pass
