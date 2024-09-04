@@ -126,9 +126,9 @@ class Nor(Gate):
         super().__init__(name)
 
 
-class Not(Gate):
+class Inverter(Gate):
     def __init__(self, name):
-        self.device_name = 'Not'
+        self.device_name = 'Inverter'
 
         # creat devices
         self.pwr = Power('pwr')
@@ -193,8 +193,8 @@ class TestGate(unittest.TestCase):
                 print(gate)
                 self.assertEqual(gate.get_output(), truth_table[in1][in2])
 
-    def test_Not(self):
-        gate = Not('not1')
+    def test_Inverter(self):
+        gate = Inverter('inverter1')
         truth_table = [HIGH, OPEN]
         for in1 in [OPEN, HIGH]:
             gate.set_input(in1)
