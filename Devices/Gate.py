@@ -126,6 +126,32 @@ class Nor(Gate):
         super().__init__(name)
 
 
+class Buffer(Gate):
+    def __init__(self, name):
+        self.device_name = 'Buffer'
+
+        # creat devices
+        self.pwr = Power('pwr')
+        self.rly = Relay('rly')
+        self.devices = [self.pwr, self.rly]
+
+        # connect
+        self.pwr.ri >> self.rly.up
+
+        # create access points
+        self.in1 = self.rly.le
+        self.out = self.rly.rd
+    
+        super().__init__(name)
+    
+    def __repr__(self):
+        return f'{self.device_name}({self.name}, in = {self.in1.status}, out = {self.out.status})'
+
+    def set_input(self, v1: EStatus):
+        if self.in1:
+            self.in1.status = v1
+
+
 class Inverter(Gate):
     def __init__(self, name):
         self.device_name = 'Inverter'
@@ -192,6 +218,15 @@ class TestGate(unittest.TestCase):
                 gate.step(n=2)
                 print(gate)
                 self.assertEqual(gate.get_output(), truth_table[in1][in2])
+
+    def test_Buffer(self):
+        gate = Buffer('buffer1')
+        truth_table = [OPEN, HIGH]
+        for in1 in [OPEN, HIGH]:
+            gate.set_input(in1)
+            gate.step(n=2)
+            print(gate)
+            self.assertEqual(gate.get_output(), truth_table[in1])
 
     def test_Inverter(self):
         gate = Inverter('inverter1')
