@@ -35,7 +35,6 @@ class Relay(Device):
             self.ru.status = self.up.status
             self.rd.status = OPEN
         
-        
     def update_state(self):
         self.X = self.le.status # next coil voltage = current coil high voltage
 
