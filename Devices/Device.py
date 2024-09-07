@@ -2,12 +2,14 @@ from abc import *
 
 
 class Device:
-    def __init__(self, name):
+    def __init__(self, device_name, name, n=2):
+        self.device_name = device_name
         self.name = name
-        self.step(n=2)
+
+        self.step(n)
 
     def __repr__(self):
-        return f'Device({self.name})'
+        return f'{self.device_name}({self.name})'
 
     # @abstractmethod
     # def calc_output(self):

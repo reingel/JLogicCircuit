@@ -1,18 +1,19 @@
-import numpy as np
-import matplotlib.pyplot as plt
+import unittest
 from EStatus import *
-from Util import *
 from Device import Device
-from Source import Source
 from Port import Port
 
-class Power(Source):
+
+class Power(Device):
     def __init__(self, name):
         self.ri = Port('ri', self, HIGH)
-        super().__init__(name)
+
+        self.out = self.ri
+
+        super().__init__('Power', name)
 
     def __repr__(self):
-        return f"Power({self.name})"
+        return f"Power({self.name}, {self.out.status} -> )"
     
     def calc_output(self):
         self.ri.status = HIGH
@@ -20,6 +21,12 @@ class Power(Source):
     def update_state(self):
         pass
 
+
+class TestPower(unittest.TestCase):
+    def test_power(self):
+        pwr = Power('pwr1')
+        print(pwr)
+
+
 if __name__ == '__main__':
-    pwr = Power('pwr1')
-    print(pwr)
+    unittest.main()

@@ -1,34 +1,36 @@
-import numpy as np
-import matplotlib.pyplot as plt
+import unittest
 from EStatus import *
-from Util import *
 from Device import Device
 from Port import Port
-from Source import Source
-from Ground import Ground
+from Source import Power
 from Relay import Relay
 
 class Switch(Device):
     def __init__(self, name):
-        self.__state = OPEN # open
+        self.state = OPEN # open
 
         self.le = Port('le', self)
         self.ri = Port('ri', self)
 
-        super().__init__(name)
+        # create access points
+        self.in1 = self.le
+        self.out = self.ri
+
+        super().__init__('Switch', name)
     
     def __repr__(self):
-        return f'Switch(state = {bool2int(self.state)}, le = {self.le}, ri = {self.ri})'
-    
-    @property
-    def state(self):
-        return self.__state
+        return f'Switch({self.le.status} -> [{self.state}] -> {self.ri.status})'
     
     def invert(self):
-        self.__state = not self.state
+        if self.state == HIGH:
+            self.state = OPEN
+        elif self.state == OPEN:
+            self.state = HIGH
+        else:
+            raise(RuntimeError)
     
     def set_state(self, state):
-        self.__state = state
+        self.state = state
     
     def calc_output(self):
         self.le.update_status()
@@ -40,12 +42,19 @@ class Switch(Device):
     def update_state(self):
         pass # there is no state.
 
+class TestSwitch(unittest.TestCase):
+    def test_switch(self):
+        sw = Switch('sw1')
+        pwr = Power('pwr1')
+        sw.le.connect(pwr.ri)
+        sw.step()
+        print(sw)
+        sw.invert()
+        sw.step()
+        print(sw)
+        sw.set_state(OPEN)
+        sw.step()
+        print(sw)
+
 if __name__ == '__main__':
-    sw = Switch('sw1')
-    src = Source('src1')
-    sw.le.connect(src.ri)
-    print(sw)
-    sw.invert()
-    print(sw)
-    sw.set_state(OPEN)
-    print(sw)
+    unittest.main()

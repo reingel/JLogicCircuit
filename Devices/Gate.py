@@ -1,16 +1,16 @@
 import unittest
 from EStatus import *
 from Device import Device
-from Power import Power
+from Source import Power
 from Relay import Relay
-from Junction import Junction
+from Connection import Junction
 
 class Gate(Device):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, device_name, name):
+        super().__init__(device_name, name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, in = [{self.in1.status} {self.in2.status}], out = {self.out.status})'
+        return f'{self.device_name}({self.name}, [{self.in1.status} {self.in2.status}] -> {self.out.status})'
 
     def set_input(self, v1: EStatus, v2: EStatus):
         if self.in1 and self.in2:
@@ -20,14 +20,6 @@ class Gate(Device):
     def get_output(self):
         if self.out:
             return self.out.status
-
-    def calc_output(self):
-        for device in self.devices:
-            device.calc_output()
-        
-    def update_state(self):
-        for device in self.devices:
-            device.update_state()
 
 
 class And(Gate):
@@ -49,7 +41,7 @@ class And(Gate):
         self.in2 = self.rly2.le
         self.out = self.rly2.rd
     
-        super().__init__(name)
+        super().__init__('And', name)
 
 
 class Or(Gate):
@@ -75,7 +67,7 @@ class Or(Gate):
         self.in2 = self.rly2.le
         self.out = self.jnc.ri
     
-        super().__init__(name)
+        super().__init__('Or', name)
 
 
 class Nand(Gate):
@@ -101,7 +93,7 @@ class Nand(Gate):
         self.in2 = self.rly2.le
         self.out = self.jnc.ri
     
-        super().__init__(name)
+        super().__init__('Nand', name)
 
 
 class Nor(Gate):
@@ -123,7 +115,7 @@ class Nor(Gate):
         self.in2 = self.rly2.le
         self.out = self.rly2.ru
     
-        super().__init__(name)
+        super().__init__('Nor', name)
 
 
 class Buffer(Gate):
@@ -142,10 +134,10 @@ class Buffer(Gate):
         self.in1 = self.rly.le
         self.out = self.rly.rd
     
-        super().__init__(name)
+        super().__init__('Buffer', name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, in = {self.in1.status}, out = {self.out.status})'
+        return f'{self.device_name}({self.name}, {self.in1.status} -> {self.out.status})'
 
     def set_input(self, v1: EStatus):
         if self.in1:
@@ -168,10 +160,10 @@ class Inverter(Gate):
         self.in1 = self.rly.le
         self.out = self.rly.ru
     
-        super().__init__(name)
+        super().__init__('Inverter', name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, in = {self.in1.status}, out = {self.out.status})'
+        return f'{self.device_name}({self.name}, {self.in1.status} -> {self.out.status})'
 
     def set_input(self, v1: EStatus):
         if self.in1:

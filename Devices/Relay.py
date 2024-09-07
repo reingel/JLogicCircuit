@@ -1,11 +1,8 @@
-import numpy as np
-import matplotlib.pyplot as plt
+import unittest
 from EStatus import *
-from Util import *
 from Device import Device
 from Port import Port
-from Source import Source
-from Ground import Ground
+from Source import Power
 
 class Relay(Device):
     def __init__(self, name, init_charge=OPEN):
@@ -18,12 +15,10 @@ class Relay(Device):
         # internal states
         self.X = init_charge
 
-        super().__init__(name)
+        super().__init__('Relay', name)
 
     def __repr__(self):
-        # return f'Relay(up = {bool2int(self.up.status)}, le = {bool2int(self.le.status)}, ru = {bool2int(self.ru.status)}, rd = {bool2int(self.rd.status)})'
-        port_volts = np.array([self.le.status, self.up.status, self.ru.status, self.rd.status])
-        return f'Relay({self.name}, [le up ru rd] = {bool2int(port_volts)}, X = {bool2int(self.X)})'
+        return f'Relay({self.name}, up = {self.up.status}, [X ru rd] = [{self.X} {self.ru.status} {self.rd.status}], le = {self.le.status})'
     
     def calc_output(self):
         self.up.update_status()
@@ -38,23 +33,26 @@ class Relay(Device):
     def update_state(self):
         self.X = self.le.status # next coil voltage = current coil high voltage
 
+class TestRelay(unittest.TestCase):
+    def test_relay(self):
+        rly = Relay('rly')
+        rly.up.status = HIGH
+
+        rly.le.status = HIGH
+        rly.calc_output()
+        print(rly)
+        rly.update_state()
+        rly.calc_output()
+        print(rly)
+        rly.update_state()
+
+        rly.le.status = OPEN
+        rly.calc_output()
+        print(rly)
+        rly.update_state()
+        rly.calc_output()
+        print(rly)
+        rly.update_state()
 
 if __name__ == '__main__':
-    rly = Relay('rly')
-    rly.up.status = HIGH
-
-    rly.le.status = HIGH
-    rly.calc_output()
-    print(rly)
-    rly.update_state()
-    rly.calc_output()
-    print(rly)
-    rly.update_state()
-
-    rly.le.status = OPEN
-    rly.calc_output()
-    print(rly)
-    rly.update_state()
-    rly.calc_output()
-    print(rly)
-    rly.update_state()
+    unittest.main()

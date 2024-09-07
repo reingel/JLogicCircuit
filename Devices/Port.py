@@ -1,47 +1,47 @@
+import unittest
 from EStatus import *
-from Util import *
 from Device import Device
 
 
 class Port:
     def __init__(self, name: str, parent: Device, status=OPEN):
-        self.__name = name
-        self.__parent = parent
+        self.name = name
+        self.parent = parent
         self.status = status
-        self.__connected = []
+        self.connected = []
 
     def __repr__(self):
-        return f'Port({self.__parent.name}.{self.name}, status = {bool2int(self.status)})'
-
-    @property
-    def name(self):
-        return self.__name
+        str = f'Port({self.parent.name}.{self.name}, {self.status})'
+        if self.connected:
+            str += f' <---> Port({self.connected.parent.name}.{self.connected.name}, status = {self.connected.status})'
+        return str
     
-    @property
-    def connected(self):
-        return self.__connected
-    
-    def __connect(self, port):
+    def connect(self, port):
         if self.connected:
             return
         if isinstance(port, Port):
-            self.__connected = port
+            self.connected = port
         else:
             raise(RuntimeError)
-        port.__connect(self)
+        port.connect(self)
     
     def __rshift__(self, port):
-        self.__connect(port)
+        self.connect(port)
     
     def update_status(self):
         if self.connected:
             self.status = self.connected.status
 
 
+class TestRelay(unittest.TestCase):
+    def test_relay(self):
+        dev1 = Device('device', 'dev1')
+        dev2 = Device('device', 'dev2')
+        p1 = Port('p1', dev1, OPEN)
+        p2 = Port('p2', dev2, HIGH)
+        p1 >> p2
+        print(p1)
+        print(p2)
+
 if __name__ == '__main__':
-    dev1 = Device('dev1')
-    p1 = Port('p1', dev1, OPEN)
-    p2 = Port('p2', dev1, HIGH)
-    p1 >> p2
-    print(p1)
-    print(p2)
+    unittest.main()

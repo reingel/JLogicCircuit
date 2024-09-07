@@ -1,9 +1,9 @@
 import unittest
 from EStatus import *
 from Device import Device
-from Power import Power
+from Source import Power
 from Relay import Relay
-from Split import Split
+from Connection import Split
 from Gate import And, Nor, Inverter
 
 class RSFlipFlop(Device):
@@ -15,6 +15,11 @@ class RSFlipFlop(Device):
         self.nor2 = Nor('nor2')
         self.devices = [self.nor1, self.nor2]
 
+        # initialize
+        self.nor1.in1.status = HIGH
+        self.nor2.in2.status = OPEN
+        self.step(n=4)
+
         # connect
         self.nor1.out >> self.nor2.in1
         self.nor2.out >> self.nor1.in2
@@ -25,14 +30,14 @@ class RSFlipFlop(Device):
         self.Q = self.nor1.out
         self.Qbar = self.nor2.out
 
-        super().__init__(name)
+        super().__init__('RSFlipFlop', name)
     
     def __repr__(self):
         return f'RSFlipFlop({self.name}, [S R Q Qbar] = [{self.S.status} {self.R.status} {self.Q.status} {self.Qbar.status}]'
 
-    def set_input(self, R, S):
-        self.R.status = R
+    def set_input(self, S, R):
         self.S.status = S
+        self.R.status = R
     
     def get_output(self):
         return self.Q.status
@@ -66,7 +71,7 @@ class LevelTriggeredDtypeFlipFlip(Device):
         self.Q = self.rsff.Q
         self.Qbar = self.rsff.Qbar
 
-        super().__init__(name)
+        super().__init__('LevelTriggeredDtypeFlipFlip', name)
     
     def __repr__(self):
         return f'LevelTriggeredDtypeFlipFlip({self.name}, [D Clk Q Qbar] = [{self.D.status} {self.Clk.status} {self.Q.status} {self.Qbar.status}]'
@@ -77,26 +82,29 @@ class TestRSFlipFlop(unittest.TestCase):
 
     def test_set(self):
         dev = RSFlipFlop('dev1')
+        print('init', dev)
 
-        dev.set_input(R=OPEN, S=HIGH)
+        dev.set_input(S=HIGH, R=OPEN)
         dev.step(n=self.nRepeat)
         print(dev)
         self.assertTrue(dev.Q.status == HIGH and dev.Qbar.status == OPEN)
 
-        dev.set_input(R=OPEN, S=OPEN)
+        dev.set_input(S=OPEN, R=OPEN)
         dev.step(n=self.nRepeat)
         print(dev)
         self.assertTrue(dev.Q.status == HIGH and dev.Qbar.status == OPEN)
 
     def test_reset(self):
         dev = RSFlipFlop('dev2')
+        print('init', dev)
 
-        dev.set_input(R=HIGH, S=OPEN)
+
+        dev.set_input(S=OPEN, R=HIGH)
         dev.step(n=self.nRepeat)
         print(dev)
         self.assertTrue(dev.Q.status == OPEN and dev.Qbar.status == HIGH)
 
-        dev.set_input(R=OPEN, S=OPEN)
+        dev.set_input(S=OPEN, R=OPEN)
         dev.step(n=self.nRepeat)
         print(dev)
         self.assertTrue(dev.Q.status == OPEN and dev.Qbar.status == HIGH)
@@ -116,15 +124,20 @@ class TestLevelTriggeredDtypeFlipFlop(unittest.TestCase):
         print(ff)
         self.assertTrue(ff.Q.status == HIGH and ff.Qbar.status == OPEN)
 
-        ff.Clk.status = OPEN
-        ff.step(n=6)
-        print(ff)
-        self.assertTrue(ff.Q.status == HIGH and ff.Qbar.status == OPEN)
-
         ff.D.status = OPEN
         ff.step(n=6)
         print(ff)
-        self.assertTrue(ff.Q.status == HIGH and ff.Qbar.status == OPEN)
+        self.assertTrue(ff.Q.status == OPEN and ff.Qbar.status == HIGH)
+
+        ff.Clk.status = OPEN
+        ff.step(n=6)
+        print(ff)
+        self.assertTrue(ff.Q.status == OPEN and ff.Qbar.status == HIGH)
+
+        ff.D.status = HIGH
+        ff.step(n=6)
+        print(ff)
+        self.assertTrue(ff.Q.status == OPEN and ff.Qbar.status == HIGH)
 
 
 if __name__ == '__main__':
