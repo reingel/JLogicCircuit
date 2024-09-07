@@ -22,11 +22,11 @@ class Power(Device):
         pass
 
 
-class TestPower(unittest.TestCase):
+
+class TestSource(unittest.TestCase):
     def test_power(self):
         pwr = Power('pwr1')
         print(pwr)
-
 
 if __name__ == '__main__':
     unittest.main()
