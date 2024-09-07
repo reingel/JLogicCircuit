@@ -1,19 +1,19 @@
 import unittest
-from EStatus import *
+from BitValue import *
 from Device import Device
 
 
 class Port:
-    def __init__(self, name: str, parent: Device, status=OPEN):
+    def __init__(self, name: str, parent: Device, value=OPEN):
         self.name = name
         self.parent = parent
-        self.status = status
+        self.value = value
         self.connected = []
 
     def __repr__(self):
-        str = f'Port({self.parent.name}.{self.name}, {self.status})'
+        str = f'Port({self.parent.name}.{self.name}, {self.value})'
         if self.connected:
-            str += f' <---> Port({self.connected.parent.name}.{self.connected.name}, status = {self.connected.status})'
+            str += f' <---> Port({self.connected.parent.name}.{self.connected.name}, value = {self.connected.value})'
         return str
     
     def connect(self, port):
@@ -30,7 +30,7 @@ class Port:
     
     def update_status(self):
         if self.connected:
-            self.status = self.connected.status
+            self.value = self.connected.value
 
 
 class TestRelay(unittest.TestCase):

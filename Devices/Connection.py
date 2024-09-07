@@ -1,5 +1,5 @@
 import unittest
-from EStatus import *
+from BitValue import *
 from Device import Device
 from Port import Port
 
@@ -31,12 +31,12 @@ class Split(Connection):
         super().__init__()
 
     def __repr__(self):
-        return f'Split({self.in1.status} -> {self.out1.status} + {self.out2.status})'
+        return f'Split({self.in1.value} -> {self.out1.value} + {self.out2.value})'
     
     def calc_output(self):
         self.le.update_status()
-        self.ru.status = self.le.status
-        self.rd.status = self.le.status
+        self.ru.value = self.le.value
+        self.rd.value = self.le.value
     
     def update_state(self):
         pass # there is no state.
@@ -59,17 +59,17 @@ class Junction(Connection):
         super().__init__()
     
     def __repr__(self):
-        return f'Junction({self.in1.status} + {self.in2.status} -> {self.out.status})'
+        return f'Junction({self.in1.value} + {self.in2.value} -> {self.out.value})'
     
     def calc_output(self):
         self.lu.update_status()
         self.ld.update_status()
-        if self.lu.status == OPEN and self.ld.status == OPEN:
-            self.ri.status = OPEN
-        elif (self.lu.status == HIGH and self.ld.status == OPEN) or \
-            (self.lu.status == OPEN and self.ld.status == HIGH) or \
-            (self.lu.status == HIGH and self.ld.status == HIGH):
-            self.ri.status = HIGH
+        if self.lu.value == OPEN and self.ld.value == OPEN:
+            self.ri.value = OPEN
+        elif (self.lu.value == HIGH and self.ld.value == OPEN) or \
+            (self.lu.value == OPEN and self.ld.value == HIGH) or \
+            (self.lu.value == HIGH and self.ld.value == HIGH):
+            self.ri.value = HIGH
         else:
             raise(RuntimeError)
     
@@ -81,10 +81,10 @@ class TestConnection(unittest.TestCase):
     def test_split(self):
         spl = Split('spl1')
         print(spl)
-        spl.in1.status = HIGH
+        spl.in1.value = HIGH
         spl.step()
         print(spl)
-        spl.in1.status = OPEN
+        spl.in1.value = OPEN
         spl.step()
         print(spl)
 
@@ -92,16 +92,16 @@ class TestConnection(unittest.TestCase):
     def test_junction(self):
         jnc = Junction('jnc1')
         print(jnc)
-        jnc.in1.status = HIGH
+        jnc.in1.value = HIGH
         jnc.step()
         print(jnc)
-        jnc.in2.status = HIGH
+        jnc.in2.value = HIGH
         jnc.step()
         print(jnc)
-        jnc.in1.status = OPEN
+        jnc.in1.value = OPEN
         jnc.step()
         print(jnc)
-        jnc.in2.status = OPEN
+        jnc.in2.value = OPEN
         jnc.step()
         print(jnc)
 

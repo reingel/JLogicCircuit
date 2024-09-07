@@ -1,5 +1,5 @@
 import unittest
-from EStatus import *
+from BitValue import *
 from Device import Device
 from Source import Power
 from Relay import Relay
@@ -16,8 +16,8 @@ class RSFlipFlop(Device):
         self.devices = [self.nor1, self.nor2]
 
         # initialize
-        self.nor1.in1.status = HIGH
-        self.nor2.in2.status = OPEN
+        self.nor1.in1.value = HIGH
+        self.nor2.in2.value = OPEN
         self.step(n=4)
 
         # connect
@@ -33,14 +33,14 @@ class RSFlipFlop(Device):
         super().__init__('RSFlipFlop', name)
     
     def __repr__(self):
-        return f'RSFlipFlop({self.name}, [S R Q Qbar] = [{self.S.status} {self.R.status} {self.Q.status} {self.Qbar.status}]'
+        return f'RSFlipFlop({self.name}, [S R Q Qbar] = [{self.S.value} {self.R.value} {self.Q.value} {self.Qbar.value}]'
 
     def set_input(self, S, R):
-        self.S.status = S
-        self.R.status = R
+        self.S.value = S
+        self.R.value = R
     
     def get_output(self):
-        return self.Q.status
+        return self.Q.value
 
 
 class LevelTriggeredDtypeFlipFlip(Device):
@@ -74,7 +74,7 @@ class LevelTriggeredDtypeFlipFlip(Device):
         super().__init__('LevelTriggeredDtypeFlipFlip', name)
     
     def __repr__(self):
-        return f'LevelTriggeredDtypeFlipFlip({self.name}, [D Clk Q Qbar] = [{self.D.status} {self.Clk.status} {self.Q.status} {self.Qbar.status}]'
+        return f'LevelTriggeredDtypeFlipFlip({self.name}, [D Clk Q Qbar] = [{self.D.value} {self.Clk.value} {self.Q.value} {self.Qbar.value}]'
 
 
 class TestRSFlipFlop(unittest.TestCase):
@@ -87,12 +87,12 @@ class TestRSFlipFlop(unittest.TestCase):
         dev.set_input(S=HIGH, R=OPEN)
         dev.step(n=self.nRepeat)
         print(dev)
-        self.assertTrue(dev.Q.status == HIGH and dev.Qbar.status == OPEN)
+        self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == OPEN)
 
         dev.set_input(S=OPEN, R=OPEN)
         dev.step(n=self.nRepeat)
         print(dev)
-        self.assertTrue(dev.Q.status == HIGH and dev.Qbar.status == OPEN)
+        self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == OPEN)
 
     def test_reset(self):
         dev = RSFlipFlop('dev2')
@@ -102,42 +102,42 @@ class TestRSFlipFlop(unittest.TestCase):
         dev.set_input(S=OPEN, R=HIGH)
         dev.step(n=self.nRepeat)
         print(dev)
-        self.assertTrue(dev.Q.status == OPEN and dev.Qbar.status == HIGH)
+        self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
 
         dev.set_input(S=OPEN, R=OPEN)
         dev.step(n=self.nRepeat)
         print(dev)
-        self.assertTrue(dev.Q.status == OPEN and dev.Qbar.status == HIGH)
+        self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
 
 class TestLevelTriggeredDtypeFlipFlop(unittest.TestCase):
     def test_ltdff(self):
         ff = LevelTriggeredDtypeFlipFlip('ltdff')
 
-        ff.D.status = OPEN
-        ff.Clk.status = HIGH
+        ff.D.value = OPEN
+        ff.Clk.value = HIGH
         ff.step(n=4)
         print(ff)
-        self.assertTrue(ff.Q.status == OPEN and ff.Qbar.status == HIGH)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-        ff.D.status = HIGH
+        ff.D.value = HIGH
         ff.step(n=6)
         print(ff)
-        self.assertTrue(ff.Q.status == HIGH and ff.Qbar.status == OPEN)
+        self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
 
-        ff.D.status = OPEN
+        ff.D.value = OPEN
         ff.step(n=6)
         print(ff)
-        self.assertTrue(ff.Q.status == OPEN and ff.Qbar.status == HIGH)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-        ff.Clk.status = OPEN
+        ff.Clk.value = OPEN
         ff.step(n=6)
         print(ff)
-        self.assertTrue(ff.Q.status == OPEN and ff.Qbar.status == HIGH)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-        ff.D.status = HIGH
+        ff.D.value = HIGH
         ff.step(n=6)
         print(ff)
-        self.assertTrue(ff.Q.status == OPEN and ff.Qbar.status == HIGH)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
 
 if __name__ == '__main__':

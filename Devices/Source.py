@@ -1,5 +1,5 @@
 import unittest
-from EStatus import *
+from BitValue import *
 from Device import Device
 from Port import Port
 
@@ -13,10 +13,10 @@ class Power(Device):
         super().__init__('Power', name)
 
     def __repr__(self):
-        return f"Power({self.name}, {self.out.status} -> )"
+        return f"Power({self.name}, {self.out.value} -> )"
     
     def calc_output(self):
-        self.ri.status = HIGH
+        self.ri.value = HIGH
 
     def update_state(self):
         pass

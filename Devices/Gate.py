@@ -1,5 +1,5 @@
 import unittest
-from EStatus import *
+from BitValue import *
 from Device import Device
 from Source import Power
 from Relay import Relay
@@ -10,16 +10,16 @@ class Gate(Device):
         super().__init__(device_name, name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, [{self.in1.status} {self.in2.status}] -> {self.out.status})'
+        return f'{self.device_name}({self.name}, [{self.in1.value} {self.in2.value}] -> {self.out.value})'
 
-    def set_input(self, v1: EStatus, v2: EStatus):
+    def set_input(self, v1: BitValue, v2: BitValue):
         if self.in1 and self.in2:
-            self.in1.status = v1
-            self.in2.status = v2
+            self.in1.value = v1
+            self.in2.value = v2
     
     def get_output(self):
         if self.out:
-            return self.out.status
+            return self.out.value
 
 
 class And(Gate):
@@ -137,11 +137,11 @@ class Buffer(Gate):
         super().__init__('Buffer', name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, {self.in1.status} -> {self.out.status})'
+        return f'{self.device_name}({self.name}, {self.in1.value} -> {self.out.value})'
 
-    def set_input(self, v1: EStatus):
+    def set_input(self, v1: BitValue):
         if self.in1:
-            self.in1.status = v1
+            self.in1.value = v1
 
 
 class Inverter(Gate):
@@ -163,11 +163,11 @@ class Inverter(Gate):
         super().__init__('Inverter', name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, {self.in1.status} -> {self.out.status})'
+        return f'{self.device_name}({self.name}, {self.in1.value} -> {self.out.value})'
 
-    def set_input(self, v1: EStatus):
+    def set_input(self, v1: BitValue):
         if self.in1:
-            self.in1.status = v1
+            self.in1.value = v1
 
 
 class TestGate(unittest.TestCase):

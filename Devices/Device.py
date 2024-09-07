@@ -20,12 +20,14 @@ class Device:
     #     pass
     
     def calc_output(self):
-        for device in self.devices:
-            device.calc_output()
+        if hasattr(self, 'devices'):
+            for device in self.devices:
+                device.calc_output()
         
     def update_state(self):
-        for device in self.devices:
-            device.update_state()
+        if hasattr(self, 'devices'):
+            for device in self.devices:
+                device.update_state()
     
     def step(self, n=1):
         for i in range(n):

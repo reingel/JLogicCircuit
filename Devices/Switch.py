@@ -1,5 +1,5 @@
 import unittest
-from EStatus import *
+from BitValue import *
 from Device import Device
 from Port import Port
 from Source import Power
@@ -19,7 +19,7 @@ class Switch(Device):
         super().__init__('Switch', name)
     
     def __repr__(self):
-        return f'Switch({self.le.status} -> [{self.state}] -> {self.ri.status})'
+        return f'Switch({self.le.value} -> [{self.state}] -> {self.ri.value})'
     
     def invert(self):
         if self.state == HIGH:
@@ -35,9 +35,9 @@ class Switch(Device):
     def calc_output(self):
         self.le.update_status()
         if self.state: # switch on
-            self.ri.status = self.le.status
+            self.ri.value = self.le.value
         else: # switch off
-            self.ri.status = OPEN
+            self.ri.value = OPEN
     
     def update_state(self):
         pass # there is no state.
