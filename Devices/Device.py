@@ -19,24 +19,24 @@ class Device:
     # def update_state(self):
     #     pass
 
-    def update_inports(self):
+    def update_inport(self):
         if hasattr(self, 'inports'):
             for inport in self.inports:
                 inport.update_value()
     
     def calc_output(self):
         if hasattr(self, 'devices'):
-            for device in self.devices:
-                device.update_inports()
+            for device in self.update_sequence:
+                device.update_inport()
                 device.calc_output()
         
     def update_state(self):
         if hasattr(self, 'devices'):
-            for device in self.devices:
+            for device in self.update_sequence:
                 device.update_state()
     
     def step(self, n=1):
         for i in range(n):
-            # self.update_inports()
+            # self.update_inport()
             self.calc_output()
             self.update_state()

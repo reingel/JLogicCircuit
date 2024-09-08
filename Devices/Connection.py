@@ -10,7 +10,7 @@ class Connection:
     
     def step(self, n=1):
         for i in range(n):
-            self.update_inports()
+            self.update_inport()
             self.calc_output()
             self.update_state()
 
@@ -34,7 +34,7 @@ class Split(Connection):
     def __repr__(self):
         return f'Split({self.name}, {self.in1.value} -> {self.out1.value} + {self.out2.value})'
     
-    def update_inports(self):
+    def update_inport(self):
         self.le.update_value()
     
     def calc_output(self):
@@ -64,7 +64,7 @@ class Junction(Connection):
     def __repr__(self):
         return f'Junction({self.name}, {self.in1.value} + {self.in2.value} -> {self.out.value})'
     
-    def update_inports(self):
+    def update_inport(self):
         self.lu.update_value()
         self.ld.update_value()
     

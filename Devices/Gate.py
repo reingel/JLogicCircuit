@@ -12,7 +12,7 @@ class Gate(Device):
     def __repr__(self):
         str = f'   {self.device_name}({self.name}, [{self.in1.value} {self.in2.value}] -> {self.out.value})'
         # str += '\n'
-        # for device in self.devices:
+        # for device in self.update_sequence:
         #     str += f'      {device}\n'
         return str
 
@@ -46,7 +46,7 @@ class And(Gate):
 
         # update sequences
         self.inports = [self.in1, self.in2]
-        self.devices = [self.pwr, self.rly1, self.rly2]
+        self.update_sequence = [self.pwr, self.rly1, self.rly2]
     
         super().__init__('And', name)
 
@@ -75,7 +75,7 @@ class Or(Gate):
 
         # update sequences
         self.inports = [self.in1, self.in2]
-        self.devices = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
+        self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
     
         super().__init__('Or', name)
 
@@ -104,7 +104,7 @@ class Nand(Gate):
 
         # update sequences
         self.inports = [self.in1, self.in2]
-        self.devices = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
+        self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
     
         super().__init__('Nand', name)
 
@@ -129,7 +129,7 @@ class Nor(Gate):
 
         # update sequences
         self.inports = [self.in1, self.in2]
-        self.devices = [self.pwr, self.rly1, self.rly2]
+        self.update_sequence = [self.pwr, self.rly1, self.rly2]
     
         super().__init__('Nor', name)
 
@@ -151,7 +151,7 @@ class Buffer(Gate):
 
         # update sequences
         self.inports = [self.in1]
-        self.devices = [self.pwr, self.rly]
+        self.update_sequence = [self.pwr, self.rly]
     
         super().__init__('Buffer', name)
     
@@ -180,7 +180,7 @@ class Inverter(Gate):
 
         # update sequences
         self.inports = [self.in1]
-        self.devices = [self.pwr, self.rly]
+        self.update_sequence = [self.pwr, self.rly]
     
         super().__init__('Inverter', name)
     

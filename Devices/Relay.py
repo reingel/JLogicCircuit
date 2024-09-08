@@ -26,7 +26,7 @@ class Relay(Device):
         # str += f'  {self.rd}\n'
         return str
     
-    def update_inports(self):
+    def update_inport(self):
         self.up.update_value()
         self.le.update_value()
     

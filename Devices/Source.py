@@ -15,7 +15,7 @@ class Power(Device):
     def __repr__(self):
         return f"Power({self.name}, {self.out.value} -> )"
     
-    def update_inports(self):
+    def update_inport(self):
         pass
     
     def calc_output(self):
