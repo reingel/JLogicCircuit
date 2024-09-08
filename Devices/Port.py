@@ -28,15 +28,17 @@ class Port:
     def __rshift__(self, port):
         self.connect(port)
     
-    def update_status(self):
+    def update_value(self):
         if self.connected:
             self.value = self.connected.value
 
 
 class TestRelay(unittest.TestCase):
     def test_relay(self):
-        dev1 = Device('device', 'dev1')
-        dev2 = Device('device', 'dev2')
+        dev1 = And('and1')
+        dev2 = And('and2')
+        rly1 = Relay('rly1', dev1)
+        rly2 = Relay('rly2', dev2)
         p1 = Port('p1', dev1, OPEN)
         p2 = Port('p2', dev2, HIGH)
         p1 >> p2
@@ -44,4 +46,7 @@ class TestRelay(unittest.TestCase):
         print(p2)
 
 if __name__ == '__main__':
+    from Gate import And
+    from Relay import Relay
+
     unittest.main()

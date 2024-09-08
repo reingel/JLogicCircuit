@@ -10,7 +10,11 @@ class Gate(Device):
         super().__init__(device_name, name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, [{self.in1.value} {self.in2.value}] -> {self.out.value})'
+        str = f'   {self.device_name}({self.name}, [{self.in1.value} {self.in2.value}] -> {self.out.value})'
+        # str += '\n'
+        # for device in self.devices:
+        #     str += f'      {device}\n'
+        return str
 
     def set_input(self, v1: BitValue, v2: BitValue):
         if self.in1 and self.in2:
@@ -28,9 +32,8 @@ class And(Gate):
 
         # creat devices
         self.pwr = Power('pwr')
-        self.rly1 = Relay('rly1')
-        self.rly2 = Relay('rly2')
-        self.devices = [self.pwr, self.rly1, self.rly2]
+        self.rly1 = Relay('rly1', self)
+        self.rly2 = Relay('rly2', self)
 
         # connect
         self.pwr.ri >> self.rly1.up
@@ -40,6 +43,10 @@ class And(Gate):
         self.in1 = self.rly1.le
         self.in2 = self.rly2.le
         self.out = self.rly2.rd
+
+        # update sequences
+        self.inports = [self.in1, self.in2]
+        self.devices = [self.pwr, self.rly1, self.rly2]
     
         super().__init__('And', name)
 
@@ -51,10 +58,9 @@ class Or(Gate):
         # creat devices
         self.pwr1 = Power('pwr1')
         self.pwr2 = Power('pwr2')
-        self.rly1 = Relay('rly1')
-        self.rly2 = Relay('rly2')
+        self.rly1 = Relay('rly1', self)
+        self.rly2 = Relay('rly2', self)
         self.jnc = Junction('jnc')
-        self.devices = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
 
         # connect
         self.pwr1.ri >> self.rly1.up
@@ -66,6 +72,10 @@ class Or(Gate):
         self.in1 = self.rly1.le
         self.in2 = self.rly2.le
         self.out = self.jnc.ri
+
+        # update sequences
+        self.inports = [self.in1, self.in2]
+        self.devices = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
     
         super().__init__('Or', name)
 
@@ -77,10 +87,9 @@ class Nand(Gate):
         # creat devices
         self.pwr1 = Power('pwr1')
         self.pwr2 = Power('pwr2')
-        self.rly1 = Relay('rly1')
-        self.rly2 = Relay('rly2')
+        self.rly1 = Relay('rly1', self)
+        self.rly2 = Relay('rly2', self)
         self.jnc = Junction('jnc')
-        self.devices = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
 
         # connect
         self.pwr1.ri >> self.rly1.up
@@ -92,6 +101,10 @@ class Nand(Gate):
         self.in1 = self.rly1.le
         self.in2 = self.rly2.le
         self.out = self.jnc.ri
+
+        # update sequences
+        self.inports = [self.in1, self.in2]
+        self.devices = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
     
         super().__init__('Nand', name)
 
@@ -102,9 +115,8 @@ class Nor(Gate):
 
         # creat devices
         self.pwr = Power('pwr')
-        self.rly1 = Relay('rly1')
-        self.rly2 = Relay('rly2')
-        self.devices = [self.pwr, self.rly1, self.rly2]
+        self.rly1 = Relay('rly1', self)
+        self.rly2 = Relay('rly2', self)
 
         # connect
         self.pwr.ri >> self.rly1.up
@@ -114,6 +126,10 @@ class Nor(Gate):
         self.in1 = self.rly1.le
         self.in2 = self.rly2.le
         self.out = self.rly2.ru
+
+        # update sequences
+        self.inports = [self.in1, self.in2]
+        self.devices = [self.pwr, self.rly1, self.rly2]
     
         super().__init__('Nor', name)
 
@@ -124,8 +140,7 @@ class Buffer(Gate):
 
         # creat devices
         self.pwr = Power('pwr')
-        self.rly = Relay('rly')
-        self.devices = [self.pwr, self.rly]
+        self.rly = Relay('rly', self)
 
         # connect
         self.pwr.ri >> self.rly.up
@@ -133,6 +148,10 @@ class Buffer(Gate):
         # create access points
         self.in1 = self.rly.le
         self.out = self.rly.rd
+
+        # update sequences
+        self.inports = [self.in1]
+        self.devices = [self.pwr, self.rly]
     
         super().__init__('Buffer', name)
     
@@ -150,8 +169,7 @@ class Inverter(Gate):
 
         # creat devices
         self.pwr = Power('pwr')
-        self.rly = Relay('rly')
-        self.devices = [self.pwr, self.rly]
+        self.rly = Relay('rly', self)
 
         # connect
         self.pwr.ri >> self.rly.up
@@ -159,6 +177,10 @@ class Inverter(Gate):
         # create access points
         self.in1 = self.rly.le
         self.out = self.rly.ru
+
+        # update sequences
+        self.inports = [self.in1]
+        self.devices = [self.pwr, self.rly]
     
         super().__init__('Inverter', name)
     
@@ -228,6 +250,28 @@ class TestGate(unittest.TestCase):
             gate.step(n=2)
             print(gate)
             self.assertEqual(gate.get_output(), truth_table[in1])
+    
+    def test_AndOr(self):
+        and1 = And('and1')
+        and2 = And('and2')
+        or1 = Or('or1')
+        and1.out >> or1.in1
+        and2.out >> or1.in2
+
+        and1.in1.value = OPEN
+        and1.in2.value = HIGH
+        and2.in1.value = HIGH
+        and2.in2.value = HIGH
+
+        for i in range(2):
+            and1.step()
+            and2.step()
+            or1.step()
+
+        print(and1)
+        print(and2)
+        print(or1)
+
 
 
 

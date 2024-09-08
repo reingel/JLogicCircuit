@@ -5,7 +5,9 @@ from Port import Port
 from Source import Power
 
 class Relay(Device):
-    def __init__(self, name, init_charge=OPEN):
+    def __init__(self, name, parent, init_charge=OPEN):
+        self.parent = parent
+
         # create ports
         self.le = Port('le', self)
         self.up = Port('up', self)
@@ -18,11 +20,17 @@ class Relay(Device):
         super().__init__('Relay', name)
 
     def __repr__(self):
-        return f'Relay({self.name}, up = {self.up.value}, [X ru rd] = [{self.X} {self.ru.value} {self.rd.value}], le = {self.le.value})'
+        str = f'Relay({self.name}, up = {self.up.value}, [X ru rd] = [{self.X} {self.ru.value} {self.rd.value}], le = {self.le.value})'
+        # str += '\n'
+        # str += f'  {self.ru}\n'
+        # str += f'  {self.rd}\n'
+        return str
+    
+    def update_inports(self):
+        self.up.update_value()
+        self.le.update_value()
     
     def calc_output(self):
-        self.up.update_status()
-        self.le.update_status()
         if self.X == HIGH: # coil is charged
             self.ru.value = OPEN
             self.rd.value = self.up.value

@@ -33,7 +33,7 @@ class Switch(Device):
         self.state = state
     
     def calc_output(self):
-        self.le.update_status()
+        self.le.update_value()
         if self.state: # switch on
             self.ri.value = self.le.value
         else: # switch off

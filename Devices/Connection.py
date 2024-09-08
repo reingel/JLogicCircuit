@@ -10,6 +10,7 @@ class Connection:
     
     def step(self, n=1):
         for i in range(n):
+            self.update_inports()
             self.calc_output()
             self.update_state()
 
@@ -31,10 +32,12 @@ class Split(Connection):
         super().__init__()
 
     def __repr__(self):
-        return f'Split({self.in1.value} -> {self.out1.value} + {self.out2.value})'
+        return f'Split({self.name}, {self.in1.value} -> {self.out1.value} + {self.out2.value})'
+    
+    def update_inports(self):
+        self.le.update_value()
     
     def calc_output(self):
-        self.le.update_status()
         self.ru.value = self.le.value
         self.rd.value = self.le.value
     
@@ -59,11 +62,13 @@ class Junction(Connection):
         super().__init__()
     
     def __repr__(self):
-        return f'Junction({self.in1.value} + {self.in2.value} -> {self.out.value})'
+        return f'Junction({self.name}, {self.in1.value} + {self.in2.value} -> {self.out.value})'
+    
+    def update_inports(self):
+        self.lu.update_value()
+        self.ld.update_value()
     
     def calc_output(self):
-        self.lu.update_status()
-        self.ld.update_status()
         if self.lu.value == OPEN and self.ld.value == OPEN:
             self.ri.value = OPEN
         elif (self.lu.value == HIGH and self.ld.value == OPEN) or \
