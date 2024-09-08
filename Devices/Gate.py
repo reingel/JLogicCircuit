@@ -30,7 +30,7 @@ class And(Gate):
     def __init__(self, name):
         self.device_name = 'And'
 
-        # creat devices
+        # creat update_sequence
         self.pwr = Power('pwr')
         self.rly1 = Relay('rly1', self)
         self.rly2 = Relay('rly2', self)
@@ -55,7 +55,7 @@ class Or(Gate):
     def __init__(self, name):
         self.device_name = 'Or'
 
-        # creat devices
+        # creat update_sequence
         self.pwr1 = Power('pwr1')
         self.pwr2 = Power('pwr2')
         self.rly1 = Relay('rly1', self)
@@ -84,7 +84,7 @@ class Nand(Gate):
     def __init__(self, name):
         self.device_name = 'Nand'
 
-        # creat devices
+        # creat update_sequence
         self.pwr1 = Power('pwr1')
         self.pwr2 = Power('pwr2')
         self.rly1 = Relay('rly1', self)
@@ -113,7 +113,7 @@ class Nor(Gate):
     def __init__(self, name):
         self.device_name = 'Nor'
 
-        # creat devices
+        # creat update_sequence
         self.pwr = Power('pwr')
         self.rly1 = Relay('rly1', self)
         self.rly2 = Relay('rly2', self)
@@ -138,7 +138,7 @@ class Buffer(Gate):
     def __init__(self, name):
         self.device_name = 'Buffer'
 
-        # creat devices
+        # creat update_sequence
         self.pwr = Power('pwr')
         self.rly = Relay('rly', self)
 
@@ -167,7 +167,7 @@ class Inverter(Gate):
     def __init__(self, name):
         self.device_name = 'Inverter'
 
-        # creat devices
+        # creat update_sequence
         self.pwr = Power('pwr')
         self.rly = Relay('rly', self)
 

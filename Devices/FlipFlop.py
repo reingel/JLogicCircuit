@@ -10,7 +10,7 @@ class RSFlipFlop(Device):
     def __init__(self, name):
         self.device_name = 'RSFlipFlop'
 
-        # create devices
+        # create update_sequence
         self.nor1 = Nor('nor1')
         self.nor2 = Nor('nor2')
         self.spl1 = Split('spl1')
@@ -71,7 +71,7 @@ class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Level-Triggered D-type FlipFlop'
 
-        # create devices
+        # create update_sequence
         self.spl1 = Split('spl1') # for Data
         self.spl2 = Split('spl2') # for Clock
         self.inv = Inverter('inv')
@@ -105,7 +105,7 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Edge-Triggered D-type FlipFlop'
 
-        # create devices
+        # create update_sequence
         self.splc1 = Split('splc1') # for Clock 1
         self.splc2 = Split('splc2') # for Clock 2
         self.splc3 = Split('splc3') # for Clock 3

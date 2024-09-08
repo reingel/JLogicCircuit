@@ -25,13 +25,13 @@ class Device:
                 inport.update_value()
     
     def calc_output(self):
-        if hasattr(self, 'devices'):
+        if hasattr(self, 'update_sequence'):
             for device in self.update_sequence:
                 device.update_inport()
                 device.calc_output()
         
     def update_state(self):
-        if hasattr(self, 'devices'):
+        if hasattr(self, 'update_sequence'):
             for device in self.update_sequence:
                 device.update_state()
     
