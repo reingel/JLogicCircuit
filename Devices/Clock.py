@@ -9,7 +9,7 @@ from Connection import Split
 class Oscillator(Device):
     def __init__(self, name):
         self.inv = Inverter('inv')
-        self.devices = [self.inv]
+        self.update_sequence = [self.inv]
 
         self.inv.out >> self.inv.in1
 

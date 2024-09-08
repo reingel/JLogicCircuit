@@ -10,7 +10,7 @@ class RSFlipFlop(Device):
     def __init__(self, name):
         self.device_name = 'RSFlipFlop'
 
-        # create devices
+        # create update_sequence
         self.nor1 = Nor('nor1')
         self.nor2 = Nor('nor2')
         self.spl1 = Split('spl1')
@@ -22,10 +22,6 @@ class RSFlipFlop(Device):
         self.nor2.rly1.X = OPEN
         self.nor2.rly2.X = OPEN
         self.nor1.in2.value = HIGH
-        # self.spl1.in1.update_value()
-        # self.spl1.calc_output()
-        # self.spl2.in1.update_value()
-        # self.spl2.calc_output()
 
         # connect
         self.nor1.out >> self.spl1.in1
@@ -41,14 +37,14 @@ class RSFlipFlop(Device):
 
         # update sequences
         self.inports = [self.R, self.S]
-        self.devices = [self.nor1, self.nor2, self.spl1, self.spl2, self.nor1]
+        self.update_sequence = [self.nor1, self.nor2, self.spl1, self.spl2, self.nor1]
 
         super().__init__('RSFlipFlop', name)
     
     def __repr__(self):
         str = f'RSFlipFlop({self.name}, [S R Q Qbar] = [{self.S.value} {self.R.value} {self.Q.value} {self.Qbar.value}]'
         # str += '\n'
-        # for device in self.devices:
+        # for device in self.update_sequence:
         #     str += f'    {device}\n'
         return str
 
@@ -67,7 +63,7 @@ class DtypeFlipFlop(Device):
     def __repr__(self):
         str = f'{self.device_name}({self.name}, [D Clk Q Qbar] = [{self.D.value} {self.Clk.value} {self.Q.value} {self.Qbar.value}]'
         # str += '\n'
-        # for device in self.devices:
+        # for device in self.update_sequence:
         #     str += f'  {device}\n'
         return str
 
@@ -75,7 +71,7 @@ class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Level-Triggered D-type FlipFlop'
 
-        # create devices
+        # create update_sequence
         self.spl1 = Split('spl1') # for Data
         self.spl2 = Split('spl2') # for Clock
         self.inv = Inverter('inv')
@@ -100,7 +96,7 @@ class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
 
         # update sequences
         self.inports = [self.D, self.Clk]
-        self.devices = [self.spl1, self.spl2, self.inv, self.and1, self.and2, self.rsff]
+        self.update_sequence = [self.spl1, self.spl2, self.inv, self.and1, self.and2, self.rsff]
 
         super().__init__('LevelTriggeredDtypeFlipFlip', name)
 
@@ -109,7 +105,7 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Edge-Triggered D-type FlipFlop'
 
-        # create devices
+        # create update_sequence
         self.splc1 = Split('splc1') # for Clock 1
         self.splc2 = Split('splc2') # for Clock 2
         self.splc3 = Split('splc3') # for Clock 3
@@ -136,8 +132,6 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
         self.and2.out >> self.rsff1.S
         self.rsff1.Q >> self.and3.in1
         self.rsff1.Qbar >> self.and4.in2
-        # self.rsff1.nor1.out >> self.and3.in1
-        # self.rsff1.nor2.out >> self.and4.in2
         self.splc3.out1 >> self.and3.in2
         self.splc3.out2 >> self.and4.in1
         self.and3.out >> self.rsff2.R
@@ -151,7 +145,7 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
 
         # update sequences
         self.inports = [self.D, self.Clk]
-        self.devices = [
+        self.update_sequence = [
             self.splc1, self.inv1, self.splc2, self.splc3,
             self.spld1, self.inv2,
             self.and1, self.and2, self.rsff1,
