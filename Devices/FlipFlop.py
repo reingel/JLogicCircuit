@@ -1,16 +1,16 @@
 import unittest
 from BitValue import *
-from Device import Device
+from SimulatedCircuit import SimulatedCircuit
 from Source import Power
 from Relay import Relay
-from Connection import Split
+from Junction import Split
 from Gate import And, Nor, Inverter
 
-class RSFlipFlop(Device):
+class RSFlipFlop(SimulatedCircuit):
     def __init__(self, name):
         self.device_name = 'RSFlipFlop'
 
-        # create update_sequence
+        # create subdevices
         self.nor1 = Nor('nor1')
         self.nor2 = Nor('nor2')
         self.spl1 = Split('spl1')
@@ -37,14 +37,14 @@ class RSFlipFlop(Device):
 
         # update sequences
         self.inports = [self.R, self.S]
-        self.update_sequence = [self.nor1, self.nor2, self.spl1, self.spl2, self.nor1]
+        self.subdevices = [self.nor1, self.nor2, self.spl1, self.spl2, self.nor1]
 
         super().__init__('RSFlipFlop', name)
     
     def __repr__(self):
         str = f'RSFlipFlop({self.name}, [S R Q Qbar] = [{self.S.value} {self.R.value} {self.Q.value} {self.Qbar.value}]'
         # str += '\n'
-        # for device in self.update_sequence:
+        # for device in self.subdevices:
         #     str += f'    {device}\n'
         return str
 
@@ -56,14 +56,14 @@ class RSFlipFlop(Device):
         return self.Q.value
 
 
-class DtypeFlipFlop(Device):
+class DtypeFlipFlop(SimulatedCircuit):
     def __init__(self, device_name, name):
         super().__init__(device_name, name)
 
     def __repr__(self):
         str = f'{self.device_name}({self.name}, [D Clk Q Qbar] = [{self.D.value} {self.Clk.value} {self.Q.value} {self.Qbar.value}]'
         # str += '\n'
-        # for device in self.update_sequence:
+        # for device in self.subdevices:
         #     str += f'  {device}\n'
         return str
 
@@ -71,7 +71,7 @@ class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Level-Triggered D-type FlipFlop'
 
-        # create update_sequence
+        # create subdevices
         self.spl1 = Split('spl1') # for Data
         self.spl2 = Split('spl2') # for Clock
         self.inv = Inverter('inv')
@@ -96,7 +96,7 @@ class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
 
         # update sequences
         self.inports = [self.D, self.Clk]
-        self.update_sequence = [self.spl1, self.spl2, self.inv, self.and1, self.and2, self.rsff]
+        self.subdevices = [self.spl1, self.spl2, self.inv, self.and1, self.and2, self.rsff]
 
         super().__init__('LevelTriggeredDtypeFlipFlip', name)
 
@@ -105,7 +105,7 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Edge-Triggered D-type FlipFlop'
 
-        # create update_sequence
+        # create subdevices
         self.splc1 = Split('splc1') # for Clock 1
         self.splc2 = Split('splc2') # for Clock 2
         self.splc3 = Split('splc3') # for Clock 3
@@ -145,7 +145,7 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
 
         # update sequences
         self.inports = [self.D, self.Clk]
-        self.update_sequence = [
+        self.subdevices = [
             self.splc1, self.inv1, self.splc2, self.splc3,
             self.spld1, self.inv2,
             self.and1, self.and2, self.rsff1,

@@ -1,10 +1,10 @@
 import unittest
 from BitValue import *
-from Device import Device
+from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 
 
-class Power(Device):
+class Power(SimulatedCircuit):
     def __init__(self, name):
         self.ri = Port('ri', self, HIGH)
 

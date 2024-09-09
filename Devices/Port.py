@@ -1,10 +1,10 @@
 import unittest
 from BitValue import *
-from Device import Device
+from SimulatedCircuit import SimulatedCircuit
 
 
 class Port:
-    def __init__(self, name: str, parent: Device, value=OPEN):
+    def __init__(self, name: str, parent: SimulatedCircuit, value=OPEN):
         self.name = name
         self.parent = parent
         self.value = value

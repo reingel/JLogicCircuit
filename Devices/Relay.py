@@ -1,10 +1,10 @@
 import unittest
 from BitValue import *
-from Device import Device
+from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Source import Power
 
-class Relay(Device):
+class Relay(SimulatedCircuit):
     def __init__(self, name, parent, init_charge=OPEN):
         self.parent = parent
 

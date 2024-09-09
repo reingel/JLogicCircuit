@@ -1,11 +1,11 @@
 import unittest
 from BitValue import *
-from Device import Device
+from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Source import Power
 from Relay import Relay
 
-class Switch(Device):
+class Switch(SimulatedCircuit):
     def __init__(self, name):
         self.state = OPEN # open
 

@@ -1,15 +1,15 @@
 import unittest
 from BitValue import *
-from Device import Device
+from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Gate import Inverter
 from FlipFlop import EdgeTriggeredDtypeFlipFlip
-from Connection import Split
+from Junction import Split
 
-class Oscillator(Device):
+class Oscillator(SimulatedCircuit):
     def __init__(self, name):
         self.inv = Inverter('inv')
-        self.update_sequence = [self.inv]
+        self.subdevices = [self.inv]
 
         self.inv.out >> self.inv.in1
 
@@ -21,7 +21,7 @@ class Oscillator(Device):
         return f'{self.device_name}({self.name}, {self.out.value} -> )'
     
 
-class RippleCounter8Bit(Device):
+class RippleCounter8Bit(SimulatedCircuit):
     def __init__(self, name):
         self.osc = Oscillator('osc')
         self.etff1 = EdgeTriggeredDtypeFlipFlip('etff1')

@@ -1,18 +1,18 @@
 import unittest
 from BitValue import *
-from Device import Device
+from SimulatedCircuit import SimulatedCircuit
 from Source import Power
 from Relay import Relay
-from Connection import Junction
+from Junction import Merge
 
-class Gate(Device):
+class Gate(SimulatedCircuit):
     def __init__(self, device_name, name):
         super().__init__(device_name, name)
     
     def __repr__(self):
         str = f'   {self.device_name}({self.name}, [{self.in1.value} {self.in2.value}] -> {self.out.value})'
         # str += '\n'
-        # for device in self.update_sequence:
+        # for device in self.subdevices:
         #     str += f'      {device}\n'
         return str
 
@@ -30,7 +30,7 @@ class And(Gate):
     def __init__(self, name):
         self.device_name = 'And'
 
-        # creat update_sequence
+        # creat subdevices
         self.pwr = Power('pwr')
         self.rly1 = Relay('rly1', self)
         self.rly2 = Relay('rly2', self)
@@ -46,7 +46,7 @@ class And(Gate):
 
         # update sequences
         self.inports = [self.in1, self.in2]
-        self.update_sequence = [self.pwr, self.rly1, self.rly2]
+        self.subdevices = [self.pwr, self.rly1, self.rly2]
     
         super().__init__('And', name)
 
@@ -55,12 +55,12 @@ class Or(Gate):
     def __init__(self, name):
         self.device_name = 'Or'
 
-        # creat update_sequence
+        # creat subdevices
         self.pwr1 = Power('pwr1')
         self.pwr2 = Power('pwr2')
         self.rly1 = Relay('rly1', self)
         self.rly2 = Relay('rly2', self)
-        self.jnc = Junction('jnc')
+        self.jnc = Merge('jnc')
 
         # connect
         self.pwr1.ri >> self.rly1.up
@@ -75,7 +75,7 @@ class Or(Gate):
 
         # update sequences
         self.inports = [self.in1, self.in2]
-        self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
+        self.subdevices = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
     
         super().__init__('Or', name)
 
@@ -84,12 +84,12 @@ class Nand(Gate):
     def __init__(self, name):
         self.device_name = 'Nand'
 
-        # creat update_sequence
+        # creat subdevices
         self.pwr1 = Power('pwr1')
         self.pwr2 = Power('pwr2')
         self.rly1 = Relay('rly1', self)
         self.rly2 = Relay('rly2', self)
-        self.jnc = Junction('jnc')
+        self.jnc = Merge('jnc')
 
         # connect
         self.pwr1.ri >> self.rly1.up
@@ -104,7 +104,7 @@ class Nand(Gate):
 
         # update sequences
         self.inports = [self.in1, self.in2]
-        self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
+        self.subdevices = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
     
         super().__init__('Nand', name)
 
@@ -113,7 +113,7 @@ class Nor(Gate):
     def __init__(self, name):
         self.device_name = 'Nor'
 
-        # creat update_sequence
+        # creat subdevices
         self.pwr = Power('pwr')
         self.rly1 = Relay('rly1', self)
         self.rly2 = Relay('rly2', self)
@@ -129,7 +129,7 @@ class Nor(Gate):
 
         # update sequences
         self.inports = [self.in1, self.in2]
-        self.update_sequence = [self.pwr, self.rly1, self.rly2]
+        self.subdevices = [self.pwr, self.rly1, self.rly2]
     
         super().__init__('Nor', name)
 
@@ -138,7 +138,7 @@ class Buffer(Gate):
     def __init__(self, name):
         self.device_name = 'Buffer'
 
-        # creat update_sequence
+        # creat subdevices
         self.pwr = Power('pwr')
         self.rly = Relay('rly', self)
 
@@ -151,7 +151,7 @@ class Buffer(Gate):
 
         # update sequences
         self.inports = [self.in1]
-        self.update_sequence = [self.pwr, self.rly]
+        self.subdevices = [self.pwr, self.rly]
     
         super().__init__('Buffer', name)
     
@@ -167,7 +167,7 @@ class Inverter(Gate):
     def __init__(self, name):
         self.device_name = 'Inverter'
 
-        # creat update_sequence
+        # creat subdevices
         self.pwr = Power('pwr')
         self.rly = Relay('rly', self)
 
@@ -180,7 +180,7 @@ class Inverter(Gate):
 
         # update sequences
         self.inports = [self.in1]
-        self.update_sequence = [self.pwr, self.rly]
+        self.subdevices = [self.pwr, self.rly]
     
         super().__init__('Inverter', name)
     

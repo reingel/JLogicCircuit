@@ -1,21 +1,21 @@
 import unittest
 from BitValue import *
-from Device import Device
+from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 
 
-class Connection:
+class Junction(SimulatedCircuit):
     def __init__(self):
         pass
     
-    def step(self, n=1):
-        for i in range(n):
-            self.update_inport()
-            self.calc_output()
-            self.update_state()
+    # def step(self, n=1):
+    #     for i in range(n):
+    #         self.update_inport()
+    #         self.calc_output()
+    #         self.update_state()
 
 
-class Split(Connection):
+class Split(Junction):
     def __init__(self, name):
         self.name = name
 
@@ -45,7 +45,7 @@ class Split(Connection):
         pass # there is no state.
 
 
-class Junction(Connection):
+class Merge(Junction):
     def __init__(self, name):
         self.name = name
 
@@ -62,7 +62,7 @@ class Junction(Connection):
         super().__init__()
     
     def __repr__(self):
-        return f'Junction({self.name}, {self.in1.value} + {self.in2.value} -> {self.out.value})'
+        return f'Merge({self.name}, {self.in1.value} + {self.in2.value} -> {self.out.value})'
     
     def update_inport(self):
         self.lu.update_value()
@@ -95,7 +95,7 @@ class TestConnection(unittest.TestCase):
 
     
     def test_junction(self):
-        jnc = Junction('jnc1')
+        jnc = Merge('jnc1')
         print(jnc)
         jnc.in1.value = HIGH
         jnc.step()

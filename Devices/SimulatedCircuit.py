@@ -1,23 +1,13 @@
 from abc import *
 
 
-class Device:
+class SimulatedCircuit:
     def __init__(self, device_name, name, n=2):
         self.device_name = device_name
         self.name = name
 
-        # self.step(n)
-
     def __repr__(self):
         return f'{self.device_name}({self.name})'
-
-    # @abstractmethod
-    # def calc_output(self):
-    #     pass
-
-    # @abstractmethod
-    # def update_state(self):
-    #     pass
 
     def update_inport(self):
         if hasattr(self, 'inports'):
@@ -25,18 +15,18 @@ class Device:
                 inport.update_value()
     
     def calc_output(self):
-        if hasattr(self, 'update_sequence'):
-            for device in self.update_sequence:
+        if hasattr(self, 'subdevices'):
+            for device in self.subdevices:
                 device.update_inport()
                 device.calc_output()
         
     def update_state(self):
-        if hasattr(self, 'update_sequence'):
-            for device in self.update_sequence:
+        if hasattr(self, 'subdevices'):
+            for device in self.subdevices:
                 device.update_state()
     
     def step(self, n=1):
         for i in range(n):
-            # self.update_inport()
+            self.update_inport()
             self.calc_output()
             self.update_state()
