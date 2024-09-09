@@ -9,11 +9,14 @@ from Junction import Split
 class Oscillator(SimulatedCircuit):
     def __init__(self, name):
         self.inv = Inverter('inv')
-        self.subdevices = [self.inv]
+        self.spl = Split('spl')
+        self.inports = [self.inv.in1]
+        self.subdevices = [self.inv, self.spl]
 
-        self.inv.out >> self.inv.in1
+        self.inv.out >> self.spl.in1
+        self.spl.out2 >> self.inv.in1
 
-        self.out = self.inv.out
+        self.out = self.spl.out1
 
         super().__init__('Oscillator', name)
     
@@ -24,6 +27,7 @@ class Oscillator(SimulatedCircuit):
 class RippleCounter8Bit(SimulatedCircuit):
     def __init__(self, name):
         self.osc = Oscillator('osc')
+        self.inv = Inverter('inv')
         self.etff1 = EdgeTriggeredDtypeFlipFlip('etff1')
         self.etff2 = EdgeTriggeredDtypeFlipFlip('etff2')
         self.etff3 = EdgeTriggeredDtypeFlipFlip('etff3')
@@ -31,8 +35,11 @@ class RippleCounter8Bit(SimulatedCircuit):
         self.spl2 = Split('spl2')
         self.spl3 = Split('spl3')
         self.spl4 = Split('spl4')
+        self.inports = [self.osc.inv.in1]
+        self.subdevices = [self.osc, self.spl1, self.inv, self.etff1, self.spl2, self.etff2, self.spl3, self.etff3, self.spl4]
 
         self.osc.out >> self.spl1.in1
+        self.spl1.out1 >> self.inv.in1
         self.spl1.out2 >> self.etff1.Clk
         self.etff1.Qbar >> self.spl2.in1
         self.spl2.out1 >> self.etff2.Clk
@@ -43,7 +50,7 @@ class RippleCounter8Bit(SimulatedCircuit):
         self.etff3.Qbar >> self.spl4.in1
         self.spl4.out2 >> self.etff3.D
 
-        self.Clkbar = self.spl1.out1
+        self.Clkbar = self.inv.out
         self.Q1 = self.etff1.Q
         self.Q2 = self.etff2.Q
         self.Q3 = self.etff3.Q
@@ -60,15 +67,17 @@ class TestClock(unittest.TestCase):
         osc = Oscillator('osc1')
         print(osc)
         for i in range(6):
-            osc.step(n=2)
+            osc.step(n=1)
             print(osc)
     
     def test_ripple_counter(self):
         rc = RippleCounter8Bit('rc')
         print(rc)
-        for i in range(8):
-            rc.step(n=2)
+        for i in range(20):
+            rc.step(n=1)
+            print(rc.osc.out.value, rc.etff1.Qbar.value, rc.etff2.Qbar.value, rc.etff3.Qbar.value)
             print(rc)
+            a=1
 
 
 

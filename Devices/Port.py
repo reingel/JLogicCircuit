@@ -11,9 +11,14 @@ class Port:
         self.connected = []
 
     def __repr__(self):
-        str = f'Port({self.parent.name}.{self.name}, {self.value})'
-        if self.connected:
-            str += f' <---> Port({self.connected.parent.name}.{self.connected.name}, value = {self.connected.value})'
+        if hasattr(self.parent, 'parent'):
+            str = f'Port({self.parent.parent.name}.{self.parent.name}.{self.name}, {self.value})'
+            if self.connected:
+                str += f' <---> Port({self.connected.parent.parent.name}.{self.connected.parent.name}.{self.connected.name}, {self.connected.value})'
+        else:
+            str = f'Port({self.parent.name}.{self.name}, {self.value})'
+            if self.connected:
+                str += f' <---> Port({self.connected.parent.name}.{self.connected.name}, {self.connected.value})'
         return str
     
     def connect(self, port):

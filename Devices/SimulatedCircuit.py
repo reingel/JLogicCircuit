@@ -13,20 +13,24 @@ class SimulatedCircuit:
         if hasattr(self, 'inports'):
             for inport in self.inports:
                 inport.update_value()
+                a=1
     
     def calc_output(self):
         if hasattr(self, 'subdevices'):
             for device in self.subdevices:
                 device.update_inport()
                 device.calc_output()
+                a=1
         
     def update_state(self):
         if hasattr(self, 'subdevices'):
             for device in self.subdevices:
                 device.update_state()
+                a=1
     
     def step(self, n=1):
         for i in range(n):
             self.update_inport()
-            self.calc_output()
             self.update_state()
+            self.calc_output()
+            a=1

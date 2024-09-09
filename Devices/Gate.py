@@ -263,7 +263,7 @@ class TestGate(unittest.TestCase):
         and2.in1.value = HIGH
         and2.in2.value = HIGH
 
-        for i in range(2):
+        for i in range(1):
             and1.step()
             and2.step()
             or1.step()
