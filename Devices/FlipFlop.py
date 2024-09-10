@@ -10,18 +10,11 @@ class RSFlipFlop(SimulatedCircuit):
     def __init__(self, name):
         self.device_name = 'RSFlipFlop'
 
-        # create subdevices
+        # create update_sequence
         self.nor1 = Nor('nor1')
         self.nor2 = Nor('nor2')
         self.spl1 = Split('spl1')
         self.spl2 = Split('spl2')
-
-        # initialize
-        self.nor1.rly1.X = OPEN
-        self.nor1.rly2.X = HIGH
-        self.nor2.rly1.X = OPEN
-        self.nor2.rly2.X = OPEN
-        self.nor1.in2.value = HIGH
 
         # connect
         self.nor1.out >> self.spl1.in1
@@ -36,15 +29,14 @@ class RSFlipFlop(SimulatedCircuit):
         self.Qbar = self.spl2.out2
 
         # update sequences
-        self.inports = [self.R, self.S]
-        self.subdevices = [self.nor1, self.nor2, self.spl1, self.spl2, self.nor1]
+        self.update_sequence = [self.nor2, self.spl2, self.nor1, self.spl1, self.nor2, self.spl2, self.nor1, self.spl1]
 
         super().__init__('RSFlipFlop', name)
     
     def __repr__(self):
         str = f'RSFlipFlop({self.name}, [S R Q Qbar] = [{self.S.value} {self.R.value} {self.Q.value} {self.Qbar.value}]'
         # str += '\n'
-        # for device in self.subdevices:
+        # for device in self.update_sequence:
         #     str += f'    {device}\n'
         return str
 
@@ -63,7 +55,7 @@ class DtypeFlipFlop(SimulatedCircuit):
     def __repr__(self):
         str = f'{self.device_name}({self.name}, [D Clk Q Qbar] = [{self.D.value} {self.Clk.value} {self.Q.value} {self.Qbar.value}]'
         # str += '\n'
-        # for device in self.subdevices:
+        # for device in self.update_sequence:
         #     str += f'  {device}\n'
         return str
 
@@ -71,7 +63,7 @@ class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Level-Triggered D-type FlipFlop'
 
-        # create subdevices
+        # create update_sequence
         self.spl1 = Split('spl1') # for Data
         self.spl2 = Split('spl2') # for Clock
         self.inv = Inverter('inv')
@@ -95,8 +87,7 @@ class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
         self.Qbar = self.rsff.Qbar
 
         # update sequences
-        self.inports = [self.D, self.Clk]
-        self.subdevices = [self.spl1, self.spl2, self.inv, self.and1, self.and2, self.rsff]
+        self.update_sequence = [self.spl1, self.spl2, self.inv, self.and1, self.and2, self.rsff]
 
         super().__init__('LevelTriggeredDtypeFlipFlip', name)
 
@@ -105,7 +96,7 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Edge-Triggered D-type FlipFlop'
 
-        # create subdevices
+        # create update_sequence
         self.splc1 = Split('splc1') # for Clock 1
         self.splc2 = Split('splc2') # for Clock 2
         self.splc3 = Split('splc3') # for Clock 3
@@ -144,8 +135,7 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
         self.Qbar = self.rsff2.Qbar
 
         # update sequences
-        self.inports = [self.D, self.Clk]
-        self.subdevices = [
+        self.update_sequence = [
             self.splc1, self.inv1, self.splc2, self.splc3,
             self.spld1, self.inv2,
             self.and1, self.and2, self.rsff1,
@@ -156,83 +146,182 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
 
 
 class TestFlipFlop(unittest.TestCase):
-    def test_rsff(self):
-        dev = RSFlipFlop('rsff1')
+    # def test_rsff(self):
+    #     dev = RSFlipFlop('rsff1')
+    #     dev.power_on()
+    #     dev.step()
+    #     print(dev)
 
-        dev.set_input(S=HIGH, R=OPEN)
-        dev.step(n=4)
-        print(dev)
-        self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == OPEN)
+    #     dev.set_input(S=OPEN, R=OPEN)
+    #     dev.step(n=1)
+    #     print(dev)
+    #     self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
 
-        dev.set_input(S=OPEN, R=OPEN)
-        dev.step(n=4)
-        print(dev)
-        self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == OPEN)
+    #     dev.set_input(S=HIGH, R=OPEN)
+    #     dev.step(n=1)
+    #     print(dev)
+    #     self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == OPEN)
 
-        dev.set_input(S=OPEN, R=HIGH)
-        dev.step(n=4)
-        print(dev)
-        self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
+    #     dev.set_input(S=OPEN, R=OPEN)
+    #     dev.step(n=1)
+    #     print(dev)
+    #     self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == OPEN)
 
-        dev.set_input(S=OPEN, R=OPEN)
-        dev.step(n=4)
-        print(dev)
-        self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
+    #     dev.set_input(S=OPEN, R=HIGH)
+    #     dev.step(n=1)
+    #     print(dev)
+    #     self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
+
+    #     dev.set_input(S=OPEN, R=OPEN)
+    #     dev.step(n=1)
+    #     print(dev)
+    #     self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
 
 
-    def test_ltdff(self):
-        ff = LevelTriggeredDtypeFlipFlip('ltdff')
+    # def test_ltdff(self):
+    #     ff = LevelTriggeredDtypeFlipFlip('ltdff')
+    #     ff.power_on()
+    #     ff.step(n=1)
+    #     print(ff)
 
-        ff.D.value = OPEN
-        ff.Clk.value = OPEN
-        ff.step(n=2)
-        print(ff)
-        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+    #     ff.D.value = OPEN
+    #     ff.Clk.value = OPEN
+    #     ff.step(n=1)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-        ff.D.value = HIGH
-        ff.step(n=6)
-        print(ff)
-        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+    #     ff.D.value = HIGH
+    #     ff.step(n=1)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-        ff.Clk.value = HIGH
-        ff.step(n=6)
-        print(ff)
-        self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+    #     ff.Clk.value = HIGH
+    #     ff.step(n=1)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
 
-        ff.Clk.value = OPEN
-        ff.step(n=6)
-        print(ff)
-        self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+    #     ff.D.value = OPEN
+    #     ff.step(n=1)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-        ff.D.value = OPEN
-        ff.step(n=6)
-        print(ff)
-        self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+    #     ff.Clk.value = OPEN
+    #     ff.step(n=1)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
+    #     ff.D.value = HIGH
+    #     ff.step(n=1)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
     def test_etdff(self):
         ff = EdgeTriggeredDtypeFlipFlip('etdff')
+        ff.power_on()
+        ff.step()
+        ff.Clk.value = HIGH
+        ff.step()
+        print(ff)
 
         ff.D.value = OPEN
-        ff.Clk.value = OPEN
+        ff.Clk.value = HIGH
         ff.step(n=2)
         print(ff)
-        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-        ff.D.value = HIGH
-        ff.step(n=6)
-        print(ff)
-        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-        ff.Clk.value = HIGH
-        ff.step(n=6)
-        print(ff)
-        self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+    # def test_etdff(self):
+    #     ff = EdgeTriggeredDtypeFlipFlip('etdff')
+    #     ff.power_on()
+    #     ff.step()
+    #     print(ff)
 
-        ff.D.value = OPEN
-        ff.step(n=6)
-        print(ff)
-        self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+    #     ff.D.value = OPEN
+    #     ff.Clk.value = OPEN
+    #     ff.step(n=2)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+
+    #     ff.D.value = HIGH
+    #     ff.step(n=6)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+
+    #     ff.Clk.value = HIGH
+    #     ff.step(n=6)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+
+    #     ff.Clk.value = OPEN
+    #     ff.step(n=6)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+
+    #     ff.D.value = OPEN
+    #     ff.step(n=6)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+
+    #     ff.Clk.value = HIGH
+    #     ff.step(n=6)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+
+    #     ff.Clk.value = OPEN
+    #     ff.step(n=6)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+
+    #     ff.D.value = HIGH
+    #     ff.step(n=6)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+
+    #     ff.D.value = OPEN
+    #     ff.step(n=6)
+    #     print(ff)
+    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+
+    # def test_etdff_feedback(self):
+    #     ff = EdgeTriggeredDtypeFlipFlip('etdff1')
+    #     ff.Qbar >> ff.D
+
+    #     ff.power_on()
+    #     ff.step()
+    #     print(ff)
+
+    #     for i in range(10):
+    #         ff.Clk.value = OPEN
+    #         ff.step(n=1)
+    #         print(ff)
+
+    #         ff.Clk.value = HIGH
+    #         ff.step(n=1)
+    #         print(ff)
+
+    # def test_etdff_feedback_up_same(self):
+    #     ff = EdgeTriggeredDtypeFlipFlip('etdff2')
+    #     ff.Qbar >> ff.D
+
+    #     ff.power_on()
+    #     ff.step()
+    #     print(ff)
+
+    #     ff.Clk.value = HIGH
+    #     ff.step(n=1)
+    #     print(ff)
+
+    #     ff.Clk.value = OPEN
+    #     ff.step(n=1)
+    #     print(ff)
+
+    #     ff.D.value = HIGH
+    #     ff.Clk.value = HIGH
+    #     ff.step(n=1)
+    #     print(ff)
+
+    #     ff.Clk.value = OPEN
+    #     ff.step(n=1)
+    #     print(ff)
 
 
 

@@ -43,24 +43,25 @@ class Relay(SimulatedCircuit):
 
 class TestRelay(unittest.TestCase):
     def test_relay(self):
-        rly = Relay('rly')
-        rly.up.value = HIGH
+        tmp = SimulatedCircuit('SimulatedCircuit', 'tmp')
+        pwr = Power('pwr')
+        rly = Relay('rly', tmp)
+        pwr.out >> rly.up
+        # rly.up.value = HIGH
+
+        tmp.power_on()
 
         rly.le.value = HIGH
-        rly.calc_output()
+        rly.step()
         print(rly)
-        rly.update_state()
-        rly.calc_output()
+        rly.step()
         print(rly)
-        rly.update_state()
 
         rly.le.value = OPEN
-        rly.calc_output()
+        rly.step()
         print(rly)
-        rly.update_state()
-        rly.calc_output()
+        rly.step()
         print(rly)
-        rly.update_state()
 
 if __name__ == '__main__':
     unittest.main()

@@ -6,7 +6,9 @@ from Port import Port
 
 class Power(SimulatedCircuit):
     def __init__(self, name):
-        self.ri = Port('ri', self, HIGH)
+        self.ri = Port('ri', self)
+
+        self.state = OPEN
 
         self.out = self.ri
 
@@ -14,12 +16,18 @@ class Power(SimulatedCircuit):
 
     def __repr__(self):
         return f"Power({self.name}, {self.out.value} -> )"
+
+    def on(self):
+        self.state = HIGH
+    
+    def off(self):
+        self.state = OPEN
     
     def update_inport(self):
         pass
     
     def calc_output(self):
-        self.ri.value = HIGH
+        self.ri.value = self.state
 
     def update_state(self):
         pass
@@ -29,6 +37,13 @@ class Power(SimulatedCircuit):
 class TestSource(unittest.TestCase):
     def test_power(self):
         pwr = Power('pwr1')
+        pwr.step()
+        print(pwr)
+        pwr.power_on()
+        pwr.step()
+        print(pwr)
+        pwr.off()
+        pwr.step()
         print(pwr)
 
 if __name__ == '__main__':
