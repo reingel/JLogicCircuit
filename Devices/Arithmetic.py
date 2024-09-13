@@ -3,6 +3,7 @@ from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Gate import And, Or, Xor
 from Junction import Split
+from Sink import Ground
 
 
 class HalfAdder(SimulatedCircuit):
@@ -86,23 +87,31 @@ class Adder8bit(SimulatedCircuit):
         self.gnd = Ground()
 
         # connect
-        self.fas[0].CI >> gnd1.in1
+        self.fas[0].CI >> self.gnd.in1
         for i in range(self.num_adder - 1):
             self.fas[i].CO >> self.fas[i + 1].CI
 
         # create access points
-        self.CI = self.ha2.A
-        self.A = self.ha1.A
-        self.B = self.ha1.B
-        self.S = self.ha2.S
-        self.CO = self.or1.out
+        self.As = []
+        self.Bs = []
+        self.Ss = []
+        for i in range(self.num_adder):
+            self.As.append(self.fas[i].A)
+            self.Bs.append(self.fas[i].B)
+            self.Ss.append(self.fas[i].S)
 
         # update sequence
-        self.update_sequence = [self.ha1, self.ha2, self.or1]
+        self.update_sequence = []
+        for i in range(self.num_adder):
+            self.update_sequence.append(self.fas[i])
 
         super().__init__('Adder8bit', name)
 
     def __repr__(self):
+        strA = []
+        strB = []
+        strS = []
+        for i in range(self.num)
         str = f'   {self.device_name}({self.name}, [CI A B] -> [S CO] = [{self.CI.value} {self.A.value} {self.B.value}] -> [{self.S.value} {self.CO.value}]'
         # str += '\n'
         # for device in self.update_sequence:
