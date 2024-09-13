@@ -84,7 +84,7 @@ class Adder8bit(SimulatedCircuit):
         self.fas = []
         for i in range(self.num_adder):
             self.fas.append(FullAdder('fa' + str(i)))
-        self.gnd = Ground()
+        self.gnd = Ground('gnd')
 
         # connect
         self.fas[0].CI >> self.gnd.in1
@@ -99,6 +99,7 @@ class Adder8bit(SimulatedCircuit):
             self.As.append(self.fas[i].A)
             self.Bs.append(self.fas[i].B)
             self.Ss.append(self.fas[i].S)
+        self.CO = self.fas[self.num_adder-1].CO
 
         # update sequence
         self.update_sequence = []
@@ -108,15 +109,32 @@ class Adder8bit(SimulatedCircuit):
         super().__init__('Adder8bit', name)
 
     def __repr__(self):
-        strA = []
-        strB = []
-        strS = []
-        for i in range(self.num)
-        str = f'   {self.device_name}({self.name}, [CI A B] -> [S CO] = [{self.CI.value} {self.A.value} {self.B.value}] -> [{self.S.value} {self.CO.value}]'
-        # str += '\n'
-        # for device in self.update_sequence:
-        #     str += f'      {device}\n'
+        strA = ''
+        strB = ''
+        strS = ''
+        for i in range(self.num_adder):
+            strA = f'{self.As[i].value}{strA}'
+            strB = f'{self.Bs[i].value}{strB}'
+            strS = f'{self.Ss[i].value}{strS}'
+        str = f'{self.device_name}({self.name})\n  A = {strA}\n+ B = {strB}\n----------------\n  S = {strS}\n CO = {self.CO.value}'
         return str
+    
+    def set_input(self, A: int, B: int):
+        if A > 255 or A < 0 or B > 255 or B < 0:
+            raise(RuntimeError)
+        strA = f'{A:08b}'[::-1]
+        strB = f'{B:08b}'[::-1]
+        for i in range(self.num_adder):
+            self.As[i].value = int(strA[i])
+            self.Bs[i].value = int(strB[i])
+    
+    def get_output(self):
+        strS = ''
+        for i in range(self.num_adder):
+            strS = f'{self.Ss[i].value}{strS}'
+        S = int(strS, 2)
+        return S
+
 
 
 class TestArithmetic(unittest.TestCase):
@@ -152,6 +170,18 @@ class TestArithmetic(unittest.TestCase):
                     self.assertEqual(fa.S.value, truth_table_S[ci][in1][in2])
                     self.assertEqual(fa.CO.value, truth_table_CO[ci][in1][in2])
 
+    def test_adder8bit(self):
+        a8 = Adder8bit('a8')
+        a8.power_on()
+        a8.step()
+
+        A = 198
+        B = 115
+        a8.set_input(A, B)
+        a8.step()
+        S = a8.get_output()
+        print(f'{A} + {B} = {S}')
+        print(a8)
 
 if __name__ == '__main__':
     unittest.main()
