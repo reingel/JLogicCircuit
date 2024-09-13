@@ -84,14 +84,13 @@ class Adder8bit(SimulatedCircuit):
         self.fas = []
         for i in range(self.num_adder):
             self.fas.append(FullAdder('fa' + str(i)))
-        self.gnd = Ground('gnd')
 
         # connect
-        self.fas[0].CI >> self.gnd.in1
         for i in range(self.num_adder - 1):
             self.fas[i].CO >> self.fas[i + 1].CI
 
         # create access points
+        self.CI = self.fas[0].CI
         self.As = []
         self.Bs = []
         self.Ss = []
@@ -171,8 +170,12 @@ class TestArithmetic(unittest.TestCase):
                     self.assertEqual(fa.CO.value, truth_table_CO[ci][in1][in2])
 
     def test_adder8bit(self):
+        gnd = Ground('gnd')
         a8 = Adder8bit('a8')
+        a8.CI >> gnd.in1
+        gnd.power_on()
         a8.power_on()
+        gnd.step()
         a8.step()
 
         A = 198
