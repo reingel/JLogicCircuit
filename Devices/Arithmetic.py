@@ -74,6 +74,42 @@ class FullAdder(SimulatedCircuit):
         return str
 
 
+class Adder8bit(SimulatedCircuit):
+    def __init__(self, name):
+        self.device_name = 'Adder8bit'
+        self.num_adder = 8
+
+        # create elements
+        self.fas = []
+        for i in range(self.num_adder):
+            self.fas.append(FullAdder('fa' + str(i)))
+        self.gnd = Ground()
+
+        # connect
+        self.fas[0].CI >> gnd1.in1
+        for i in range(self.num_adder - 1):
+            self.fas[i].CO >> self.fas[i + 1].CI
+
+        # create access points
+        self.CI = self.ha2.A
+        self.A = self.ha1.A
+        self.B = self.ha1.B
+        self.S = self.ha2.S
+        self.CO = self.or1.out
+
+        # update sequence
+        self.update_sequence = [self.ha1, self.ha2, self.or1]
+
+        super().__init__('Adder8bit', name)
+
+    def __repr__(self):
+        str = f'   {self.device_name}({self.name}, [CI A B] -> [S CO] = [{self.CI.value} {self.A.value} {self.B.value}] -> [{self.S.value} {self.CO.value}]'
+        # str += '\n'
+        # for device in self.update_sequence:
+        #     str += f'      {device}\n'
+        return str
+
+
 class TestArithmetic(unittest.TestCase):
     def test_half_adder(self):
         ha = HalfAdder('ha1')
