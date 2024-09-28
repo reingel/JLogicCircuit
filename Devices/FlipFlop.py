@@ -3,14 +3,14 @@ from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Source import Power
 from Relay import Relay
-from Junction import Split
+from Junction import Split, Split8
 from Gate import And, Nor, Inverter
 
 class RSFlipFlop(SimulatedCircuit):
     def __init__(self, name):
         self.device_name = 'RSFlipFlop'
 
-        # create update_sequence
+        # create elements
         self.nor1 = Nor('nor1')
         self.nor2 = Nor('nor2')
         self.spl1 = Split('spl1')
@@ -22,7 +22,7 @@ class RSFlipFlop(SimulatedCircuit):
         self.nor2.out >> self.spl2.in1
         self.spl2.out1 >> self.nor1.in2
 
-        # create external ports
+        # create access ports
         self.R = self.nor1.in1
         self.S = self.nor2.in2
         self.Q = self.spl1.out1
@@ -63,7 +63,7 @@ class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Level-Triggered D-type FlipFlop'
 
-        # create update_sequence
+        # create elements
         self.spl1 = Split('spl1') # for Data
         self.spl2 = Split('spl2') # for Clock
         self.inv = Inverter('inv')
@@ -80,7 +80,7 @@ class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
         self.and1.out >> self.rsff.R
         self.and2.out >> self.rsff.S
 
-        # create external ports
+        # create access ports
         self.D = self.spl1.in1
         self.Clk = self.spl2.in1
         self.Q = self.rsff.Q
@@ -96,7 +96,7 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Edge-Triggered D-type FlipFlop'
 
-        # create update_sequence
+        # create elements
         self.splc1 = Split('splc1') # for Clock 1
         self.splc2 = Split('splc2') # for Clock 2
         self.splc3 = Split('splc3') # for Clock 3
@@ -128,7 +128,7 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
         self.and3.out >> self.rsff2.R
         self.and4.out >> self.rsff2.S
 
-        # create external ports
+        # create access ports
         self.D = self.spld1.in1
         self.Clk = self.splc1.in1
         self.Q = self.rsff2.Q
@@ -143,6 +143,52 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
             ]
 
         super().__init__('EdgeTriggeredDtypeFlipFlip', name)
+
+class Latch8bit(SimulatedCircuit):
+    def __init__(self, name):
+        self.device_name = '8-Bit Latch'
+
+        self.nbit = 8
+        self.split8 = Split8('split8')
+        self.latches = []
+        self.D = []
+        self.Q = []
+
+        self.update_sequence = [self.split8]
+
+        for i in range(self.nbit):
+            # create elements
+            latch = EdgeTriggeredDtypeFlipFlip(f'latch{i:02d}')
+            self.latches.append(latch)
+            # connect
+            self.split8.out[i] >> self.latches[i].Clk
+            # create access ports
+            self.D.append(self.latches[i].D)
+            self.Q.append(self.latches[i].Q)
+            # update sequences
+            self.update_sequence.append(self.latches[i])
+        
+        self.Clk = self.split8.in1
+
+        super().__init__('Latch8bit', name)
+        
+    def set_input(self, D: int):
+        if D > 255 or D < 0:
+            raise(RuntimeError)
+        strD = f'{D:08b}'[::-1]
+        for i in range(self.nbit):
+            self.D[i].value = int(strD[i])
+            a=1
+    
+    def get_output(self):
+        strQ = ''
+        for i in range(self.nbit):
+            strQ = f'{self.Q[i].value}{strQ}'
+        Q = int(strQ, 2)
+        return Q
+
+
+
 
 
 class TestFlipFlop(unittest.TestCase):
@@ -214,20 +260,6 @@ class TestFlipFlop(unittest.TestCase):
     #     ff.step(n=1)
     #     print(ff)
     #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
-
-    def test_etdff(self):
-        ff = EdgeTriggeredDtypeFlipFlip('etdff')
-        ff.power_on()
-        ff.step()
-        ff.Clk.value = HIGH
-        ff.step()
-        print(ff)
-
-        ff.D.value = OPEN
-        ff.Clk.value = HIGH
-        ff.step(n=2)
-        print(ff)
-
 
     # def test_etdff(self):
     #     ff = EdgeTriggeredDtypeFlipFlip('etdff')
@@ -322,6 +354,25 @@ class TestFlipFlop(unittest.TestCase):
     #     ff.Clk.value = OPEN
     #     ff.step(n=1)
     #     print(ff)
+
+    def test_latch8(self):
+        dev = Latch8bit('latch8')
+        dev.power_on()
+        dev.step()
+        print(dev)
+
+        dev.set_input(35)
+        dev.step()
+        Q = dev.get_output()
+        print(Q)
+        dev.Clk.value = HIGH
+        dev.step()
+        Q = dev.get_output()
+        print(Q)
+        dev.Clk.value = OPEN
+        dev.step()
+        Q = dev.get_output()
+        print(Q)
 
 
 

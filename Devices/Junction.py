@@ -81,6 +81,33 @@ class Merge(Junction):
     def update_state(self):
         pass # there is no state.
 
+class Split8(Junction):
+    def __init__(self, name):
+        self.name = name
+
+        self.n = 8
+
+        # create ports
+        self.in1 = Port('in1', self)
+        self.out = []
+        for i in range(self.n):
+            self.out.append(Port(f'out{i+1}', self))
+
+        super().__init__()
+
+    def __repr__(self):
+        return f'Split({self.name}, {self.in1.value} -> {self.outs[0].value})'
+    
+    def update_inport(self):
+        self.in1.update_value()
+    
+    def calc_output(self):
+        for i in range(self.n):
+            self.out[i].value = self.in1.value
+    
+    def update_state(self):
+        pass # there is no state.
+
 
 class TestConnection(unittest.TestCase):
     def test_split(self):
