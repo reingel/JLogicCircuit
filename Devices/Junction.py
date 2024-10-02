@@ -8,12 +8,6 @@ class Junction(SimulatedCircuit):
     def __init__(self):
         pass
     
-    # def step(self, n=1):
-    #     for i in range(n):
-    #         self.update_inport()
-    #         self.calc_output()
-    #         self.update_state()
-
 
 class Split(Junction):
     def __init__(self, name):
@@ -89,14 +83,12 @@ class Split8(Junction):
 
         # create ports
         self.in1 = Port('in1', self)
-        self.out = []
-        for i in range(self.n):
-            self.out.append(Port(f'out{i+1}', self))
+        self.out = [Port(f'out{i}', self) for i in range(self.n)]
 
         super().__init__()
 
     def __repr__(self):
-        return f'Split({self.name}, {self.in1.value} -> {self.outs[0].value})'
+        return f'Split({self.name}, {self.in1.value} -> {[self.out[i].value for i in range(self.n)]})'
     
     def update_inport(self):
         self.in1.update_value()
@@ -107,6 +99,7 @@ class Split8(Junction):
     
     def update_state(self):
         pass # there is no state.
+
 
 
 class TestConnection(unittest.TestCase):
@@ -121,7 +114,7 @@ class TestConnection(unittest.TestCase):
         print(spl)
 
     
-    def test_junction(self):
+    def test_merge(self):
         jnc = Merge('jnc1')
         print(jnc)
         jnc.in1.value = HIGH
@@ -136,6 +129,16 @@ class TestConnection(unittest.TestCase):
         jnc.in2.value = OPEN
         jnc.step()
         print(jnc)
+    
+    def test_split8(self):
+        sp = Split8('split8')
+        sp.power_on()
+        sp.step()
 
+        print(sp)
+        sp.in1.value = HIGH
+        sp.step()
+        print(sp)
+    
 if __name__ == '__main__':
     unittest.main()

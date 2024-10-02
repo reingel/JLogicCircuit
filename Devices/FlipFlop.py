@@ -192,168 +192,168 @@ class Latch8bit(SimulatedCircuit):
 
 
 class TestFlipFlop(unittest.TestCase):
-    # def test_rsff(self):
-    #     dev = RSFlipFlop('rsff1')
-    #     dev.power_on()
-    #     dev.step()
-    #     print(dev)
+    def test_rsff(self):
+        dev = RSFlipFlop('rsff1')
+        dev.power_on()
+        dev.step()
+        print(dev)
 
-    #     dev.set_input(S=OPEN, R=OPEN)
-    #     dev.step(n=1)
-    #     print(dev)
-    #     self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
+        dev.set_input(S=OPEN, R=OPEN)
+        dev.step(n=1)
+        print(dev)
+        self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
 
-    #     dev.set_input(S=HIGH, R=OPEN)
-    #     dev.step(n=1)
-    #     print(dev)
-    #     self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == OPEN)
+        dev.set_input(S=HIGH, R=OPEN)
+        dev.step(n=1)
+        print(dev)
+        self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == OPEN)
 
-    #     dev.set_input(S=OPEN, R=OPEN)
-    #     dev.step(n=1)
-    #     print(dev)
-    #     self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == OPEN)
+        dev.set_input(S=OPEN, R=OPEN)
+        dev.step(n=1)
+        print(dev)
+        self.assertTrue(dev.Q.value == HIGH and dev.Qbar.value == OPEN)
 
-    #     dev.set_input(S=OPEN, R=HIGH)
-    #     dev.step(n=1)
-    #     print(dev)
-    #     self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
+        dev.set_input(S=OPEN, R=HIGH)
+        dev.step(n=1)
+        print(dev)
+        self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
 
-    #     dev.set_input(S=OPEN, R=OPEN)
-    #     dev.step(n=1)
-    #     print(dev)
-    #     self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
+        dev.set_input(S=OPEN, R=OPEN)
+        dev.step(n=1)
+        print(dev)
+        self.assertTrue(dev.Q.value == OPEN and dev.Qbar.value == HIGH)
 
 
-    # def test_ltdff(self):
-    #     ff = LevelTriggeredDtypeFlipFlip('ltdff')
-    #     ff.power_on()
-    #     ff.step(n=1)
-    #     print(ff)
+    def test_ltdff(self):
+        ff = LevelTriggeredDtypeFlipFlip('ltdff')
+        ff.power_on()
+        ff.step(n=1)
+        print(ff)
 
-    #     ff.D.value = OPEN
-    #     ff.Clk.value = OPEN
-    #     ff.step(n=1)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.D.value = OPEN
+        ff.Clk.value = OPEN
+        ff.step(n=1)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    #     ff.D.value = HIGH
-    #     ff.step(n=1)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.D.value = HIGH
+        ff.step(n=1)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    #     ff.Clk.value = HIGH
-    #     ff.step(n=1)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+        ff.Clk.value = HIGH
+        ff.step(n=1)
+        print(ff)
+        self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
 
-    #     ff.D.value = OPEN
-    #     ff.step(n=1)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.D.value = OPEN
+        ff.step(n=1)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    #     ff.Clk.value = OPEN
-    #     ff.step(n=1)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.Clk.value = OPEN
+        ff.step(n=1)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    #     ff.D.value = HIGH
-    #     ff.step(n=1)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.D.value = HIGH
+        ff.step(n=1)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    # def test_etdff(self):
-    #     ff = EdgeTriggeredDtypeFlipFlip('etdff')
-    #     ff.power_on()
-    #     ff.step()
-    #     print(ff)
+    def test_etdff(self):
+        ff = EdgeTriggeredDtypeFlipFlip('etdff')
+        ff.power_on()
+        ff.step()
+        print(ff)
 
-    #     ff.D.value = OPEN
-    #     ff.Clk.value = OPEN
-    #     ff.step(n=2)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.D.value = OPEN
+        ff.Clk.value = OPEN
+        ff.step(n=2)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    #     ff.D.value = HIGH
-    #     ff.step(n=6)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.D.value = HIGH
+        ff.step(n=6)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    #     ff.Clk.value = HIGH
-    #     ff.step(n=6)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+        ff.Clk.value = HIGH
+        ff.step(n=6)
+        print(ff)
+        self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
 
-    #     ff.Clk.value = OPEN
-    #     ff.step(n=6)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+        ff.Clk.value = OPEN
+        ff.step(n=6)
+        print(ff)
+        self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
 
-    #     ff.D.value = OPEN
-    #     ff.step(n=6)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
+        ff.D.value = OPEN
+        ff.step(n=6)
+        print(ff)
+        self.assertTrue(ff.Q.value == HIGH and ff.Qbar.value == OPEN)
 
-    #     ff.Clk.value = HIGH
-    #     ff.step(n=6)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.Clk.value = HIGH
+        ff.step(n=6)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    #     ff.Clk.value = OPEN
-    #     ff.step(n=6)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.Clk.value = OPEN
+        ff.step(n=6)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    #     ff.D.value = HIGH
-    #     ff.step(n=6)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.D.value = HIGH
+        ff.step(n=6)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    #     ff.D.value = OPEN
-    #     ff.step(n=6)
-    #     print(ff)
-    #     self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
+        ff.D.value = OPEN
+        ff.step(n=6)
+        print(ff)
+        self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
-    # def test_etdff_feedback(self):
-    #     ff = EdgeTriggeredDtypeFlipFlip('etdff1')
-    #     ff.Qbar >> ff.D
+    def test_etdff_feedback(self):
+        ff = EdgeTriggeredDtypeFlipFlip('etdff1')
+        ff.Qbar >> ff.D
 
-    #     ff.power_on()
-    #     ff.step()
-    #     print(ff)
+        ff.power_on()
+        ff.step()
+        print(ff)
 
-    #     for i in range(10):
-    #         ff.Clk.value = OPEN
-    #         ff.step(n=1)
-    #         print(ff)
+        for i in range(10):
+            ff.Clk.value = OPEN
+            ff.step(n=1)
+            print(ff)
 
-    #         ff.Clk.value = HIGH
-    #         ff.step(n=1)
-    #         print(ff)
+            ff.Clk.value = HIGH
+            ff.step(n=1)
+            print(ff)
 
-    # def test_etdff_feedback_up_same(self):
-    #     ff = EdgeTriggeredDtypeFlipFlip('etdff2')
-    #     ff.Qbar >> ff.D
+    def test_etdff_feedback_up_same(self):
+        ff = EdgeTriggeredDtypeFlipFlip('etdff2')
+        ff.Qbar >> ff.D
 
-    #     ff.power_on()
-    #     ff.step()
-    #     print(ff)
+        ff.power_on()
+        ff.step()
+        print(ff)
 
-    #     ff.Clk.value = HIGH
-    #     ff.step(n=1)
-    #     print(ff)
+        ff.Clk.value = HIGH
+        ff.step(n=1)
+        print(ff)
 
-    #     ff.Clk.value = OPEN
-    #     ff.step(n=1)
-    #     print(ff)
+        ff.Clk.value = OPEN
+        ff.step(n=1)
+        print(ff)
 
-    #     ff.D.value = HIGH
-    #     ff.Clk.value = HIGH
-    #     ff.step(n=1)
-    #     print(ff)
+        ff.D.value = HIGH
+        ff.Clk.value = HIGH
+        ff.step(n=1)
+        print(ff)
 
-    #     ff.Clk.value = OPEN
-    #     ff.step(n=1)
-    #     print(ff)
+        ff.Clk.value = OPEN
+        ff.step(n=1)
+        print(ff)
 
     def test_latch8(self):
         dev = Latch8bit('latch8')
