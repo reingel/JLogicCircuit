@@ -47,7 +47,40 @@ class And(Gate):
         # update sequences
         self.update_sequence = [self.pwr, self.rly1, self.rly2]
     
-        super().__init__('And', name)
+        super().__init__(self.device_name, name)
+
+class And4(Gate):
+    def __init__(self, name):
+        self.device_name = 'And4'
+
+        # creat update_sequence
+        self.pwr = Power('pwr')
+        self.rly1 = Relay('rly1', self)
+        self.rly2 = Relay('rly2', self)
+        self.rly3 = Relay('rly3', self)
+        self.rly4 = Relay('rly4', self)
+
+        # connect
+        self.pwr.ri >> self.rly1.up
+        self.rly1.rd >> self.rly2.up
+        self.rly2.rd >> self.rly3.up
+        self.rly3.rd >> self.rly4.up
+
+        # create access points
+        self.in1 = self.rly1.le
+        self.in2 = self.rly2.le
+        self.in3 = self.rly3.le
+        self.in4 = self.rly4.le
+        self.out = self.rly4.rd
+
+        # update sequences
+        self.update_sequence = [self.pwr, self.rly1, self.rly2, self.rly3, self.rly4]
+    
+        super().__init__(self.device_name, name)
+
+    def __repr__(self):
+        str = f'{self.device_name}({self.name}, [{self.in1.value} {self.in2.value} {self.in3.value} {self.in4.value}] -> {self.out.value})'
+        return str
 
 
 class Or(Gate):
@@ -75,7 +108,7 @@ class Or(Gate):
         # update sequences
         self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
     
-        super().__init__('Or', name)
+        super().__init__(self.device_name, name)
 
 
 class Nand(Gate):
@@ -103,7 +136,7 @@ class Nand(Gate):
         # update sequences
         self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
     
-        super().__init__('Nand', name)
+        super().__init__(self.device_name, name)
 
 
 class Nor(Gate):
@@ -127,7 +160,7 @@ class Nor(Gate):
         # update sequences
         self.update_sequence = [self.pwr, self.rly1, self.rly2]
     
-        super().__init__('Nor', name)
+        super().__init__(self.device_name, name)
 
 
 class Xor(Gate):
@@ -152,7 +185,7 @@ class Xor(Gate):
         # update sequences
         self.update_sequence = [self.pwr, self.rly1, self.rly2]
     
-        super().__init__('Xor', name)
+        super().__init__(self.device_name, name)
 
 
 class Buffer(Gate):
@@ -173,7 +206,7 @@ class Buffer(Gate):
         # update sequences
         self.update_sequence = [self.pwr, self.rly]
     
-        super().__init__('Buffer', name)
+        super().__init__(self.device_name, name)
     
     def __repr__(self):
         return f'{self.device_name}({self.name}, {self.in1.value} -> {self.out.value})'
@@ -201,7 +234,7 @@ class Inverter(Gate):
         # update sequences
         self.update_sequence = [self.pwr, self.rly]
     
-        super().__init__('Inverter', name)
+        super().__init__(self.device_name, name)
     
     def __repr__(self):
         return f'{self.device_name}({self.name}, {self.in1.value} -> {self.out.value})'
@@ -222,6 +255,22 @@ class TestGate(unittest.TestCase):
     #             gate.step(n=2)
     #             print(gate)
     #             self.assertEqual(gate.get_output(), truth_table[in1][in2])
+
+    def test_And4(self):
+        gate = And4('and4')
+        gate.power_on()
+        truth_table = [[[[OPEN, OPEN], [OPEN, OPEN]], [[OPEN, OPEN], [OPEN, OPEN]]], [[[OPEN, OPEN], [OPEN, OPEN]], [[OPEN, OPEN], [OPEN, HIGH]]]]
+        for in1 in [OPEN, HIGH]:
+            for in2 in [OPEN, HIGH]:
+                for in3 in [OPEN, HIGH]:
+                    for in4 in [OPEN, HIGH]:
+                        gate.in1.value = in1
+                        gate.in2.value = in2
+                        gate.in3.value = in3
+                        gate.in4.value = in4
+                        gate.step()
+                        print(gate)
+                        self.assertEqual(gate.out.value, truth_table[in1][in2][in3][in4])
 
     # def test_Or(self):
     #     gate = Or('or1')
