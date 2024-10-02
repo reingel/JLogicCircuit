@@ -2,7 +2,7 @@ from abc import *
 
 
 class SimulatedCircuit:
-    def __init__(self, device_name, name, n=2):
+    def __init__(self, device_name, name, n=1):
         self.device_name = device_name
         self.name = name
 
