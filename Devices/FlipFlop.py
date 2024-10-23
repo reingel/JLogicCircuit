@@ -59,7 +59,7 @@ class DtypeFlipFlop(SimulatedCircuit):
         #     str += f'  {device}\n'
         return str
 
-class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
+class LevelTriggeredDtypeFlipFlop(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Level-Triggered D-type FlipFlop'
 
@@ -89,10 +89,10 @@ class LevelTriggeredDtypeFlipFlip(DtypeFlipFlop):
         # update sequences
         self.update_sequence = [self.spl1, self.spl2, self.inv, self.and1, self.and2, self.rsff]
 
-        super().__init__('LevelTriggeredDtypeFlipFlip', name)
+        super().__init__('LevelTriggeredDtypeFlipFlop', name)
 
 
-class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
+class EdgeTriggeredDtypeFlipFlop(DtypeFlipFlop):
     def __init__(self, name):
         self.device_name = 'Edge-Triggered D-type FlipFlop'
 
@@ -142,7 +142,7 @@ class EdgeTriggeredDtypeFlipFlip(DtypeFlipFlop):
             self.and3, self.and4, self.rsff2,
             ]
 
-        super().__init__('EdgeTriggeredDtypeFlipFlip', name)
+        super().__init__('EdgeTriggeredDtypeFlipFlop', name)
 
 class Latch8bit(SimulatedCircuit):
     def __init__(self, name):
@@ -158,7 +158,7 @@ class Latch8bit(SimulatedCircuit):
 
         for i in range(self.nbit):
             # create elements
-            latch = EdgeTriggeredDtypeFlipFlip(f'latch{i:02d}')
+            latch = EdgeTriggeredDtypeFlipFlop(f'latch{i:02d}')
             self.latches.append(latch)
             # connect
             self.split8.out[i] >> self.latches[i].Clk
@@ -225,7 +225,7 @@ class TestFlipFlop(unittest.TestCase):
 
 
     def test_ltdff(self):
-        ff = LevelTriggeredDtypeFlipFlip('ltdff')
+        ff = LevelTriggeredDtypeFlipFlop('ltdff')
         ff.power_on()
         ff.step(n=1)
         print(ff)
@@ -262,7 +262,7 @@ class TestFlipFlop(unittest.TestCase):
         self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
     def test_etdff(self):
-        ff = EdgeTriggeredDtypeFlipFlip('etdff')
+        ff = EdgeTriggeredDtypeFlipFlop('etdff')
         ff.power_on()
         ff.step()
         print(ff)
@@ -314,7 +314,7 @@ class TestFlipFlop(unittest.TestCase):
         self.assertTrue(ff.Q.value == OPEN and ff.Qbar.value == HIGH)
 
     def test_etdff_feedback(self):
-        ff = EdgeTriggeredDtypeFlipFlip('etdff1')
+        ff = EdgeTriggeredDtypeFlipFlop('etdff1')
         ff.Qbar >> ff.D
 
         ff.power_on()
@@ -331,7 +331,7 @@ class TestFlipFlop(unittest.TestCase):
             print(ff)
 
     def test_etdff_feedback_up_same(self):
-        ff = EdgeTriggeredDtypeFlipFlip('etdff2')
+        ff = EdgeTriggeredDtypeFlipFlop('etdff2')
         ff.Qbar >> ff.D
 
         ff.power_on()
