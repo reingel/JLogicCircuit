@@ -19,14 +19,14 @@ class Split(Junction):
         self.rd = Port('rd', self)
 
         # create access points
-        self.in1 = self.le
-        self.out1 = self.ru
-        self.out2 = self.rd
+        self.I = self.le
+        self.O0 = self.ru
+        self.O1 = self.rd
 
         super().__init__()
 
     def __repr__(self):
-        return f'Split({self.name}, {self.in1.value} -> {self.out1.value} + {self.out2.value})'
+        return f'Split({self.name}, {self.I.value} -> {self.O0.value} + {self.O1.value})'
     
     def update_inport(self):
         self.le.update_value()
@@ -49,14 +49,14 @@ class Merge(Junction):
         self.ri = Port('ri', self)
 
         # create access points
-        self.in1 = self.lu
-        self.in2 = self.ld
-        self.out = self.ri
+        self.I0 = self.lu
+        self.I1 = self.ld
+        self.O = self.ri
 
         super().__init__()
     
     def __repr__(self):
-        return f'Merge({self.name}, {self.in1.value} + {self.in2.value} -> {self.out.value})'
+        return f'Merge({self.name}, {self.I0.value} + {self.I1.value} -> {self.O.value})'
     
     def update_inport(self):
         self.lu.update_value()
@@ -82,20 +82,20 @@ class Split8(Junction):
         self.n = 8
 
         # create ports
-        self.in1 = Port('in1', self)
-        self.out = [Port(f'out{i}', self) for i in range(self.n)]
+        self.I = Port('I', self)
+        self.O = [Port(f'O{i}', self) for i in range(self.n)]
 
         super().__init__()
 
     def __repr__(self):
-        return f'Split({self.name}, {self.in1.value} -> {[self.out[i].value for i in range(self.n)]})'
+        return f'Split({self.name}, {self.I.value} -> {[self.O[i].value for i in range(self.n)]})'
     
     def update_inport(self):
-        self.in1.update_value()
+        self.I.update_value()
     
     def calc_output(self):
         for i in range(self.n):
-            self.out[i].value = self.in1.value
+            self.O[i].value = self.I.value
     
     def update_state(self):
         pass # there is no state.
@@ -106,27 +106,32 @@ class TestConnection(unittest.TestCase):
     def test_split(self):
         spl = Split('spl1')
         print(spl)
-        spl.in1.value = HIGH
+        spl.I.value = HIGH
         spl.step()
         print(spl)
-        spl.in1.value = OPEN
+        self.assertEqual(spl.I.value, HIGH)
+        self.assertEqual(spl.I.value, spl.O0.value)
+        self.assertEqual(spl.I.value, spl.O1.value)
+        spl.I.value = OPEN
         spl.step()
         print(spl)
-
+        self.assertEqual(spl.I.value, OPEN)
+        self.assertEqual(spl.I.value, spl.O0.value)
+        self.assertEqual(spl.I.value, spl.O1.value)
     
     def test_merge(self):
         jnc = Merge('jnc1')
         print(jnc)
-        jnc.in1.value = HIGH
+        jnc.I0.value = HIGH
         jnc.step()
         print(jnc)
-        jnc.in2.value = HIGH
+        jnc.I1.value = HIGH
         jnc.step()
         print(jnc)
-        jnc.in1.value = OPEN
+        jnc.I0.value = OPEN
         jnc.step()
         print(jnc)
-        jnc.in2.value = OPEN
+        jnc.I1.value = OPEN
         jnc.step()
         print(jnc)
     
@@ -136,7 +141,7 @@ class TestConnection(unittest.TestCase):
         sp.step()
 
         print(sp)
-        sp.in1.value = HIGH
+        sp.I.value = HIGH
         sp.step()
         print(sp)
     

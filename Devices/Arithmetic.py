@@ -17,9 +17,9 @@ class HalfAdder(SimulatedCircuit):
         self.and1 = And('and1')
 
         # connect
-        self.spl1.out1 >> self.xor.in1
+        self.spl1.out1 >> self.xor.I0
         self.spl1.out2 >> self.and1.I0
-        self.spl2.out1 >> self.xor.in2
+        self.spl2.out1 >> self.xor.I1
         self.spl2.out2 >> self.and1.I1
 
         # create access points
@@ -52,15 +52,15 @@ class FullAdder(SimulatedCircuit):
 
         # connect
         self.ha1.S >> self.ha2.B
-        self.ha2.CO >> self.or1.in1
-        self.ha1.CO >> self.or1.in2
+        self.ha2.CO >> self.or1.I0
+        self.ha1.CO >> self.or1.I1
 
         # create access points
         self.CI = self.ha2.A
         self.A = self.ha1.A
         self.B = self.ha1.B
         self.S = self.ha2.S
-        self.CO = self.or1.out
+        self.CO = self.or1.O
 
         # update sequence
         self.update_sequence = [self.ha1, self.ha2, self.or1]
@@ -133,7 +133,6 @@ class Adder8bit(SimulatedCircuit):
             strS = f'{self.Ss[i].value}{strS}'
         S = int(strS, 2)
         return S
-
 
 
 class TestArithmetic(unittest.TestCase):
