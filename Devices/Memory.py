@@ -39,14 +39,14 @@ class Memory8bit(SimulatedCircuit):
             latch = Memory1bit(f'latch{i:02d}')
             self.latches.append(latch)
             # connect
-            self.split8.out[i] >> self.latches[i].W
+            self.split8.O[i] >> self.latches[i].W
             # create access ports
             self.DI.append(self.latches[i].DI)
             self.DO.append(self.latches[i].DO)
             # update sequences
             self.update_sequence.append(self.latches[i])
         
-        self.W = self.split8.in1
+        self.W = self.split8.I
 
         super().__init__('Memory8bit', name)
         
@@ -87,8 +87,8 @@ class RAM8x1(SimulatedCircuit):
             split = Split(f'S{i}')
             self.splits.append(split)
             # connect
-            self.splits[i].out1 >> self.decoder.S[i]
-            self.splits[i].out2 >> self.selector.S[i]
+            self.splits[i].O0 >> self.decoder.S[i]
+            self.splits[i].O1 >> self.selector.S[i]
             # update sequences
             self.update_sequence.append(self.splits[i])
             
@@ -101,16 +101,16 @@ class RAM8x1(SimulatedCircuit):
             self.memories.append(memory)
             # connect
             self.decoder.O[i] >> self.memories[i].W
-            self.split8.out[i] >> self.memories[i].DI
+            self.split8.O[i] >> self.memories[i].DI
             self.memories[i].DO >> self.selector.I[i]
             # update sequences
             self.update_sequence.append(self.memories[i])
         
         self.update_sequence.append(self.selector)
         
-        self.S = [self.splits[i].in1 for i in range(self.naddr)]
+        self.S = [self.splits[i].I for i in range(self.naddr)]
         self.W = self.decoder.W
-        self.DI = self.split8.in1
+        self.DI = self.split8.I
         self.DO = self.selector.DO
 
         super().__init__('RAM8x1', name)
@@ -148,15 +148,15 @@ class RAM8x8(SimulatedCircuit):
         for i in range(self.nmem):
             # connect
             for j in range(self.naddr):
-                self.split8s[j].out[i] >> self.ram8x1[i].S[j]
-            self.split8w.out[i] >> self.ram8x1[i].W
+                self.split8s[j].O[i] >> self.ram8x1[i].S[j]
+            self.split8w.O[i] >> self.ram8x1[i].W
             
         self.update_sequence = [self.split8s[i] for i in range(self.naddr)]
         self.update_sequence.append(self.split8w)
         self.update_sequence.extend([self.ram8x1[i] for i in range(self.nmem)])
         
-        self.S = [self.split8s[i].in1 for i in range(self.naddr)]
-        self.W = self.split8w.in1
+        self.S = [self.split8s[i].I for i in range(self.naddr)]
+        self.W = self.split8w.I
         self.DI = [self.ram8x1[i].DI for i in range(self.nmem)]
         self.DO = [self.ram8x1[i].DO for i in range(self.nmem)]
 

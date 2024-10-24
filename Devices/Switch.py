@@ -13,8 +13,8 @@ class Switch(SimulatedCircuit):
         self.ri = Port('ri', self)
 
         # create access points
-        self.in1 = self.le
-        self.out = self.ri
+        self.I = self.le
+        self.O = self.ri
 
         super().__init__('Switch', name)
     

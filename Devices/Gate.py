@@ -167,7 +167,7 @@ class Nand(Gate):
         # create access points
         self.I0 = self.rly1.le
         self.I1 = self.rly2.le
-        self.out = self.jnc.ri
+        self.O = self.jnc.ri
 
         # update sequences
         self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
@@ -191,7 +191,7 @@ class Nor(Gate):
         # create access points
         self.I0 = self.rly1.le
         self.I1 = self.rly2.le
-        self.out = self.rly2.ru
+        self.O = self.rly2.ru
 
         # update sequences
         self.update_sequence = [self.pwr, self.rly1, self.rly2]
@@ -216,7 +216,7 @@ class Xor(Gate):
         # create access points
         self.I0 = self.rly1.le
         self.I1 = self.rly2.le
-        self.out = self.rly2.up
+        self.O = self.rly2.up
 
         # update sequences
         self.update_sequence = [self.pwr, self.rly1, self.rly2]
@@ -237,7 +237,7 @@ class Buffer(Gate):
 
         # create access points
         self.I = self.rly.le
-        self.out = self.rly.rd
+        self.O = self.rly.rd
 
         # update sequences
         self.update_sequence = [self.pwr, self.rly]
@@ -245,7 +245,7 @@ class Buffer(Gate):
         super().__init__(self.device_name, name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, {self.I.value} -> {self.out.value})'
+        return f'{self.device_name}({self.name}, {self.I.value} -> {self.O.value})'
 
     def set_input(self, v1: BitValue):
         if self.I:
@@ -265,7 +265,7 @@ class Inverter(Gate):
 
         # create access points
         self.I = self.rly.le
-        self.out = self.rly.ru
+        self.O = self.rly.ru
 
         # update sequences
         self.update_sequence = [self.pwr, self.rly]
@@ -273,7 +273,7 @@ class Inverter(Gate):
         super().__init__(self.device_name, name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, {self.I.value} -> {self.out.value})'
+        return f'{self.device_name}({self.name}, {self.I.value} -> {self.O.value})'
 
     def set_input(self, v1: BitValue):
         if self.I:
@@ -285,40 +285,40 @@ class TestGate(unittest.TestCase):
         gate = And('and1')
         gate.power_on()
         truth_table = [[OPEN, OPEN], [OPEN, HIGH]]
-        for in1 in [OPEN, HIGH]:
-            for in2 in [OPEN, HIGH]:
-                gate.set_input(in1, in2)
+        for v0 in [OPEN, HIGH]:
+            for v1 in [OPEN, HIGH]:
+                gate.set_input(v0, v1)
                 gate.step(n=2)
                 print(gate)
-                self.assertEqual(gate.get_output(), truth_table[in1][in2])
+                self.assertEqual(gate.get_output(), truth_table[v0][v1])
 
     def test_And4(self):
         print('And4')
         gate = AndN('andn', 4)
         gate.power_on()
         truth_table = [[[[OPEN, OPEN], [OPEN, OPEN]], [[OPEN, OPEN], [OPEN, OPEN]]], [[[OPEN, OPEN], [OPEN, OPEN]], [[OPEN, OPEN], [OPEN, HIGH]]]]
-        for in1 in [OPEN, HIGH]:
-            for in2 in [OPEN, HIGH]:
-                for in3 in [OPEN, HIGH]:
-                    for in4 in [OPEN, HIGH]:
-                        gate.I[0].value = in1
-                        gate.I[1].value = in2
-                        gate.I[2].value = in3
-                        gate.I[3].value = in4
+        for v0 in [OPEN, HIGH]:
+            for v1 in [OPEN, HIGH]:
+                for v2 in [OPEN, HIGH]:
+                    for v3 in [OPEN, HIGH]:
+                        gate.I[0].value = v0
+                        gate.I[1].value = v1
+                        gate.I[2].value = v2
+                        gate.I[3].value = v3
                         gate.step()
                         print(gate)
-                        self.assertEqual(gate.O.value, truth_table[in1][in2][in3][in4])
+                        self.assertEqual(gate.O.value, truth_table[v0][v1][v2][v3])
 
     def test_Or(self):
         gate = Or('or1')
         gate.power_on()
         truth_table = [[OPEN, HIGH], [HIGH, HIGH]]
-        for in1 in [OPEN, HIGH]:
-            for in2 in [OPEN, HIGH]:
-                gate.set_input(in1, in2)
+        for v0 in [OPEN, HIGH]:
+            for v1 in [OPEN, HIGH]:
+                gate.set_input(v0, v1)
                 gate.step(n=2)
                 print(gate)
-                self.assertEqual(gate.get_output(), truth_table[in1][in2])
+                self.assertEqual(gate.get_output(), truth_table[v0][v1])
 
     def test_OrN(self):
         gate = OrN('or8', 8)
@@ -333,47 +333,47 @@ class TestGate(unittest.TestCase):
             gate.step()
             print(gate.O.value)
 
-    # def test_Nand(self):
-    #     gate = Nand('nand1')
-    #     gate.power_on()
-    #     truth_table = [[HIGH, HIGH], [HIGH, OPEN]]
-    #     for in1 in [OPEN, HIGH]:
-    #         for in2 in [OPEN, HIGH]:
-    #             gate.set_input(in1, in2)
-    #             gate.step(n=2)
-    #             print(gate)
-    #             self.assertEqual(gate.get_output(), truth_table[in1][in2])
+    def test_Nand(self):
+        gate = Nand('nand1')
+        gate.power_on()
+        truth_table = [[HIGH, HIGH], [HIGH, OPEN]]
+        for v0 in [OPEN, HIGH]:
+            for v1 in [OPEN, HIGH]:
+                gate.set_input(v0, v1)
+                gate.step(n=2)
+                print(gate)
+                self.assertEqual(gate.get_output(), truth_table[v0][v1])
 
-    # def test_Nor(self):
-    #     gate = Nor('nor1')
-    #     gate.power_on()
-    #     truth_table = [[HIGH, OPEN], [OPEN, OPEN]]
-    #     for in1 in [OPEN, HIGH]:
-    #         for in2 in [OPEN, HIGH]:
-    #             gate.set_input(in1, in2)
-    #             gate.step(n=2)
-    #             print(gate)
-    #             self.assertEqual(gate.get_output(), truth_table[in1][in2])
+    def test_Nor(self):
+        gate = Nor('nor1')
+        gate.power_on()
+        truth_table = [[HIGH, OPEN], [OPEN, OPEN]]
+        for v0 in [OPEN, HIGH]:
+            for v1 in [OPEN, HIGH]:
+                gate.set_input(v0, v1)
+                gate.step(n=2)
+                print(gate)
+                self.assertEqual(gate.get_output(), truth_table[v0][v1])
 
-    # def test_Buffer(self):
-    #     gate = Buffer('buffer1')
-    #     gate.power_on()
-    #     truth_table = [OPEN, HIGH]
-    #     for in1 in [OPEN, HIGH]:
-    #         gate.set_input(in1)
-    #         gate.step(n=2)
-    #         print(gate)
-    #         self.assertEqual(gate.get_output(), truth_table[in1])
+    def test_Buffer(self):
+        gate = Buffer('buffer1')
+        gate.power_on()
+        truth_table = [OPEN, HIGH]
+        for v0 in [OPEN, HIGH]:
+            gate.set_input(v0)
+            gate.step(n=2)
+            print(gate)
+            self.assertEqual(gate.get_output(), truth_table[v0])
 
-    # def test_Inverter(self):
-    #     gate = Inverter('inverter1')
-    #     gate.power_on()
-    #     truth_table = [HIGH, OPEN]
-    #     for in1 in [OPEN, HIGH]:
-    #         gate.set_input(in1)
-    #         gate.step(n=2)
-    #         print(gate)
-    #         self.assertEqual(gate.get_output(), truth_table[in1])
+    def test_Inverter(self):
+        gate = Inverter('inverter1')
+        gate.power_on()
+        truth_table = [HIGH, OPEN]
+        for v0 in [OPEN, HIGH]:
+            gate.set_input(v0)
+            gate.step(n=2)
+            print(gate)
+            self.assertEqual(gate.get_output(), truth_table[v0])
     
     def test_AndOr(self):
         and1 = And('and1')
@@ -400,16 +400,16 @@ class TestGate(unittest.TestCase):
         print(and2)
         print(or1)
 
-    # def test_Xor(self):
-    #     gate = Xor('xor1')
-    #     gate.power_on()
-    #     truth_table = [[OPEN, HIGH], [HIGH, OPEN]]
-    #     for in1 in [OPEN, HIGH]:
-    #         for in2 in [OPEN, HIGH]:
-    #             gate.set_input(in1, in2)
-    #             gate.step(n=2)
-    #             print(gate)
-    #             self.assertEqual(gate.get_output(), truth_table[in1][in2])
+    def test_Xor(self):
+        gate = Xor('xor1')
+        gate.power_on()
+        truth_table = [[OPEN, HIGH], [HIGH, OPEN]]
+        for v0 in [OPEN, HIGH]:
+            for v1 in [OPEN, HIGH]:
+                gate.set_input(v0, v1)
+                gate.step(n=2)
+                print(gate)
+                self.assertEqual(gate.get_output(), truth_table[v0][v1])
 
 
 

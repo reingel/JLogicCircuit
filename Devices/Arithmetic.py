@@ -17,15 +17,15 @@ class HalfAdder(SimulatedCircuit):
         self.and1 = And('and1')
 
         # connect
-        self.spl1.out1 >> self.xor.I0
-        self.spl1.out2 >> self.and1.I0
-        self.spl2.out1 >> self.xor.I1
-        self.spl2.out2 >> self.and1.I1
+        self.spl1.O0 >> self.xor.I0
+        self.spl1.O1 >> self.and1.I0
+        self.spl2.O0 >> self.xor.I1
+        self.spl2.O1 >> self.and1.I1
 
         # create access points
-        self.A = self.spl1.in1
-        self.B = self.spl2.in1
-        self.S = self.xor.out
+        self.A = self.spl1.I
+        self.B = self.spl2.I
+        self.S = self.xor.O
         self.CO = self.and1.O
 
         # update sequence
@@ -142,14 +142,14 @@ class TestArithmetic(unittest.TestCase):
         ha.step()
         truth_table_S = [[OPEN, HIGH], [HIGH, OPEN]]
         truth_table_CO = [[OPEN, OPEN], [OPEN, HIGH]]
-        for in1 in [OPEN, HIGH]:
-            for in2 in [OPEN, HIGH]:
-                ha.A.value = in1
-                ha.B.value = in2
+        for v0 in [OPEN, HIGH]:
+            for v1 in [OPEN, HIGH]:
+                ha.A.value = v0
+                ha.B.value = v1
                 ha.step()
                 print(ha)
-                self.assertEqual(ha.S.value, truth_table_S[in1][in2])
-                self.assertEqual(ha.CO.value, truth_table_CO[in1][in2])
+                self.assertEqual(ha.S.value, truth_table_S[v0][v1])
+                self.assertEqual(ha.CO.value, truth_table_CO[v0][v1])
 
     def test_full_adder(self):
         fa = FullAdder('fa1')
@@ -158,20 +158,20 @@ class TestArithmetic(unittest.TestCase):
         truth_table_S = [[[0, 1], [1, 0]], [[1, 0], [0, 1]]]
         truth_table_CO = [[[0, 0], [0, 1]], [[0, 1], [1, 1]]]
         for ci in [OPEN, HIGH]:
-            for in1 in [OPEN, HIGH]:
-                for in2 in [OPEN, HIGH]:
+            for v0 in [OPEN, HIGH]:
+                for v1 in [OPEN, HIGH]:
                     fa.CI.value = ci
-                    fa.A.value = in1
-                    fa.B.value = in2
+                    fa.A.value = v0
+                    fa.B.value = v1
                     fa.step()
                     print(fa)
-                    self.assertEqual(fa.S.value, truth_table_S[ci][in1][in2])
-                    self.assertEqual(fa.CO.value, truth_table_CO[ci][in1][in2])
+                    self.assertEqual(fa.S.value, truth_table_S[ci][v0][v1])
+                    self.assertEqual(fa.CO.value, truth_table_CO[ci][v0][v1])
 
     def test_adder8bit(self):
         gnd = Ground('gnd')
         a8 = Adder8bit('a8')
-        a8.CI >> gnd.in1
+        a8.CI >> gnd.I
         gnd.power_on()
         a8.power_on()
         gnd.step()

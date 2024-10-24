@@ -8,12 +8,12 @@ class Ground(SimulatedCircuit):
     def __init__(self, name):
         self.le = Port('le', self)
 
-        self.in1 = self.le
+        self.I = self.le
 
         super().__init__('Ground', name)
 
     def __repr__(self):
-        return f"Ground({self.name}, -> {self.in1.value})"
+        return f"Ground({self.name}, -> {self.I.value})"
     
     def update_inport(self):
         pass

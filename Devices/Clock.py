@@ -3,7 +3,7 @@ from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Gate import Inverter
-from FlipFlop import EdgeTriggeredDtypeFlipFlip
+from FlipFlop import EdgeTriggeredDtypeFlipFlop
 from Junction import Split
 
 class Oscillator(SimulatedCircuit):
@@ -12,35 +12,35 @@ class Oscillator(SimulatedCircuit):
         self.spl = Split('spl')
         self.update_sequence = [self.inv, self.spl]
 
-        self.inv.out >> self.spl.in1
-        self.spl.out2 >> self.inv.in1
+        self.inv.O >> self.spl.I
+        self.spl.O1 >> self.inv.I
 
-        self.in1 = self.inv.in1
-        self.out = self.spl.out1
+        self.I = self.inv.I
+        self.O = self.spl.O0
 
         super().__init__('Oscillator', name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, {self.out.value})'
+        return f'{self.device_name}({self.name}, {self.O.value})'
     
 
 class RippleCounter2Bit(SimulatedCircuit):
     def __init__(self, name):
         self.osc = Oscillator('osc')
         self.inv = Inverter('inv')
-        self.etff1 = EdgeTriggeredDtypeFlipFlip('etff1')
+        self.etff1 = EdgeTriggeredDtypeFlipFlop('etff1')
         self.spl1 = Split('spl1')
         self.spl2 = Split('spl2')
 
         self.update_sequence = [self.osc, self.spl1, self.inv, self.etff1, self.spl2]
 
-        self.osc.out >> self.spl1.in1
-        self.spl1.out1 >> self.inv.in1
-        self.spl1.out2 >> self.etff1.Clk
-        self.etff1.Qbar >> self.spl2.in1
-        self.spl2.out2 >> self.etff1.D
+        self.osc.O >> self.spl1.I
+        self.spl1.O0 >> self.inv.I
+        self.spl1.O1 >> self.etff1.Clk
+        self.etff1.Qbar >> self.spl2.I
+        self.spl2.O1 >> self.etff1.D
 
-        self.Clkbar = self.inv.out
+        self.Clkbar = self.inv.O
         self.Q1 = self.etff1.Q
 
         super().__init__('RippleCounter2Bit', name)
@@ -55,9 +55,9 @@ class RippleCounter4Bit(SimulatedCircuit):
     def __init__(self, name):
         self.osc = Oscillator('osc')
         self.inv = Inverter('inv')
-        self.etff1 = EdgeTriggeredDtypeFlipFlip('etff1')
-        self.etff2 = EdgeTriggeredDtypeFlipFlip('etff2')
-        self.etff3 = EdgeTriggeredDtypeFlipFlip('etff3')
+        self.etff1 = EdgeTriggeredDtypeFlipFlop('etff1')
+        self.etff2 = EdgeTriggeredDtypeFlipFlop('etff2')
+        self.etff3 = EdgeTriggeredDtypeFlipFlop('etff3')
         self.spl1 = Split('spl1')
         self.spl2 = Split('spl2')
         self.spl3 = Split('spl3')
@@ -65,19 +65,19 @@ class RippleCounter4Bit(SimulatedCircuit):
 
         self.update_sequence = [self.osc, self.spl1, self.inv, self.etff1, self.spl2, self.etff2, self.spl3, self.etff3, self.spl4]
 
-        self.osc.out >> self.spl1.in1
-        self.spl1.out1 >> self.inv.in1
-        self.spl1.out2 >> self.etff1.Clk
-        self.etff1.Qbar >> self.spl2.in1
-        self.spl2.out1 >> self.etff2.Clk
-        self.spl2.out2 >> self.etff1.D
-        self.etff2.Qbar >> self.spl3.in1
-        self.spl3.out1 >> self.etff3.Clk
-        self.spl3.out2 >> self.etff2.D
-        self.etff3.Qbar >> self.spl4.in1
-        self.spl4.out2 >> self.etff3.D
+        self.osc.O >> self.spl1.I
+        self.spl1.O0 >> self.inv.I
+        self.spl1.O1 >> self.etff1.Clk
+        self.etff1.Qbar >> self.spl2.I
+        self.spl2.O0 >> self.etff2.Clk
+        self.spl2.O1 >> self.etff1.D
+        self.etff2.Qbar >> self.spl3.I
+        self.spl3.O0 >> self.etff3.Clk
+        self.spl3.O1 >> self.etff2.D
+        self.etff3.Qbar >> self.spl4.I
+        self.spl4.O1 >> self.etff3.D
 
-        self.Clkbar = self.inv.out
+        self.Clkbar = self.inv.O
         self.Q1 = self.etff1.Q
         self.Q2 = self.etff2.Q
         self.Q3 = self.etff3.Q

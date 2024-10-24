@@ -23,60 +23,60 @@ class Module3to8(SimulatedCircuit):
         self.and4 = [AndN(f'and4{i}', 4) for i in range(self.nbit)]
         
         # connect
-        self.spls[0][0].out1 >> self.spls[0][1].in1
-        self.spls[0][0].out2 >> self.inv[0].in1
-        self.spls[0][1].out1 >> self.spls[0][2].in1
-        self.spls[0][1].out2 >> self.and4[7].I[1]
-        self.spls[0][2].out1 >> self.spls[0][3].in1
-        self.spls[0][2].out2 >> self.and4[5].I[1]
-        self.spls[0][3].out1 >> self.and4[1].I[1]
-        self.spls[0][3].out2 >> self.and4[3].I[1]
+        self.spls[0][0].O0 >> self.spls[0][1].I
+        self.spls[0][0].O1 >> self.inv[0].I
+        self.spls[0][1].O0 >> self.spls[0][2].I
+        self.spls[0][1].O1 >> self.and4[7].I[1]
+        self.spls[0][2].O0 >> self.spls[0][3].I
+        self.spls[0][2].O1 >> self.and4[5].I[1]
+        self.spls[0][3].O0 >> self.and4[1].I[1]
+        self.spls[0][3].O1 >> self.and4[3].I[1]
 
-        self.spls[1][0].out1 >> self.spls[1][1].in1
-        self.spls[1][0].out2 >> self.inv[1].in1
-        self.spls[1][1].out1 >> self.spls[1][2].in1
-        self.spls[1][1].out2 >> self.and4[7].I[2]
-        self.spls[1][2].out1 >> self.spls[1][3].in1
-        self.spls[1][2].out2 >> self.and4[6].I[2]
-        self.spls[1][3].out1 >> self.and4[2].I[2]
-        self.spls[1][3].out2 >> self.and4[3].I[2]
+        self.spls[1][0].O0 >> self.spls[1][1].I
+        self.spls[1][0].O1 >> self.inv[1].I
+        self.spls[1][1].O0 >> self.spls[1][2].I
+        self.spls[1][1].O1 >> self.and4[7].I[2]
+        self.spls[1][2].O0 >> self.spls[1][3].I
+        self.spls[1][2].O1 >> self.and4[6].I[2]
+        self.spls[1][3].O0 >> self.and4[2].I[2]
+        self.spls[1][3].O1 >> self.and4[3].I[2]
 
-        self.spls[2][0].out1 >> self.spls[2][1].in1
-        self.spls[2][0].out2 >> self.inv[2].in1
-        self.spls[2][1].out1 >> self.spls[2][2].in1
-        self.spls[2][1].out2 >> self.and4[7].I[3]
-        self.spls[2][2].out1 >> self.spls[2][3].in1
-        self.spls[2][2].out2 >> self.and4[6].I[3]
-        self.spls[2][3].out1 >> self.and4[4].I[3]
-        self.spls[2][3].out2 >> self.and4[5].I[3]
+        self.spls[2][0].O0 >> self.spls[2][1].I
+        self.spls[2][0].O1 >> self.inv[2].I
+        self.spls[2][1].O0 >> self.spls[2][2].I
+        self.spls[2][1].O1 >> self.and4[7].I[3]
+        self.spls[2][2].O0 >> self.spls[2][3].I
+        self.spls[2][2].O1 >> self.and4[6].I[3]
+        self.spls[2][3].O0 >> self.and4[4].I[3]
+        self.spls[2][3].O1 >> self.and4[5].I[3]
 
-        self.inv[0].out >> self.spln[0][0].in1
-        self.spln[0][0].out1 >> self.spln[0][1].in1
-        self.spln[0][0].out2 >> self.and4[6].I[1]
-        self.spln[0][1].out1 >> self.spln[0][2].in1
-        self.spln[0][1].out2 >> self.and4[4].I[1]
-        self.spln[0][2].out1 >> self.and4[0].I[1]
-        self.spln[0][2].out2 >> self.and4[2].I[1]
+        self.inv[0].O >> self.spln[0][0].I
+        self.spln[0][0].O0 >> self.spln[0][1].I
+        self.spln[0][0].O1 >> self.and4[6].I[1]
+        self.spln[0][1].O0 >> self.spln[0][2].I
+        self.spln[0][1].O1 >> self.and4[4].I[1]
+        self.spln[0][2].O0 >> self.and4[0].I[1]
+        self.spln[0][2].O1 >> self.and4[2].I[1]
 
-        self.inv[1].out >> self.spln[1][0].in1
-        self.spln[1][0].out1 >> self.spln[1][1].in1
-        self.spln[1][0].out2 >> self.and4[5].I[2]
-        self.spln[1][1].out1 >> self.spln[1][2].in1
-        self.spln[1][1].out2 >> self.and4[4].I[2]
-        self.spln[1][2].out1 >> self.and4[0].I[2]
-        self.spln[1][2].out2 >> self.and4[1].I[2]
+        self.inv[1].O >> self.spln[1][0].I
+        self.spln[1][0].O0 >> self.spln[1][1].I
+        self.spln[1][0].O1 >> self.and4[5].I[2]
+        self.spln[1][1].O0 >> self.spln[1][2].I
+        self.spln[1][1].O1 >> self.and4[4].I[2]
+        self.spln[1][2].O0 >> self.and4[0].I[2]
+        self.spln[1][2].O1 >> self.and4[1].I[2]
 
-        self.inv[2].out >> self.spln[2][0].in1
-        self.spln[2][0].out1 >> self.spln[2][1].in1
-        self.spln[2][0].out2 >> self.and4[3].I[3]
-        self.spln[2][1].out1 >> self.spln[2][2].in1
-        self.spln[2][1].out2 >> self.and4[2].I[3]
-        self.spln[2][2].out1 >> self.and4[0].I[3]
-        self.spln[2][2].out2 >> self.and4[1].I[3]
+        self.inv[2].O >> self.spln[2][0].I
+        self.spln[2][0].O0 >> self.spln[2][1].I
+        self.spln[2][0].O1 >> self.and4[3].I[3]
+        self.spln[2][1].O0 >> self.spln[2][2].I
+        self.spln[2][1].O1 >> self.and4[2].I[3]
+        self.spln[2][2].O0 >> self.and4[0].I[3]
+        self.spln[2][2].O1 >> self.and4[1].I[3]
 
         # create access points
         self.I = [self.and4[i].I[0] for i in range(self.nbit)]
-        self.S = [self.spls[i][0].in1 for i in range(self.naddr)]
+        self.S = [self.spls[i][0].I for i in range(self.naddr)]
         self.O = [self.and4[i].O for i in range(self.nbit)]
 
         # update sequences
@@ -135,13 +135,13 @@ class Decoder3to8(SimulatedCircuit):
         
         # connect
         for i in range(self.nbit - 2):
-            self.splw[i].out1 >> self.splw[i+1].in1
-            self.splw[i].out2 >> self.module.I[i]
-        self.splw[self.nbit - 2].out1 >> self.module.I[self.nbit - 1]
-        self.splw[self.nbit - 2].out2 >> self.module.I[self.nbit - 2]
+            self.splw[i].O0 >> self.splw[i+1].I
+            self.splw[i].O1 >> self.module.I[i]
+        self.splw[self.nbit - 2].O0 >> self.module.I[self.nbit - 1]
+        self.splw[self.nbit - 2].O1 >> self.module.I[self.nbit - 2]
 
         # create access points
-        self.W = self.splw[0].in1
+        self.W = self.splw[0].I
         self.S = [self.module.S[i] for i in range(self.naddr)]
         self.O = [self.module.O[i] for i in range(self.nbit)]
 
