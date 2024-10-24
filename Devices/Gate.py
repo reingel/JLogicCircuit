@@ -96,9 +96,9 @@ class Or(Gate):
         self.rly2.rd >> self.jnc.ld
 
         # create access points
-        self.in1 = self.rly1.le
-        self.in2 = self.rly2.le
-        self.out = self.jnc.ri
+        self.I0 = self.rly1.le
+        self.I1 = self.rly2.le
+        self.O = self.jnc.ri
 
         # update sequences
         self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
@@ -165,8 +165,8 @@ class Nand(Gate):
         self.rly2.ru >> self.jnc.ld
 
         # create access points
-        self.in1 = self.rly1.le
-        self.in2 = self.rly2.le
+        self.I0 = self.rly1.le
+        self.I1 = self.rly2.le
         self.out = self.jnc.ri
 
         # update sequences
@@ -189,8 +189,8 @@ class Nor(Gate):
         self.rly1.ru >> self.rly2.up
 
         # create access points
-        self.in1 = self.rly1.le
-        self.in2 = self.rly2.le
+        self.I0 = self.rly1.le
+        self.I1 = self.rly2.le
         self.out = self.rly2.ru
 
         # update sequences
@@ -214,8 +214,8 @@ class Xor(Gate):
         self.rly1.rd >> self.rly2.ru
 
         # create access points
-        self.in1 = self.rly1.le
-        self.in2 = self.rly2.le
+        self.I0 = self.rly1.le
+        self.I1 = self.rly2.le
         self.out = self.rly2.up
 
         # update sequences
@@ -236,7 +236,7 @@ class Buffer(Gate):
         self.pwr.ri >> self.rly.up
 
         # create access points
-        self.in1 = self.rly.le
+        self.I = self.rly.le
         self.out = self.rly.rd
 
         # update sequences
@@ -245,11 +245,11 @@ class Buffer(Gate):
         super().__init__(self.device_name, name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, {self.in1.value} -> {self.out.value})'
+        return f'{self.device_name}({self.name}, {self.I.value} -> {self.out.value})'
 
     def set_input(self, v1: BitValue):
-        if self.in1:
-            self.in1.value = v1
+        if self.I:
+            self.I.value = v1
 
 
 class Inverter(Gate):
@@ -264,7 +264,7 @@ class Inverter(Gate):
         self.pwr.ri >> self.rly.up
 
         # create access points
-        self.in1 = self.rly.le
+        self.I = self.rly.le
         self.out = self.rly.ru
 
         # update sequences
@@ -273,11 +273,11 @@ class Inverter(Gate):
         super().__init__(self.device_name, name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, {self.in1.value} -> {self.out.value})'
+        return f'{self.device_name}({self.name}, {self.I.value} -> {self.out.value})'
 
     def set_input(self, v1: BitValue):
-        if self.in1:
-            self.in1.value = v1
+        if self.I:
+            self.I.value = v1
 
 
 class TestGate(unittest.TestCase):
@@ -309,29 +309,29 @@ class TestGate(unittest.TestCase):
                         print(gate)
                         self.assertEqual(gate.O.value, truth_table[in1][in2][in3][in4])
 
-    # def test_Or(self):
-    #     gate = Or('or1')
-    #     gate.power_on()
-    #     truth_table = [[OPEN, HIGH], [HIGH, HIGH]]
-    #     for in1 in [OPEN, HIGH]:
-    #         for in2 in [OPEN, HIGH]:
-    #             gate.set_input(in1, in2)
-    #             gate.step(n=2)
-    #             print(gate)
-    #             self.assertEqual(gate.get_output(), truth_table[in1][in2])
+    def test_Or(self):
+        gate = Or('or1')
+        gate.power_on()
+        truth_table = [[OPEN, HIGH], [HIGH, HIGH]]
+        for in1 in [OPEN, HIGH]:
+            for in2 in [OPEN, HIGH]:
+                gate.set_input(in1, in2)
+                gate.step(n=2)
+                print(gate)
+                self.assertEqual(gate.get_output(), truth_table[in1][in2])
 
-    # def test_OrN(self):
-    #     gate = OrN('or8', 8)
-    #     gate.power_on()
-    #     gate.step()
-    #     print(gate.O.value)
-    #     for i in range(8):
-    #         gate.I[i].value = HIGH
-    #         gate.step()
-    #         print(gate.O.value)
-    #         gate.I[i].value = OPEN
-    #         gate.step()
-    #         print(gate.O.value)
+    def test_OrN(self):
+        gate = OrN('or8', 8)
+        gate.power_on()
+        gate.step()
+        print(gate.O.value)
+        for i in range(8):
+            gate.I[i].value = HIGH
+            gate.step()
+            print(gate.O.value)
+            gate.I[i].value = OPEN
+            gate.step()
+            print(gate.O.value)
 
     # def test_Nand(self):
     #     gate = Nand('nand1')
@@ -375,30 +375,30 @@ class TestGate(unittest.TestCase):
     #         print(gate)
     #         self.assertEqual(gate.get_output(), truth_table[in1])
     
-    # def test_AndOr(self):
-    #     and1 = And('and1')
-    #     and2 = And('and2')
-    #     or1 = Or('or1')
-    #     and1.power_on()
-    #     and2.power_on()
-    #     or1.power_on()
+    def test_AndOr(self):
+        and1 = And('and1')
+        and2 = And('and2')
+        or1 = Or('or1')
+        and1.power_on()
+        and2.power_on()
+        or1.power_on()
 
-    #     and1.out >> or1.in1
-    #     and2.out >> or1.in2
+        and1.O >> or1.I0
+        and2.O >> or1.I1
 
-    #     and1.in1.value = OPEN
-    #     and1.in2.value = HIGH
-    #     and2.in1.value = HIGH
-    #     and2.in2.value = HIGH
+        and1.I0.value = OPEN
+        and1.I1.value = HIGH
+        and2.I0.value = HIGH
+        and2.I1.value = HIGH
 
-    #     for i in range(1):
-    #         and1.step()
-    #         and2.step()
-    #         or1.step()
+        for i in range(1):
+            and1.step()
+            and2.step()
+            or1.step()
 
-    #     print(and1)
-    #     print(and2)
-    #     print(or1)
+        print(and1)
+        print(and2)
+        print(or1)
 
     # def test_Xor(self):
     #     gate = Xor('xor1')
