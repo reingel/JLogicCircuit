@@ -10,10 +10,7 @@ class Gate(SimulatedCircuit):
         super().__init__(device_name, name)
     
     def __repr__(self):
-        str = f'   {self.device_name}({self.name}, [{self.in1.value} {self.in2.value}] -> {self.out.value})'
-        # str += '\n'
-        # for device in self.update_sequence:
-        #     str += f'      {device}\n'
+        str = f'{self.device_name}({self.name}, [{self.in1.value} {self.in2.value}] -> {self.out.value})'
         return str
 
     def set_input(self, v1: BitValue, v2: BitValue):
@@ -49,39 +46,37 @@ class And(Gate):
     
         super().__init__(self.device_name, name)
 
-class And4(Gate):
-    def __init__(self, name):
-        self.device_name = 'And4'
+class AndN(Gate):
+    def __init__(self, name, n):
+        self.name = name
+        if n < 3:
+            raise(RuntimeError)
+        self.n = n
 
-        # creat update_sequence
+        # create update_sequence
         self.pwr = Power('pwr')
-        self.rly1 = Relay('rly1', self)
-        self.rly2 = Relay('rly2', self)
-        self.rly3 = Relay('rly3', self)
-        self.rly4 = Relay('rly4', self)
+        self.rly = [Relay(f'rly{i}', self) for i in range(self.n)]
+        self.I = []
+
+        self.update_sequence = [self.pwr]
 
         # connect
-        self.pwr.ri >> self.rly1.up
-        self.rly1.rd >> self.rly2.up
-        self.rly2.rd >> self.rly3.up
-        self.rly3.rd >> self.rly4.up
+        self.pwr.ri >> self.rly[0].up
+        for i in range(self.n - 1):
+            self.rly[i].rd >> self.rly[i + 1].up
+            self.I.append(self.rly[i].le)
+            self.update_sequence.append(self.rly[i])
+        self.I.append(self.rly[self.n - 1].le)
+        self.update_sequence.append(self.rly[self.n - 1])
 
         # create access points
-        self.in1 = self.rly1.le
-        self.in2 = self.rly2.le
-        self.in3 = self.rly3.le
-        self.in4 = self.rly4.le
-        self.out = self.rly4.rd
-
-        # update sequences
-        self.update_sequence = [self.pwr, self.rly1, self.rly2, self.rly3, self.rly4]
+        self.O = self.rly[self.n - 1].rd
     
-        super().__init__(self.device_name, name)
+        super().__init__('AndN', name)
 
     def __repr__(self):
-        str = f'{self.device_name}({self.name}, [{self.in1.value} {self.in2.value} {self.in3.value} {self.in4.value}] -> {self.out.value})'
+        str = f'{self.device_name}({self.name}, I = {[self.I[i].value for i in range(self.n)]} -> {self.O.value})'
         return str
-
 
 class Or(Gate):
     def __init__(self, name):
@@ -297,21 +292,22 @@ class TestGate(unittest.TestCase):
     #             print(gate)
     #             self.assertEqual(gate.get_output(), truth_table[in1][in2])
 
-    # def test_And4(self):
-    #     gate = And4('and4')
-    #     gate.power_on()
-    #     truth_table = [[[[OPEN, OPEN], [OPEN, OPEN]], [[OPEN, OPEN], [OPEN, OPEN]]], [[[OPEN, OPEN], [OPEN, OPEN]], [[OPEN, OPEN], [OPEN, HIGH]]]]
-    #     for in1 in [OPEN, HIGH]:
-    #         for in2 in [OPEN, HIGH]:
-    #             for in3 in [OPEN, HIGH]:
-    #                 for in4 in [OPEN, HIGH]:
-    #                     gate.in1.value = in1
-    #                     gate.in2.value = in2
-    #                     gate.in3.value = in3
-    #                     gate.in4.value = in4
-    #                     gate.step()
-    #                     print(gate)
-    #                     self.assertEqual(gate.out.value, truth_table[in1][in2][in3][in4])
+    def test_And4(self):
+        print('And4')
+        gate = AndN('andn', 4)
+        gate.power_on()
+        truth_table = [[[[OPEN, OPEN], [OPEN, OPEN]], [[OPEN, OPEN], [OPEN, OPEN]]], [[[OPEN, OPEN], [OPEN, OPEN]], [[OPEN, OPEN], [OPEN, HIGH]]]]
+        for in1 in [OPEN, HIGH]:
+            for in2 in [OPEN, HIGH]:
+                for in3 in [OPEN, HIGH]:
+                    for in4 in [OPEN, HIGH]:
+                        gate.I[0].value = in1
+                        gate.I[1].value = in2
+                        gate.I[2].value = in3
+                        gate.I[3].value = in4
+                        gate.step()
+                        print(gate)
+                        self.assertEqual(gate.O.value, truth_table[in1][in2][in3][in4])
 
     # def test_Or(self):
     #     gate = Or('or1')
