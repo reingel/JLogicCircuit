@@ -10,17 +10,17 @@ class Gate(SimulatedCircuit):
         super().__init__(device_name, name)
     
     def __repr__(self):
-        str = f'{self.device_name}({self.name}, [{self.in1.value} {self.in2.value}] -> {self.out.value})'
+        str = f'{self.device_name}({self.name}, [{self.I0.value} {self.I1.value}] -> {self.O.value})'
         return str
 
-    def set_input(self, v1: BitValue, v2: BitValue):
-        if self.in1 and self.in2:
-            self.in1.value = v1
-            self.in2.value = v2
+    def set_input(self, v0: BitValue, v1: BitValue):
+        if self.I0 and self.I1:
+            self.I0.value = v0
+            self.I1.value = v1
     
     def get_output(self):
-        if self.out:
-            return self.out.value
+        if self.O:
+            return self.O.value
 
 
 class And(Gate):
@@ -37,9 +37,9 @@ class And(Gate):
         self.rly1.rd >> self.rly2.up
 
         # create access points
-        self.in1 = self.rly1.le
-        self.in2 = self.rly2.le
-        self.out = self.rly2.rd
+        self.I0 = self.rly1.le
+        self.I1 = self.rly2.le
+        self.O = self.rly2.rd
 
         # update sequences
         self.update_sequence = [self.pwr, self.rly1, self.rly2]
@@ -75,7 +75,7 @@ class AndN(Gate):
         super().__init__('AndN', name)
 
     def __repr__(self):
-        str = f'{self.device_name}({self.name}, I = {[self.I[i].value for i in range(self.n)]} -> {self.O.value})'
+        str = f'{self.device_name}({self.name}({self.n}), {[self.I[i].value for i in range(self.n)]} -> {self.O.value})'
         return str
 
 class Or(Gate):
@@ -281,16 +281,16 @@ class Inverter(Gate):
 
 
 class TestGate(unittest.TestCase):
-    # def test_And(self):
-    #     gate = And('and1')
-    #     gate.power_on()
-    #     truth_table = [[OPEN, OPEN], [OPEN, HIGH]]
-    #     for in1 in [OPEN, HIGH]:
-    #         for in2 in [OPEN, HIGH]:
-    #             gate.set_input(in1, in2)
-    #             gate.step(n=2)
-    #             print(gate)
-    #             self.assertEqual(gate.get_output(), truth_table[in1][in2])
+    def test_And(self):
+        gate = And('and1')
+        gate.power_on()
+        truth_table = [[OPEN, OPEN], [OPEN, HIGH]]
+        for in1 in [OPEN, HIGH]:
+            for in2 in [OPEN, HIGH]:
+                gate.set_input(in1, in2)
+                gate.step(n=2)
+                print(gate)
+                self.assertEqual(gate.get_output(), truth_table[in1][in2])
 
     def test_And4(self):
         print('And4')
@@ -320,18 +320,18 @@ class TestGate(unittest.TestCase):
     #             print(gate)
     #             self.assertEqual(gate.get_output(), truth_table[in1][in2])
 
-    def test_OrN(self):
-        gate = OrN('or8', 8)
-        gate.power_on()
-        gate.step()
-        print(gate.O.value)
-        for i in range(8):
-            gate.I[i].value = HIGH
-            gate.step()
-            print(gate.O.value)
-            gate.I[i].value = OPEN
-            gate.step()
-            print(gate.O.value)
+    # def test_OrN(self):
+    #     gate = OrN('or8', 8)
+    #     gate.power_on()
+    #     gate.step()
+    #     print(gate.O.value)
+    #     for i in range(8):
+    #         gate.I[i].value = HIGH
+    #         gate.step()
+    #         print(gate.O.value)
+    #         gate.I[i].value = OPEN
+    #         gate.step()
+    #         print(gate.O.value)
 
     # def test_Nand(self):
     #     gate = Nand('nand1')

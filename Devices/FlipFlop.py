@@ -73,12 +73,12 @@ class LevelTriggeredDtypeFlipFlop(DtypeFlipFlop):
 
         # connect
         self.spl1.out1 >> self.inv.in1
-        self.inv.out >> self.and1.in1
-        self.spl1.out2 >> self.and2.in2
-        self.spl2.out1 >> self.and1.in2
-        self.spl2.out2 >> self.and2.in1
-        self.and1.out >> self.rsff.R
-        self.and2.out >> self.rsff.S
+        self.inv.out >> self.and1.I0
+        self.spl1.out2 >> self.and2.I1
+        self.spl2.out1 >> self.and1.I1
+        self.spl2.out2 >> self.and2.I0
+        self.and1.O >> self.rsff.R
+        self.and2.O >> self.rsff.S
 
         # create access ports
         self.D = self.spl1.in1
@@ -114,19 +114,19 @@ class EdgeTriggeredDtypeFlipFlop(DtypeFlipFlop):
         self.splc1.out1 >> self.splc3.in1
         self.splc1.out2 >> self.inv1.in1
         self.inv1.out >> self.splc2.in1
-        self.splc2.out1 >> self.and1.in2
-        self.splc2.out2 >> self.and2.in1
-        self.spld1.out1 >> self.and1.in1
+        self.splc2.out1 >> self.and1.I1
+        self.splc2.out2 >> self.and2.I0
+        self.spld1.out1 >> self.and1.I0
         self.spld1.out2 >> self.inv2.in1
-        self.inv2.out >> self.and2.in2
-        self.and1.out >> self.rsff1.R
-        self.and2.out >> self.rsff1.S
-        self.rsff1.Q >> self.and3.in1
-        self.rsff1.Qbar >> self.and4.in2
-        self.splc3.out1 >> self.and3.in2
-        self.splc3.out2 >> self.and4.in1
-        self.and3.out >> self.rsff2.R
-        self.and4.out >> self.rsff2.S
+        self.inv2.out >> self.and2.I1
+        self.and1.O >> self.rsff1.R
+        self.and2.O >> self.rsff1.S
+        self.rsff1.Q >> self.and3.I0
+        self.rsff1.Qbar >> self.and4.I1
+        self.splc3.out1 >> self.and3.I1
+        self.splc3.out2 >> self.and4.I0
+        self.and3.O >> self.rsff2.R
+        self.and4.O >> self.rsff2.S
 
         # create access ports
         self.D = self.spld1.in1

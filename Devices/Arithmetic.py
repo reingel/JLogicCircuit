@@ -18,15 +18,15 @@ class HalfAdder(SimulatedCircuit):
 
         # connect
         self.spl1.out1 >> self.xor.in1
-        self.spl1.out2 >> self.and1.in1
+        self.spl1.out2 >> self.and1.I0
         self.spl2.out1 >> self.xor.in2
-        self.spl2.out2 >> self.and1.in2
+        self.spl2.out2 >> self.and1.I1
 
         # create access points
         self.A = self.spl1.in1
         self.B = self.spl2.in1
         self.S = self.xor.out
-        self.CO = self.and1.out
+        self.CO = self.and1.O
 
         # update sequence
         self.update_sequence = [self.spl1, self.spl2, self.xor, self.and1]
