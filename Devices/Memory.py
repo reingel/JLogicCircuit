@@ -260,10 +260,7 @@ class TestFlipFlop(unittest.TestCase):
             dev.set_addr(i)
             dev.W.value = HIGH
             dev.step()
-            print(f'{dev.get_output():02x}')
             print(dev)
-
-        print(dev)
 
 
 
