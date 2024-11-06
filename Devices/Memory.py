@@ -1,6 +1,7 @@
 import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
+from Gate import And, Or, Inverter
 from Junction import Split, Split8
 from FlipFlop import LevelTriggeredDtypeFlipFlop
 from Decoder import Decoder3to8, Selector8to1
@@ -195,6 +196,86 @@ class RAM8x8(SimulatedCircuit):
         return DO
 
 
+class RAM16x8(SimulatedCircuit): # implemented by adding two RAM8x8
+    # 16x8: "16 separate memories that can be selected by addr" x "width of data in/out"
+    # Address: 4 bits
+    # W: 1 bit
+    # DI, DO: 8 bits (1 byte)
+    def __init__(self, name):
+        self.device_name = '16x8 RAM'
+
+        self.nram8 = 2
+        self.naddr = 4
+        self.nmem = 2**self.naddr
+        self.nbus = 8
+
+        self.splitA = [Split(f'splitA{i}') for i in range(self.naddr)]
+        self.and2 = [And(f'and{i}') for i in range(self.nram8)]
+        self.inv = Inverter('inv')
+        self.splitW = Split('splitW')
+        self.splitDI = [Split(f'splitDI{i}') for i in range(self.nbus)]
+        self.ram8x8 = [RAM8x8(f'ram8x8_{i}') for i in range(self.nram8)]
+        self.or8 = [Or(f'or{i}') for i in range(self.nbus)]
+
+        for i in range(self.naddr - 1):
+            self.splitA[i].O0 >> self.ram8x8[0].S[i]
+            self.splitA[i].O1 >> self.ram8x8[1].S[i]
+        self.splitA[3].O0 >> self.inv.I
+        self.splitA[3].O1 >> self.and2[1].I1
+        self.inv.O >> self.and2[0].I0
+        self.splitW.O0 >> self.and2[0].I1
+        self.splitW.O1 >> self.and2[1].I0
+        for i in range(self.nram8):
+            self.and2[i].O >> self.ram8x8[i].W
+        for i in range(self.nbus):
+            self.splitDI[i].O0 >> self.ram8x8[0].DI[i]
+            self.splitDI[i].O1 >> self.ram8x8[1].DI[i]
+            self.ram8x8[0].DO[i] >> self.or8[i].I0
+            self.ram8x8[1].DO[i] >> self.or8[i].I1
+
+        self.update_sequence = [self.splitA[i] for i in range(self.naddr)]
+        self.update_sequence.append(self.inv)
+        self.update_sequence.append(self.splitW)
+        self.update_sequence.extend([self.splitDI[i] for i in range(self.nbus)])
+        self.update_sequence.extend([self.and2[i] for i in range(self.nram8)])
+        self.update_sequence.extend([self.ram8x8[i] for i in range(self.nram8)])
+        self.update_sequence.extend([self.or8[i] for i in range(self.nbus)])
+        
+        self.A = [self.splitA[i].I for i in range(self.naddr)]
+        self.W = self.splitW.I
+        self.DI = [self.splitDI[i].I for i in range(self.nbus)]
+        self.DO = [self.or8[i].O for i in range(self.nbus)]
+
+        super().__init__('RAM16x8', name)
+    
+    def __repr__(self):
+        out = ''
+        for i in range(self.nram8):
+            out = self.ram8x8[i].__repr__() + '  ' + out
+        return out
+        
+    def set_addr(self, addr):
+        if addr < 0 or addr > self.nmem - 1:
+            raise(RuntimeError)
+        bin = f'{addr:04b}'[::-1]
+        for i in range(self.naddr):
+            self.A[i].value = int(bin[i])
+    
+    def set_input(self, DI: int):
+        if DI < 0 or DI > 2**self.nbus - 1:
+            raise(RuntimeError)
+        strDI = f'{DI:08b}'[::-1]
+        for i in range(self.nbus):
+            self.DI[i].value = int(strDI[i])
+    
+    def get_output(self):
+        strDO = ''
+        for i in range(self.nbus):
+            strDO = f'{self.DO[i].value}{strDO}'
+        DO = int(strDO, 2)
+        return DO
+
+
 
 class TestFlipFlop(unittest.TestCase):
     # def test_memory1(self):
@@ -250,12 +331,24 @@ class TestFlipFlop(unittest.TestCase):
     #         dev.step()
     #         print(dev)
     
-    def test_ram8x8(self):
-        dev = RAM8x8('ram8x8')
+    # def test_ram8x8(self):
+    #     dev = RAM8x8('ram8x8')
+    #     dev.power_on()
+    #     dev.step()
+
+    #     for i in range(8):
+    #         dev.set_input(0xF0)
+    #         dev.set_addr(i)
+    #         dev.W.value = HIGH
+    #         dev.step()
+    #         print(dev)
+
+    def test_ram16x8(self):
+        dev = RAM16x8('ram16x8')
         dev.power_on()
         dev.step()
 
-        for i in range(8):
+        for i in range(16):
             dev.set_input(0xF0)
             dev.set_addr(i)
             dev.W.value = HIGH
