@@ -33,6 +33,27 @@ class Power(SimulatedCircuit):
         pass
 
 
+class Ground(SimulatedCircuit):
+    def __init__(self, name):
+        self.ri = Port('le', self)
+
+        self.O = self.ri
+
+        super().__init__('Ground', name)
+
+    def __repr__(self):
+        return f"Ground({self.name}, {self.O.value} -> )"
+    
+    def update_inport(self):
+        pass
+    
+    def calc_output(self):
+        self.ri.value = GND
+
+    def update_state(self):
+        pass
+
+
 
 class TestSource(unittest.TestCase):
     def test_power(self):
@@ -45,6 +66,12 @@ class TestSource(unittest.TestCase):
         pwr.off()
         pwr.step()
         print(pwr)
+    
+    def test_ground(self):
+        grd = Ground('grd1')
+        grd.step()
+        print(grd)
+
 
 if __name__ == '__main__':
     unittest.main()

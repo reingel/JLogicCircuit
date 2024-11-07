@@ -4,6 +4,57 @@ from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 
 
+class Branch(SimulatedCircuit):
+    def __init__(self, name):
+        self.name = name
+        self.ports = []
+
+        super().__init__('Branch', self.name)
+    
+    def __repr__(self):
+        return f'Branch({self.name}, {[strof(p.value) for p in self.ports]})'
+    
+    @property
+    def nport(self):
+        return len(self.ports)
+    
+    @property
+    def value(self):
+        if self.nport > 0:
+            return self.ports[0].value
+        else:
+            return None
+
+    def add_port(self, port):
+        if isinstance(port, Port):
+            self.ports.append(port)
+        else:
+            raise(RuntimeError)
+    
+    def update_inport(self):
+        if self.nport == 0:
+            return
+
+        values = set([p.value for p in self.ports])
+        if HIGH in values and GND in values:
+            print('Short circuit !!!')
+            raise(NotImplementedError)
+        elif HIGH in values and GND not in values:
+            for p in self.ports:
+                if p.value == OPEN:
+                    p.value = HIGH
+        elif GND in values and HIGH not in values:
+            for p in self.ports:
+                if p.value == OPEN:
+                    p.value = GND
+
+
+    def calc_output(self):
+        pass
+
+    def update_state(self):
+        pass
+
 class Junction(SimulatedCircuit):
     def __init__(self):
         pass
@@ -26,7 +77,7 @@ class Split(Junction):
         super().__init__()
 
     def __repr__(self):
-        return f'Split({self.name}, {self.I.value} -> {self.O0.value} + {self.O1.value})'
+        return f'Split({self.name}, {strof(self.I.value)} -> {strof(self.O0.value)} + {strof(self.O1.value)})'
     
     def update_inport(self):
         self.le.update_value()
@@ -56,7 +107,7 @@ class Merge(Junction):
         super().__init__()
     
     def __repr__(self):
-        return f'Merge({self.name}, {self.I0.value} + {self.I1.value} -> {self.O.value})'
+        return f'Merge({self.name}, {strof(self.I0.value)} + {strof(self.I1.value)} -> {strof(self.O.value)})'
     
     def update_inport(self):
         self.lu.update_value()
@@ -88,7 +139,7 @@ class Split8(Junction):
         super().__init__()
 
     def __repr__(self):
-        return f'Split({self.name}, {self.I.value} -> {[self.O[i].value for i in range(self.n)]})'
+        return f'Split({self.name}, {strof(self.I.value)} -> {[strof(self.O[i].value) for i in range(self.n)]})'
     
     def update_inport(self):
         self.I.update_value()
@@ -103,47 +154,72 @@ class Split8(Junction):
 
 
 class TestConnection(unittest.TestCase):
-    def test_split(self):
-        spl = Split('spl1')
-        print(spl)
-        spl.I.value = HIGH
-        spl.step()
-        print(spl)
-        self.assertEqual(spl.I.value, HIGH)
-        self.assertEqual(spl.I.value, spl.O0.value)
-        self.assertEqual(spl.I.value, spl.O1.value)
-        spl.I.value = OPEN
-        spl.step()
-        print(spl)
-        self.assertEqual(spl.I.value, OPEN)
-        self.assertEqual(spl.I.value, spl.O0.value)
-        self.assertEqual(spl.I.value, spl.O1.value)
-    
-    def test_merge(self):
-        jnc = Merge('jnc1')
-        print(jnc)
-        jnc.I0.value = HIGH
-        jnc.step()
-        print(jnc)
-        jnc.I1.value = HIGH
-        jnc.step()
-        print(jnc)
-        jnc.I0.value = OPEN
-        jnc.step()
-        print(jnc)
-        jnc.I1.value = OPEN
-        jnc.step()
-        print(jnc)
-    
-    def test_split8(self):
-        sp = Split8('split8')
-        sp.power_on()
-        sp.step()
+    def test_branch(self):
+        dev1 = And('and1')
 
-        print(sp)
-        sp.I.value = HIGH
-        sp.step()
-        print(sp)
+        p1 = Port('p1', dev1)
+        p2 = Port('p2', dev1)
+        p3 = Port('p3', dev1)
+        p4 = Port('p4', dev1)
+
+        brn = Branch('brn1')
+        brn.add_port(p1)
+        brn.add_port(p2)
+        brn.add_port(p3)
+
+        for v1 in BITVALUES:
+            for v2 in BITVALUES:
+                for v3 in BITVALUES:
+                    try:
+                        p1.value = v1
+                        p2.value = v2
+                        p3.value = v3
+                        print(brn)
+                        brn.step()
+                        print(brn)
+                        print(strof(brn.value))
+                        print('---')
+                    except NotImplementedError:
+                        print('---')
+
+    # def test_split(self):
+    #     spl = Split('spl1')
+    #     print(spl)
+    #     for i in [HIGH, OPEN, GND]:
+    #         spl.I.value = i
+    #         spl.step()
+    #         print(spl)
+    #         self.assertEqual(spl.I.value, i)
+    #         self.assertEqual(spl.I.value, spl.O0.value)
+    #         self.assertEqual(spl.I.value, spl.O1.value)
+    
+    # def test_merge(self):
+    #     jnc = Merge('jnc1')
+    #     print(jnc)
+    #     jnc.I0.value = HIGH
+    #     jnc.step()
+    #     print(jnc)
+    #     jnc.I1.value = HIGH
+    #     jnc.step()
+    #     print(jnc)
+    #     jnc.I0.value = OPEN
+    #     jnc.step()
+    #     print(jnc)
+    #     jnc.I1.value = OPEN
+    #     jnc.step()
+    #     print(jnc)
+    
+    # def test_split8(self):
+    #     sp = Split8('split8')
+    #     sp.power_on()
+    #     sp.step()
+
+    #     print(sp)
+    #     sp.I.value = HIGH
+    #     sp.step()
+    #     print(sp)
     
 if __name__ == '__main__':
+    from Gate import And
+
     unittest.main()

@@ -4,11 +4,25 @@ from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Source import Power
 
+RelayValue = int
+CHARGED = 1
+DISCHARGED = 0
+
+def rlystrof(v):
+    if v == CHARGED:
+        return 'CHARGED'
+    elif v == DISCHARGED:
+        return 'DISCHARGED'
+    else:
+        raise(RuntimeError)
+
 class Relay(SimulatedCircuit):
     NORMAL = 0
     REVERSED = 1
 
     def __init__(self, name, parent, type=NORMAL):
+        #  NORMAL  type: input(up, le)     -> output(ru, rd)
+        # REVERSED type: input(le, ru, rd) -> output(up)
         self.parent = parent
         self.type = type
 
@@ -19,12 +33,12 @@ class Relay(SimulatedCircuit):
         self.rd = Port('rd', self)
 
         # internal states
-        self.X = OPEN
+        self.X = DISCHARGED
 
         super().__init__('Relay', name)
 
     def __repr__(self):
-        str = f'Relay({self.name}, up = {self.up.value}, [X ru rd] = [{self.X} {self.ru.value} {self.rd.value}], le = {self.le.value})'
+        str = f'Relay({self.name}, le({strof(self.le.value)}) -> X({rlystrof(self.X)}), up({strof(self.up.value)}) -> ru({strof(self.ru.value)}) rd({strof(self.rd.value)})'
         # str += '\n'
         # str += f'  {self.ru}\n'
         # str += f'  {self.rd}\n'
@@ -54,7 +68,11 @@ class Relay(SimulatedCircuit):
                 self.up.value = self.ru.value
         
     def update_state(self):
-        self.X = self.le.value # next coil voltage = current coil high voltage
+        # next coil voltage = current coil high voltage
+        if self.le.value == HIGH:
+            self.X = CHARGED
+        else: # GND or OPEN
+            self.X = DISCHARGED
 
 class TestRelay(unittest.TestCase):
     def test_relay(self):
