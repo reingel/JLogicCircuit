@@ -251,6 +251,27 @@ class Buffer(Gate):
         if self.I:
             self.I.value = v1
 
+class TriStateBuffer(Gate):
+    def __init__(self, name):
+        self.device_name = 'TriStateBuffer'
+        self.name = name
+
+        # creat update_sequence
+        self.rly = Relay('rly', self)
+
+        # create access points
+        self.E = self.rly.le
+        self.I = self.rly.up
+        self.O = self.rly.rd
+
+        # update sequences
+        self.update_sequence = [self.rly]
+    
+        super().__init__(self.device_name, name)
+    
+    def __repr__(self):
+        return f'{self.device_name}({self.name}, {self.E.value}: {self.I.value} -> {self.O.value})'
+
 
 class Inverter(Gate):
     def __init__(self, name):
@@ -364,6 +385,18 @@ class TestGate(unittest.TestCase):
             gate.step(n=2)
             print(gate)
             self.assertEqual(gate.get_output(), truth_table[v0])
+    
+    def test_TriStateBuffer(self):
+        gate = TriStateBuffer('tsb')
+        gate.power_on()
+        truth_table = [[OPEN, OPEN], [OPEN, HIGH]]
+        for e in [OPEN, HIGH]:
+            for i in [OPEN, HIGH]:
+                gate.E.value = e
+                gate.I.value = i
+                gate.step()
+                print(gate)
+                self.assertEqual(gate.O.value, truth_table[e][i])
 
     def test_Inverter(self):
         gate = Inverter('inverter1')
