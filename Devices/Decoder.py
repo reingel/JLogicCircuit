@@ -2,7 +2,7 @@ import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
-from Junction import Split, Split8
+from Junction import Branch, Split, Split8
 from Gate import AndN, OrN, Inverter
 
 class Module3to8(SimulatedCircuit):
@@ -220,48 +220,122 @@ class Selector8to1(SimulatedCircuit):
         return self.DO.value
 
 
+class Decoder4to16(SimulatedCircuit):
+    # A: A0 - A3  (Address)
+    # O: O0 - O15 (Output, one-hot)
+    def __init__(self, name):
+        self.name = name
+
+        self.naddr = 4
+        self.nmem = 2**self.naddr
+
+        # branch info
+        br = [
+            [1, 3, 5, 7, 9, 11, 13, 15], # directly connected outputs of A0
+            [2, 3, 6, 7, 10, 11, 14, 15], # directly connected outputs of A1
+            [4, 5, 6, 7, 12, 13, 14, 15], # directly connected outputs of A2
+            [8, 9, 10, 11, 12, 13, 14, 15], # directly connected outputs of A3
+        ]
+
+        # create elements
+        self.A = [Port(f'A{i}', self) for i in range(self.naddr)]
+        self.bd = [Branch(f'bd{i}') for i in range(self.naddr)] # branch directly connected
+        self.inv = [Inverter(f'inv{i}') for i in range(self.naddr)]
+        self.bi = [Branch(f'bi{i}') for i in range(self.naddr)] # branch connected through inverter
+        self.ando = [AndN(f'and{i}', 4) for i in range(self.nmem)]
+        
+        # connect
+        for i in range(self.naddr):
+            self.bd[i] << self.A[i]
+            self.bd[i] >> self.inv[i].I
+            self.bi[i] << self.inv[i].O
+            for j in range(self.nmem):
+                bin = f'{j:04b}'[::-1]
+                (self.bd[i] if bin[i] == '1' else self.bi[i]) >> self.ando[j].I[i]
+
+        # create access points
+        self.O = [self.ando[i].O for i in range(self.nmem)]
+
+        # update sequences
+        self.update_sequence = [self.bd[i] for i in range(self.naddr)]
+        self.update_sequence.extend([self.inv[i] for i in range(self.naddr)])
+        self.update_sequence.extend([self.bi[i] for i in range(self.naddr)])
+        self.update_sequence.extend([self.ando[j] for j in range(self.nmem)])
+
+        super().__init__('Decoder4to16', self.name)
+
+    def __repr__(self):
+        return f'Decoder4to16({self.name}, {[self.A[i].value for i in range(self.naddr)]} -> {[self.O[i].value for i in range(self.nmem)]})'
+    
+    def set_addr(self, addr):
+        if addr < 0 or addr > self.nmem - 1:
+            raise(RuntimeError)
+
+        bin = f'{addr:04b}'[::-1]
+        for i in range(self.naddr):
+            self.A[i].value = int(bin[i])
+    
+    def get_output(self):
+        strO = ''
+        for i in range(self.nmem):
+            strO = f'{self.O[i].value}{strO}'
+        return strO
+
+
 class TestFlipFlop(unittest.TestCase):
-    def test_module3to8(self):
-        print('test_module3to8')
+    # def test_module3to8(self):
+    #     print('test_module3to8')
 
-        dec = Module3to8('mod')
+    #     dec = Module3to8('mod')
+    #     dec.power_on()
+    #     dec.step()
+
+    #     dec.set_input(0xF0)
+    #     for i in range(8):
+    #         dec.set_addr(i)
+    #         dec.step()
+
+    #         print(i, f'{dec.get_output():08b}')
+
+    # def test_decoder3to8(self):
+    #     print('test_decoder3to8')
+
+    #     dec = Decoder3to8('dec')
+    #     dec.power_on()
+    #     dec.step()
+
+    #     for i in range(8):
+    #         dec.set_addr(i)
+    #         dec.W.value = HIGH
+    #         dec.step()
+    #         print(i, f'{dec.get_output():08b}')
+
+    # def test_selector8to1(self):
+    #     print('test_selector8to1')
+
+    #     sel = Selector8to1('sel')
+    #     sel.power_on()
+    #     sel.step()
+
+    #     sel.set_input(0x0F)
+    #     out = ''
+    #     for i in range(8):
+    #         sel.set_addr(i)
+    #         sel.step()
+    #         out = str(sel.get_output()) + out
+    #     print(out)
+    
+    def test_decoder4to16(self):
+        print('test_decoder4to16')
+
+        dec = Decoder4to16('dec')
         dec.power_on()
         dec.step()
 
-        dec.set_input(0xF0)
-        for i in range(8):
+        for i in range(16):
             dec.set_addr(i)
             dec.step()
-
-            print(i, f'{dec.get_output():08b}')
-
-    def test_decoder3to8(self):
-        print('test_decoder3to8')
-
-        dec = Decoder3to8('dec')
-        dec.power_on()
-        dec.step()
-
-        for i in range(8):
-            dec.set_addr(i)
-            dec.W.value = HIGH
-            dec.step()
-            print(i, f'{dec.get_output():08b}')
-
-    def test_selector8to1(self):
-        print('test_selector8to1')
-
-        sel = Selector8to1('sel')
-        sel.power_on()
-        sel.step()
-
-        sel.set_input(0x0F)
-        out = ''
-        for i in range(8):
-            sel.set_addr(i)
-            sel.step()
-            out = str(sel.get_output()) + out
-        print(out)
+            print(f'{i:2d}: {dec.get_output()}')
 
 
 
