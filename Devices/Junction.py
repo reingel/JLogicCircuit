@@ -7,50 +7,69 @@ from Port import Port
 class Branch(SimulatedCircuit):
     def __init__(self, name):
         self.name = name
-        self.ports = []
+        self.inports = []
+        self.outports = []
 
         super().__init__('Branch', self.name)
     
     def __repr__(self):
-        return f'Branch({self.name}, {[strof(p.value) for p in self.ports]})'
+        return f'Branch({self.name}, in = {[strof(p.value) for p in self.inports]}, out = {[strof(p.value) for p in self.outports]})'
     
     @property
-    def nport(self):
-        return len(self.ports)
+    def ninport(self):
+        return len(self.inports)
+    
+    @property
+    def noutport(self):
+        return len(self.outports)
+    
+    @property
+    def exists(self):
+        return self.ninport > 0 and self.noutport > 0
     
     @property
     def value(self):
-        if self.nport > 0:
-            return self.ports[0].value
+        if self.ninport > 0:
+            return self.inports[0].value
         else:
             return None
 
-    def add_port(self, port):
+    def add_inport(self, port):
         if isinstance(port, Port):
-            self.ports.append(port)
+            self.inports.append(port)
+        else:
+            raise(RuntimeError)
+
+    def add_outport(self, port):
+        if isinstance(port, Port):
+            self.outports.append(port)
         else:
             raise(RuntimeError)
     
     def update_inport(self):
-        if self.nport == 0:
+        if self.ninport == 0:
             return
 
-        values = set([p.value for p in self.ports])
+        values = set([p.value for p in self.inports])
         if HIGH in values and GND in values:
             print('Short circuit !!!')
             raise(NotImplementedError)
         elif HIGH in values and GND not in values:
-            for p in self.ports:
+            for p in self.inports:
                 if p.value == OPEN:
                     p.value = HIGH
         elif GND in values and HIGH not in values:
-            for p in self.ports:
+            for p in self.inports:
                 if p.value == OPEN:
                     p.value = GND
 
 
     def calc_output(self):
-        pass
+        if not self.exists:
+            return
+        
+        for p in self.outports:
+            p.value = self.value
 
     def update_state(self):
         pass
@@ -160,12 +179,17 @@ class TestConnection(unittest.TestCase):
         p1 = Port('p1', dev1)
         p2 = Port('p2', dev1)
         p3 = Port('p3', dev1)
-        p4 = Port('p4', dev1)
+        q1 = Port('q1', dev1)
+        q2 = Port('q2', dev1)
+        q3 = Port('q3', dev1)
 
         brn = Branch('brn1')
-        brn.add_port(p1)
-        brn.add_port(p2)
-        brn.add_port(p3)
+        brn.add_inport(p1)
+        brn.add_inport(p2)
+        brn.add_inport(p3)
+        brn.add_outport(q1)
+        brn.add_outport(q2)
+        brn.add_outport(q3)
 
         for v1 in BITVALUES:
             for v2 in BITVALUES:

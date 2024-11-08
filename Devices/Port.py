@@ -35,16 +35,17 @@ class Port:
     
     def update_value(self):
         if self.connected:
-            if self.value == OPEN:
-                self.value = self.connected.value
-            else: # self.value == HIGH or self.value == GND:
-                if self.connected.value == OPEN:
-                    self.connected.value = self.value
-                elif self.value != self.connected.value:
-                    print('Short circuit !!!')
-                    raise(NotImplementedError)
-                else: # self.value == self.connected.value
-                    pass
+            self.value = self.connected.value
+            # if self.value == OPEN:
+            #     self.value = self.connected.value
+            # else: # self.value == HIGH or self.value == GND:
+            #     if self.connected.value == OPEN:
+            #         self.connected.value = self.value
+            #     elif self.value != self.connected.value:
+            #         print('Short circuit !!!')
+            #         raise(NotImplementedError)
+            #     else: # self.value == self.connected.value
+            #         pass
 
 
 class TestRelay(unittest.TestCase):
