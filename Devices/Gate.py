@@ -82,6 +82,14 @@ class AndN(Gate):
     def __repr__(self):
         str = f'{self.device_name}({self.name}({self.n}), {[strof(self.I[i].value) for i in range(self.n)]} -> {strof(self.O.value)})'
         return str
+    
+    @property
+    def nconnected(self):
+        n = 0
+        for i in range(self.n):
+            if self.I[i].connected:
+                n += 1
+        return n
 
 class Or(Gate):
     def __init__(self, name):
@@ -335,6 +343,25 @@ class TestGate(unittest.TestCase):
                         gate.step()
                         print(gate)
                         self.assertEqual(gate.O.value, truth_table[v0][v1][v2][v3])
+    
+    def test_AndN_connected(self):
+        and1 = And('and')
+        p1 = Port('p1', and1)
+        p2 = Port('p2', and1)
+        p3 = Port('p3', and1)
+        p4 = Port('p4', and1)
+
+        print('test_AndN_connected')
+        gate = AndN('andn', 4)
+        gate.I[0] >> p1
+        print(gate.nconnected)
+        gate.I[1] >> p2
+        print(gate.nconnected)
+        p3 >> gate.I[2]
+        print(gate.nconnected)
+        p4 >> gate.I[3]
+        print(gate.nconnected)
+
 
     def test_Or(self):
         gate = Or('or1')
