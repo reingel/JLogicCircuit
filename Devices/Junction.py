@@ -46,6 +46,12 @@ class Branch(SimulatedCircuit):
         else:
             raise(RuntimeError)
     
+    def __lshift__(self, port):
+        self.add_inport(port)
+    
+    def __rshift__(self, port):
+        self.add_outport(port)
+    
     def update_inport(self):
         if self.ninport == 0:
             return
@@ -62,7 +68,6 @@ class Branch(SimulatedCircuit):
             for p in self.inports:
                 if p.value == OPEN:
                     p.value = GND
-
 
     def calc_output(self):
         if not self.exists:
@@ -184,12 +189,18 @@ class TestConnection(unittest.TestCase):
         q3 = Port('q3', dev1)
 
         brn = Branch('brn1')
-        brn.add_inport(p1)
-        brn.add_inport(p2)
-        brn.add_inport(p3)
-        brn.add_outport(q1)
-        brn.add_outport(q2)
-        brn.add_outport(q3)
+        # brn.add_inport(p1)
+        # brn.add_inport(p2)
+        # brn.add_inport(p3)
+        # brn.add_outport(q1)
+        # brn.add_outport(q2)
+        # brn.add_outport(q3)
+        brn << p1
+        brn << p2
+        brn << p3
+        brn >> q1
+        brn >> q2
+        brn >> q3
 
         for v1 in BITVALUES:
             for v2 in BITVALUES:
