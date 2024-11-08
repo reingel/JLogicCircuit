@@ -353,6 +353,7 @@ class TestGate(unittest.TestCase):
 
         print('test_AndN_connected')
         gate = AndN('andn', 4)
+        print(gate.nconnected)
         gate.I[0] >> p1
         print(gate.nconnected)
         gate.I[1] >> p2
