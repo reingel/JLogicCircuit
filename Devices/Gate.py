@@ -2,6 +2,7 @@ import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Source import Power
+from Port import Port
 from Relay import Relay
 from Junction import Branch, Merge
 
@@ -155,30 +156,26 @@ class Nand(Gate):
     def __init__(self, name):
         self.device_name = 'Nand'
 
-        # creat update_sequence
+        # creat elements
         self.pwr1 = Power('pwr1')
         self.pwr2 = Power('pwr2')
         self.rly1 = Relay('rly1', self)
         self.rly2 = Relay('rly2', self)
-        # self.jnc = Merge('jnc')
         self.brn = Branch('brn')
+        self.O = Port('O', self)
 
         # connect
         self.pwr1.ri >> self.rly1.up
         self.pwr2.ri >> self.rly2.up
-        # self.rly1.ru >> self.jnc.lu
-        # self.rly2.ru >> self.jnc.ld
         self.brn.add_inport(self.rly1.ru)
         self.brn.add_inport(self.rly2.ru)
+        self.brn.add_outport(self.O)
 
         # create access points
         self.I0 = self.rly1.le
         self.I1 = self.rly2.le
-        # self.O = self.jnc.ri
-        self.O = self.brn
 
         # update sequences
-        # self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
         self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.brn]
     
         super().__init__(self.device_name, name)
