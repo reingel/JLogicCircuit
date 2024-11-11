@@ -3,7 +3,7 @@ from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Junction import Branch, Split, Split8
-from Gate import AndN, OrN, Inverter
+from Gate import And, AndN, OrN, Inverter
 
 class Module3to8(SimulatedCircuit):
     # pass through only one signal selelcted by address
@@ -280,6 +280,41 @@ class Decoder4to16(SimulatedCircuit):
         for i in range(self.nmem):
             strO = f'{self.O[i].value}{strO}'
         return strO
+    
+class Selector16to1(SimulatedCircuit):
+    # Signal: 1-D input signal to control output (0: not connect, 1: connect)
+    # I: input
+    # O: output
+    def __init__(self, name):
+        self.name = name
+
+        self.nmem = 16
+
+        # create elements
+        self.Signal = Port('signal', self)
+        self.brn = Branch('brn')
+        self.ands = [And(f'and{i:02d}') for i in range(self.nmem)]
+
+        # connect
+        self.brn << self.Signal
+        for i in range(self.nmem):
+            self.brn >> self.ands[i].I1
+
+        # create access points
+        self.I = [self.ands[i].I0 for i in range(self.nmem)]
+        self.O = [self.ands[i].O for i in range(self.nmem)]
+
+        # update sequence
+        self.update_sequence = [self.brn]
+        self.update_sequence.extend([self.ands[i] for i in range(self.nmem)])
+
+        super().__init__('Selector16to1', self.name)
+    
+    def __repr__(self):
+        ret = ''
+        for i in range(self.nmem):
+            ret = str(self.O[i].value) + ' ' + ret
+        return ret
 
 
 class TestFlipFlop(unittest.TestCase):
@@ -336,6 +371,25 @@ class TestFlipFlop(unittest.TestCase):
             dec.set_addr(i)
             dec.step()
             print(f'{i:2d}: {dec.get_output()}')
+    
+    def test_selector16to1(self):
+        print('test_selector16to1')
+
+        sel = Selector16to1('sel')
+        sel.power_on()
+        sel.step()
+
+        for i in range(16):
+            for j in range(16):
+                sel.I[j].value = OPEN
+            sel.I[i].value = HIGH
+
+            sel.Signal.value = HIGH
+            sel.step()
+            print(sel)
+            sel.Signal.value = OPEN
+            sel.step()
+            print(sel)
 
 
 
