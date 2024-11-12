@@ -229,14 +229,6 @@ class Decoder4to16(SimulatedCircuit):
         self.naddr = 4
         self.nmem = 2**self.naddr
 
-        # branch info
-        br = [
-            [1, 3, 5, 7, 9, 11, 13, 15], # directly connected outputs of A0
-            [2, 3, 6, 7, 10, 11, 14, 15], # directly connected outputs of A1
-            [4, 5, 6, 7, 12, 13, 14, 15], # directly connected outputs of A2
-            [8, 9, 10, 11, 12, 13, 14, 15], # directly connected outputs of A3
-        ]
-
         # create elements
         self.A = [Port(f'A{i}', self) for i in range(self.naddr)]
         self.bd = [Branch(f'bd{i}') for i in range(self.naddr)] # branch directly connected
@@ -266,6 +258,10 @@ class Decoder4to16(SimulatedCircuit):
 
     def __repr__(self):
         return f'Decoder4to16({self.name}, {[self.A[i].value for i in range(self.naddr)]} -> {[self.O[i].value for i in range(self.nmem)]})'
+    
+    def update_inport(self):
+        for i in range(self.naddr):
+            self.A[i].update_value()
     
     def set_addr(self, addr):
         if addr < 0 or addr > self.nmem - 1:
@@ -315,6 +311,9 @@ class Selector16to1(SimulatedCircuit):
         for i in range(self.nmem):
             ret = str(self.O[i].value) + ' ' + ret
         return ret
+    
+    def update_inport(self):
+        self.Signal.update_value()
 
 
 class TestFlipFlop(unittest.TestCase):
