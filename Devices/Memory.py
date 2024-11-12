@@ -304,7 +304,7 @@ class RAM16x8(SimulatedCircuit):
         self.brnw = [Branch('brnw{j:02d}') for j in range(self.nmem)]
         self.brndi = [Branch('brndi{i}') for i in range(self.nbus)]
         self.cell = [[Memory1bit(f'cell{j:02d}x{i}') for i in range(self.nbus)] for j in range(self.nmem)]
-        self.tsb = [[TriStateBuffer(f'tsb{j:02d}x{i}') for i in range(self.nbus)] for j in range(self.nmem)]
+        self.tri = [[TriStateBuffer(f'tri{j:02d}x{i}') for i in range(self.nbus)] for j in range(self.nmem)]
         self.brne = [Branch('brne{j:02d}') for j in range(self.nmem)]
         self.brndo = [Branch('brndo{i}') for i in range(self.nbus)]
 
@@ -318,9 +318,9 @@ class RAM16x8(SimulatedCircuit):
             for i in range(self.nbus):
                 self.brnw[j] >> self.cell[j][i].W
                 self.brndi[i] >> self.cell[j][i].DI
-                self.brne[j] >> self.tsb[j][i].E
-                self.cell[j][i].DO >> self.tsb[j][i].I
-                self.brndo[i] << self.tsb[j][i].O
+                self.brne[j] >> self.tri[j][i].E
+                self.cell[j][i].DO >> self.tri[j][i].I
+                self.brndo[i] << self.tri[j][i].O
         for i in range(self.nbus):
             self.brndi[i] << self.DI[i]
             self.brndo[i] >> self.DO[i]
@@ -340,7 +340,7 @@ class RAM16x8(SimulatedCircuit):
         self.update_sequence.extend([self.brne[j] for j in range(self.nmem)])
         for j in range(self.nmem):
             self.update_sequence.extend([self.cell[j][i] for i in range(self.nbus)])
-            self.update_sequence.extend([self.tsb[j][i] for i in range(self.nbus)])
+            self.update_sequence.extend([self.tri[j][i] for i in range(self.nbus)])
         self.update_sequence.extend([self.brndo[i] for i in range(self.nbus)])
 
         super().__init__('RAM16x8', name)
