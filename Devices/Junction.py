@@ -37,9 +37,9 @@ class Branch(SimulatedCircuit):
     def add_inport(self, port):
         if isinstance(port, Port):
             self.inports.append(port)
+            return self
         else:
             raise(RuntimeError)
-        return self
 
     def add_outport(self, port):
         if isinstance(port, Port):

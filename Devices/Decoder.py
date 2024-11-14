@@ -323,7 +323,7 @@ class TestFlipFlop(unittest.TestCase):
         dec.power_on()
         dec.step()
 
-        dec.set_input(0xF0)
+        dec.set_input(0xAA)
         for i in range(8):
             dec.set_addr(i)
             dec.step()
