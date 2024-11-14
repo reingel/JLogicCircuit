@@ -231,27 +231,26 @@ class Decoder4to16(SimulatedCircuit):
 
         # create elements
         self.A = [Port(f'A{i}', self) for i in range(self.naddr)]
-        self.bd = [Branch(f'bd{i}') for i in range(self.naddr)] # branch directly connected
+        self.brnd = [Branch(f'brnd{i}') for i in range(self.naddr)] # branch directly connected
         self.inv = [Inverter(f'inv{i}') for i in range(self.naddr)]
-        self.bi = [Branch(f'bi{i}') for i in range(self.naddr)] # branch connected through inverter
+        self.brni = [Branch(f'brni{i}') for i in range(self.naddr)] # branch connected through inverter
         self.ando = [AndN(f'and{i}', 4) for i in range(self.nmem)]
         
         # connect
         for i in range(self.naddr):
-            self.bd[i] << self.A[i]
-            self.bd[i] >> self.inv[i].I
-            self.bi[i] << self.inv[i].O
+            self.A[i] >> self.brnd[i] >> self.inv[i].I
+            self.inv[i].O >> self.brni[i]
             for j in range(self.nmem):
                 bin = f'{j:04b}'[::-1]
-                (self.bd[i] if bin[i] == '1' else self.bi[i]) >> self.ando[j].I[i]
+                (self.brnd[i] if bin[i] == '1' else self.brni[i]) >> self.ando[j].I[i]
 
         # create access points
         self.O = [self.ando[i].O for i in range(self.nmem)]
 
         # update sequences
-        self.update_sequence = [self.bd[i] for i in range(self.naddr)]
+        self.update_sequence = [self.brnd[i] for i in range(self.naddr)]
         self.update_sequence.extend([self.inv[i] for i in range(self.naddr)])
-        self.update_sequence.extend([self.bi[i] for i in range(self.naddr)])
+        self.update_sequence.extend([self.brni[i] for i in range(self.naddr)])
         self.update_sequence.extend([self.ando[j] for j in range(self.nmem)])
 
         super().__init__('Decoder4to16', self.name)
@@ -292,7 +291,7 @@ class Selector16to1(SimulatedCircuit):
         self.ands = [And(f'and{i:02d}') for i in range(self.nmem)]
 
         # connect
-        self.brn << self.Signal
+        self.Signal >> self.brn
         for i in range(self.nmem):
             self.brn >> self.ands[i].I1
 

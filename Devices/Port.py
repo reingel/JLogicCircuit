@@ -21,6 +21,12 @@ class Port:
                 str += f' <---> Port({self.connected.parent.name}.{self.connected.name}, {strof(self.connected.value)})'
         return str
     
+    def set(self):
+        self.value = HIGH
+    
+    def reset(self):
+        self.value = OPEN
+    
     def connect(self, port):
         if self.connected:
             return
@@ -31,24 +37,17 @@ class Port:
         port.connect(self)
     
     def __rshift__(self, port):
-        self.connect(port)
+        if isinstance(port, Port):
+            self.connect(port)
+        else:
+            return NotImplemented
     
     def update_value(self):
         if self.connected:
             self.value = self.connected.value
-            # if self.value == OPEN:
-            #     self.value = self.connected.value
-            # else: # self.value == HIGH or self.value == GND:
-            #     if self.connected.value == OPEN:
-            #         self.connected.value = self.value
-            #     elif self.value != self.connected.value:
-            #         print('Short circuit !!!')
-            #         raise(NotImplementedError)
-            #     else: # self.value == self.connected.value
-            #         pass
 
 
-class TestRelay(unittest.TestCase):
+class TestPort(unittest.TestCase):
     def update_print(self, p1, p2):
         print(p1)
         print('p1 is updated.')
@@ -59,7 +58,7 @@ class TestRelay(unittest.TestCase):
         print(p1)
         print('---')
 
-    def test_relay(self):
+    def test_port(self):
         dev1 = And('and1')
         dev2 = And('and2')
         p1 = Port('p1', dev1)
@@ -74,9 +73,9 @@ class TestRelay(unittest.TestCase):
                     self.update_print(p1, p2)
                 except NotImplementedError:
                     print(' ')
-        
-
+    
 if __name__ == '__main__':
     from Gate import And
+    from Junction import Branch
 
     unittest.main()

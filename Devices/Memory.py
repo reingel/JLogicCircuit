@@ -311,16 +311,16 @@ class RAM16x8(SimulatedCircuit):
             self.dec.O[j] >> self.spl[j].I
             self.spl[j].O0 >> self.selw.I[j]
             self.spl[j].O1 >> self.sele.I[j]
-            self.brnw[j] << self.selw.O[j]
-            self.brne[j] << self.sele.O[j]
+            self.selw.O[j] >> self.brnw[j]
+            self.sele.O[j] >> self.brne[j]
             for i in range(self.nbus):
                 self.brnw[j] >> self.cell[j][i].W
                 self.brndi[i] >> self.cell[j][i].DI
                 self.brne[j] >> self.tri[j][i].E
                 self.cell[j][i].DO >> self.tri[j][i].I
-                self.brndo[i] << self.tri[j][i].O
+                self.tri[j][i].O >> self.brndo[i]
         for i in range(self.nbus):
-            self.brndi[i] << self.DI[i]
+            self.DI[i] >> self.brndi[i]
             self.brndo[i] >> self.DO[i]
 
         # create access points
@@ -411,7 +411,7 @@ class RAM256x8(SimulatedCircuit):
 
         # connect
         for a in range(self.naddr1):
-            self.brna[a] << self.A[a]
+            self.A[a] >> self.brna[a]
             for j in range(self.dec.nmem):
                 self.brna[a] >> self.cell[j].A[a]
         for j in range(self.dec.nmem):
@@ -422,9 +422,9 @@ class RAM256x8(SimulatedCircuit):
             self.sele.O[j] >> self.cell[j].E
             for i in range(self.nbus):
                 self.brndi[i] >> self.cell[j].DI[i]
-                self.brndo[i] << self.cell[j].DO[i]
+                self.cell[j].DO[i] >> self.brndo[i]
         for i in range(self.nbus):
-            self.brndi[i] << self.DI[i]
+            self.DI[i] >> self.brndi[i]
             self.brndo[i] >> self.DO[i]
 
         # create access points
@@ -513,7 +513,7 @@ class RAM4096x8(SimulatedCircuit):
 
         # connect
         for a in range(self.naddr1):
-            self.brna[a] << self.A[a]
+            self.A[a] >> self.brna[a]
             for j in range(self.dec.nmem):
                 self.brna[a] >> self.cell[j].A[a]
         for j in range(self.dec.nmem):
@@ -524,9 +524,9 @@ class RAM4096x8(SimulatedCircuit):
             self.sele.O[j] >> self.cell[j].E
             for i in range(self.nbus):
                 self.brndi[i] >> self.cell[j].DI[i]
-                self.brndo[i] << self.cell[j].DO[i]
+                self.cell[j].DO[i] >> self.brndo[i]
         for i in range(self.nbus):
-            self.brndi[i] << self.DI[i]
+            self.DI[i] >> self.brndi[i]
             self.brndo[i] >> self.DO[i]
 
         # create access points
@@ -667,20 +667,44 @@ class TestMemory(unittest.TestCase):
     #         dev.step()
     #         self.assertEqual(dev.get_output(), i)
 
-    # def test_ram256x8(self):
-    #     dev = RAM256x8('ram256x8')
+    def test_ram256x8(self):
+        dev = RAM256x8('ram256x8')
+        dev.power_on()
+        dev.step()
+
+        dev.W.value = HIGH
+        for i in range(256):
+            dev.set_addr(i)
+            dev.set_input(i)
+            dev.step()
+            if i % 4 == 3:
+                print(dev)
+
+        dev.W.value = OPEN
+        for i in range(256):
+            dev.set_addr(i)
+            dev.E.set()
+            dev.step()
+            self.assertEqual(dev.get_output(), i)
+            dev.E.reset()
+            dev.step()
+            self.assertEqual(dev.get_output(), 0)
+
+    # def test_ram4096x8(self):
+    #     dev = RAM4096x8('ram4096x8')
     #     dev.power_on()
     #     dev.step()
 
     #     dev.W.value = HIGH
-    #     for i in range(256):
+    #     for i in range(4096):
     #         dev.set_addr(i)
-    #         dev.set_input(i)
+    #         dev.set_input(i % 256)
     #         dev.step()
-    #         print(dev)
+    #         if i % 4 == 3:
+    #             print(dev)
 
     #     dev.W.value = OPEN
-    #     for i in range(256):
+    #     for i in range(4096):
     #         dev.set_addr(i)
     #         dev.E.value = HIGH
     #         dev.step()
@@ -688,28 +712,6 @@ class TestMemory(unittest.TestCase):
     #         dev.E.value = OPEN
     #         dev.step()
     #         self.assertEqual(dev.get_output(), 0)
-
-    def test_ram4096x8(self):
-        dev = RAM4096x8('ram4096x8')
-        dev.power_on()
-        dev.step()
-
-        dev.W.value = HIGH
-        for i in range(4096):
-            dev.set_addr(i)
-            dev.set_input(i % 256)
-            dev.step()
-            print(dev)
-
-        dev.W.value = OPEN
-        for i in range(4096):
-            dev.set_addr(i)
-            dev.E.value = HIGH
-            dev.step()
-            self.assertEqual(dev.get_output(), i)
-            dev.E.value = OPEN
-            dev.step()
-            self.assertEqual(dev.get_output(), 0)
 
 
 

@@ -39,6 +39,7 @@ class Branch(SimulatedCircuit):
             self.inports.append(port)
         else:
             raise(RuntimeError)
+        return self
 
     def add_outport(self, port):
         if isinstance(port, Port):
@@ -47,10 +48,13 @@ class Branch(SimulatedCircuit):
             raise(RuntimeError)
     
     def __lshift__(self, port):
-        self.add_inport(port)
-    
+        return self.add_inport(port)
+
     def __rshift__(self, port):
         self.add_outport(port)
+    
+    def __rrshift__(self, port):
+        return self.__lshift__(port)
     
     def update_inport(self):
         if self.ninport == 0:
@@ -189,18 +193,9 @@ class TestConnection(unittest.TestCase):
         q3 = Port('q3', dev1)
 
         brn = Branch('brn1')
-        # brn.add_inport(p1)
-        # brn.add_inport(p2)
-        # brn.add_inport(p3)
-        # brn.add_outport(q1)
-        # brn.add_outport(q2)
-        # brn.add_outport(q3)
-        brn << p1
-        brn << p2
-        brn << p3
-        brn >> q1
-        brn >> q2
-        brn >> q3
+        p1 >> brn >> q1
+        p2 >> brn >> q2
+        p3 >> brn >> q3
 
         for v1 in BITVALUES:
             for v2 in BITVALUES:
