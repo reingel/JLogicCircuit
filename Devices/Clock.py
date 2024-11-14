@@ -40,13 +40,15 @@ class RippleCounter2Bit(SimulatedCircuit):
         self.etff1.Qbar >> self.spl2.I
         self.spl2.O1 >> self.etff1.D
 
-        self.Clkbar = self.inv.O
-        self.Q1 = self.etff1.Q
+        self.Q = [self.inv.O, self.etff1.Q]
 
         super().__init__('RippleCounter2Bit', name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, [{self.Q1.value} {self.Clkbar.value}])'
+        return f'{self.device_name}({self.name}, {self.get_output()})'
+    
+    def get_output(self):
+        return f'{" ".join([str(self.Q[i].value) for i in range(2)][::-1])}'
 
     def init(self):
         self.etff1.step()
@@ -77,16 +79,16 @@ class RippleCounter4Bit(SimulatedCircuit):
         self.etff3.Qbar >> self.spl4.I
         self.spl4.O1 >> self.etff3.D
 
-        self.Clkbar = self.inv.O
-        self.Q1 = self.etff1.Q
-        self.Q2 = self.etff2.Q
-        self.Q3 = self.etff3.Q
+        self.Q = [self.inv.O, self.etff1.Q, self.etff2.Q, self.etff3.Q]
 
         super().__init__('RippleCounter4Bit', name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, [{self.Q3.value} {self.Q2.value} {self.Q1.value} {self.Clkbar.value}])'
+        return f'{self.device_name}({self.name}, {self.get_output()})'
     
+    def get_output(self):
+        return f'{" ".join([str(self.Q[i].value) for i in range(4)][::-1])}'
+
     def init(self):
         self.etff1.step()
         self.etff2.step()
@@ -94,32 +96,42 @@ class RippleCounter4Bit(SimulatedCircuit):
 
 
 class TestClock(unittest.TestCase):
-    # def test_oscillator(self):
-    #     osc = Oscillator('osc1')
-    #     osc.power_on()
-    #     osc.step()
-    #     print(osc)
-    #     for i in range(6):
-    #         osc.step(n=1)
-    #         print(osc)
+    def test_oscillator(self):
+        osc = Oscillator('osc1')
+        osc.power_on()
+        osc.step()
+        print(osc.O.value, end=' ')
+        self.assertEqual(osc.O.value, HIGH)
+        for i in range(6):
+            osc.step()
+            print(osc.O.value, end=' ')
+            if i % 2 == 0:
+                self.assertEqual(osc.O.value, OPEN)
+            else:
+                self.assertEqual(osc.O.value, HIGH)
+        print('\n')
     
     def test_ripple_counter_2bit(self):
         rc = RippleCounter2Bit('rc')
         rc.power_on()
         rc.init()
         for i in range(10):
-            rc.step(n=1)
-            print(rc)
-            a=1
+            rc.step()
+            print(rc.get_output())
+            ans = f'{i % 4:02b}'[::-1]
+            for j in range(2):
+                self.assertEqual(rc.Q[j].value, int(ans[j]))
 
     def test_ripple_counter_4bit(self):
         rc = RippleCounter4Bit('rc')
         rc.power_on()
         rc.init()
         for i in range(20):
-            rc.step(n=1)
-            print(rc)
-            a=1
+            rc.step()
+            print(rc.get_output())
+            ans = f'{i % 16:04b}'[::-1]
+            for j in range(4):
+                self.assertEqual(rc.Q[j].value, int(ans[j]))
 
 
 

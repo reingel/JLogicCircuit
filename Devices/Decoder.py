@@ -316,47 +316,47 @@ class Selector16to1(SimulatedCircuit):
 
 
 class TestFlipFlop(unittest.TestCase):
-    # def test_module3to8(self):
-    #     print('test_module3to8')
+    def test_module3to8(self):
+        print('test_module3to8')
 
-    #     dec = Module3to8('mod')
-    #     dec.power_on()
-    #     dec.step()
+        dec = Module3to8('mod')
+        dec.power_on()
+        dec.step()
 
-    #     dec.set_input(0xF0)
-    #     for i in range(8):
-    #         dec.set_addr(i)
-    #         dec.step()
+        dec.set_input(0xF0)
+        for i in range(8):
+            dec.set_addr(i)
+            dec.step()
 
-    #         print(i, f'{dec.get_output():08b}')
+            print(i, f'{dec.get_output():08b}')
 
-    # def test_decoder3to8(self):
-    #     print('test_decoder3to8')
+    def test_decoder3to8(self):
+        print('test_decoder3to8')
 
-    #     dec = Decoder3to8('dec')
-    #     dec.power_on()
-    #     dec.step()
+        dec = Decoder3to8('dec')
+        dec.power_on()
+        dec.step()
 
-    #     for i in range(8):
-    #         dec.set_addr(i)
-    #         dec.W.value = HIGH
-    #         dec.step()
-    #         print(i, f'{dec.get_output():08b}')
+        for i in range(8):
+            dec.set_addr(i)
+            dec.W.value = HIGH
+            dec.step()
+            print(i, f'{dec.get_output():08b}')
 
-    # def test_selector8to1(self):
-    #     print('test_selector8to1')
+    def test_selector8to1(self):
+        print('test_selector8to1')
 
-    #     sel = Selector8to1('sel')
-    #     sel.power_on()
-    #     sel.step()
+        sel = Selector8to1('sel')
+        sel.power_on()
+        sel.step()
 
-    #     sel.set_input(0x0F)
-    #     out = ''
-    #     for i in range(8):
-    #         sel.set_addr(i)
-    #         sel.step()
-    #         out = str(sel.get_output()) + out
-    #     print(out)
+        sel.set_input(0x0F)
+        out = ''
+        for i in range(8):
+            sel.set_addr(i)
+            sel.step()
+            out = str(sel.get_output()) + out
+        print(out)
     
     def test_decoder4to16(self):
         print('test_decoder4to16')

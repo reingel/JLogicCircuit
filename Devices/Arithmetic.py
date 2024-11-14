@@ -3,7 +3,7 @@ from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Gate import And, Or, Xor
 from Junction import Split
-from Sink import Ground
+from Source import Ground
 
 
 class HalfAdder(SimulatedCircuit):
@@ -171,11 +171,21 @@ class TestArithmetic(unittest.TestCase):
     def test_adder8bit(self):
         gnd = Ground('gnd')
         a8 = Adder8bit('a8')
-        a8.CI >> gnd.I
+        gnd.O >> a8.CI
         gnd.power_on()
         a8.power_on()
         gnd.step()
         a8.step()
+
+        A = 19
+        B = 115
+        a8.set_input(A, B)
+        a8.step()
+        S = a8.get_output()
+        print(f'{A} + {B} = {S}')
+        self.assertEqual(S, (A + B) % 256)
+        self.assertEqual(a8.CO.value, 1 if (A + B) >= 256 else 0)
+        print(a8)
 
         A = 198
         B = 115
@@ -183,6 +193,8 @@ class TestArithmetic(unittest.TestCase):
         a8.step()
         S = a8.get_output()
         print(f'{A} + {B} = {S}')
+        self.assertEqual(S, (A + B) % 256)
+        self.assertEqual(a8.CO.value, 1 if (A + B) >= 256 else 0)
         print(a8)
 
 if __name__ == '__main__':
