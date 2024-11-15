@@ -183,6 +183,8 @@ class Split8(Junction):
 
 class TestConnection(unittest.TestCase):
     def test_branch(self):
+        print('test_branch')
+
         dev1 = And('and1')
 
         p1 = Port('p1', dev1)
@@ -197,57 +199,101 @@ class TestConnection(unittest.TestCase):
         p2 >> brn >> q2
         p3 >> brn >> q3
 
-        for v1 in BITVALUES:
-            for v2 in BITVALUES:
-                for v3 in BITVALUES:
-                    try:
-                        p1.value = v1
-                        p2.value = v2
-                        p3.value = v3
-                        print(brn)
-                        brn.step()
-                        print(brn)
-                        print(strof(brn.value))
-                        print('---')
-                    except NotImplementedError:
-                        print('---')
+        SHORT_CIRCUIT = 99
+        io = [
+            [[HIGH, HIGH, HIGH], HIGH],
+            [[HIGH, HIGH, OPEN], HIGH],
+            [[HIGH, HIGH, GND], SHORT_CIRCUIT],
+            [[HIGH, OPEN, HIGH], HIGH],
+            [[HIGH, OPEN, OPEN], HIGH],
+            [[HIGH, OPEN, GND], SHORT_CIRCUIT],
+            [[HIGH, GND, HIGH], SHORT_CIRCUIT],
+            [[HIGH, GND, OPEN], SHORT_CIRCUIT],
+            [[HIGH, GND, GND], SHORT_CIRCUIT],
 
-    # def test_split(self):
-    #     spl = Split('spl1')
-    #     print(spl)
-    #     for i in [HIGH, OPEN, GND]:
-    #         spl.I.value = i
-    #         spl.step()
-    #         print(spl)
-    #         self.assertEqual(spl.I.value, i)
-    #         self.assertEqual(spl.I.value, spl.O0.value)
-    #         self.assertEqual(spl.I.value, spl.O1.value)
-    
-    # def test_merge(self):
-    #     jnc = Merge('jnc1')
-    #     print(jnc)
-    #     jnc.I0.set()
-    #     jnc.step()
-    #     print(jnc)
-    #     jnc.I1.set()
-    #     jnc.step()
-    #     print(jnc)
-    #     jnc.I0.reset()
-    #     jnc.step()
-    #     print(jnc)
-    #     jnc.I1.reset()
-    #     jnc.step()
-    #     print(jnc)
-    
-    # def test_split8(self):
-    #     sp = Split8('split8')
-    #     sp.power_on()
-    #     sp.step()
+            [[OPEN, HIGH, HIGH], HIGH],
+            [[OPEN, HIGH, OPEN], HIGH],
+            [[OPEN, HIGH, GND], SHORT_CIRCUIT],
+            [[OPEN, OPEN, HIGH], HIGH],
+            [[OPEN, OPEN, OPEN], OPEN],
+            [[OPEN, OPEN, GND], GND],
+            [[OPEN, GND, HIGH], SHORT_CIRCUIT],
+            [[OPEN, GND, OPEN], GND],
+            [[OPEN, GND, GND], GND],
 
-    #     print(sp)
-    #     sp.I.set()
-    #     sp.step()
-    #     print(sp)
+            [[GND, HIGH, HIGH], SHORT_CIRCUIT],
+            [[GND, HIGH, OPEN], SHORT_CIRCUIT],
+            [[GND, HIGH, GND], SHORT_CIRCUIT],
+            [[GND, OPEN, HIGH], SHORT_CIRCUIT],
+            [[GND, OPEN, OPEN], GND],
+            [[GND, OPEN, GND], GND],
+            [[GND, GND, HIGH], SHORT_CIRCUIT],
+            [[GND, GND, OPEN], GND],
+            [[GND, GND, GND], GND],
+        ]
+
+        for i in range(len(io)):
+            p1.value = io[i][0][0]
+            p2.value = io[i][0][1]
+            p3.value = io[i][0][2]
+            try:
+                brn.step()
+                self.assertEqual(brn.value, io[i][1])
+                self.assertEqual(q1.value, brn.value)
+                self.assertEqual(q2.value, brn.value)
+                self.assertEqual(q3.value, brn.value)
+            except NotImplementedError:
+                self.assertEqual(io[i][1], SHORT_CIRCUIT)
+
+
+    def test_split(self):
+        print('test_split')
+
+        spl = Split('spl1')
+
+        for v in [HIGH, OPEN, GND]:
+            spl.I.value = v
+            spl.step()
+            self.assertEqual(spl.I.value, v)
+            self.assertEqual(spl.I.value, spl.O0.value)
+            self.assertEqual(spl.I.value, spl.O1.value)
+    
+
+    def test_merge(self):
+        print('test_merge')
+
+        jnc = Merge('jnc1')
+
+        io = [
+            [[HIGH, HIGH], HIGH],
+            [[HIGH, OPEN], HIGH],
+            [[OPEN, HIGH], HIGH],
+            [[OPEN, OPEN], OPEN],
+        ]
+
+        for i in range(len(io)):
+            jnc.I0.value = io[i][0][0]
+            jnc.I1.value = io[i][0][1]
+            jnc.step()
+            self.assertEqual(jnc.O.value, io[i][1])
+
+
+    def test_split8(self):
+        print('test_split8')
+
+        sp = Split8('split8')
+        sp.power_on()
+        sp.step()
+
+        sp.I.set()
+        sp.step()
+        for i in range(8):
+            self.assertEqual(sp.O[i].value, HIGH)
+        
+        sp.I.reset()
+        sp.step()
+        for i in range(8):
+            self.assertEqual(sp.O[i].value, OPEN)
     
 if __name__ == '__main__':
     from Gate import And
