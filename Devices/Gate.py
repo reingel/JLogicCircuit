@@ -317,132 +317,219 @@ class Inverter(Gate):
 
 class TestGate(unittest.TestCase):
     def test_And(self):
+        print('test_And')
+
         gate = And('and1')
         gate.power_on()
-        truth_table = [[OPEN, OPEN], [OPEN, HIGH]]
-        for v0 in [OPEN, HIGH]:
-            for v1 in [OPEN, HIGH]:
-                gate.set_input(v0, v1)
-                gate.step()
-                print(gate)
-                self.assertEqual(gate.get_output(), truth_table[v0][v1])
+
+        truth_table = [
+            [[0, 0], 0],
+            [[0, 1], 0],
+            [[1, 0], 0],
+            [[1, 1], 1],
+        ]
+
+        for i in range(len(truth_table)):
+            gate.set_input(*truth_table[i][0])
+            gate.step()
+            self.assertEqual(gate.get_output(), truth_table[i][1])
 
     def test_And4(self):
-        print('And4')
+        print('test_And4')
+
         gate = AndN('andn', 4)
         gate.power_on()
-        truth_table = [[[[OPEN, OPEN], [OPEN, OPEN]], [[OPEN, OPEN], [OPEN, OPEN]]], [[[OPEN, OPEN], [OPEN, OPEN]], [[OPEN, OPEN], [OPEN, HIGH]]]]
-        for v0 in [OPEN, HIGH]:
-            for v1 in [OPEN, HIGH]:
-                for v2 in [OPEN, HIGH]:
-                    for v3 in [OPEN, HIGH]:
-                        gate.I[0].value = v0
-                        gate.I[1].value = v1
-                        gate.I[2].value = v2
-                        gate.I[3].value = v3
-                        gate.step()
-                        print(gate)
-                        self.assertEqual(gate.O.value, truth_table[v0][v1][v2][v3])
+
+        truth_table = [
+            [[0, 0, 0, 0], 0],
+            [[0, 0, 0, 1], 0],
+            [[0, 0, 1, 0], 0],
+            [[0, 0, 1, 1], 0],
+            [[0, 1, 0, 0], 0],
+            [[0, 1, 0, 1], 0],
+            [[0, 1, 1, 0], 0],
+            [[0, 1, 1, 1], 0],
+            [[1, 0, 0, 0], 0],
+            [[1, 0, 0, 1], 0],
+            [[1, 0, 1, 0], 0],
+            [[1, 0, 1, 1], 0],
+            [[1, 1, 0, 0], 0],
+            [[1, 1, 0, 1], 0],
+            [[1, 1, 1, 0], 0],
+            [[1, 1, 1, 1], 1],
+        ]
+
+        for i in range(len(truth_table)):
+            for j in range(4):
+                gate.I[j].value = truth_table[i][0][j]
+            gate.step()
+            self.assertEqual(gate.get_output(), truth_table[i][1])
+
     
     def test_AndN_connected(self):
+        print('test_AndN_connected')
+
         and1 = And('and')
         p1 = Port('p1', and1)
         p2 = Port('p2', and1)
         p3 = Port('p3', and1)
         p4 = Port('p4', and1)
 
-        print('test_AndN_connected')
         gate = AndN('andn', 4)
-        print(gate.nconnected)
+        self.assertEqual(gate.nconnected, 0)
         gate.I[0] >> p1
-        print(gate.nconnected)
+        self.assertEqual(gate.nconnected, 1)
         gate.I[1] >> p2
-        print(gate.nconnected)
+        self.assertEqual(gate.nconnected, 2)
         p3 >> gate.I[2]
-        print(gate.nconnected)
+        self.assertEqual(gate.nconnected, 3)
         p4 >> gate.I[3]
-        print(gate.nconnected)
+        self.assertEqual(gate.nconnected, 4)
 
 
     def test_Or(self):
+        print('test_Or')
+
         gate = Or('or1')
         gate.power_on()
-        truth_table = [[OPEN, HIGH], [HIGH, HIGH]]
-        for v0 in [OPEN, HIGH]:
-            for v1 in [OPEN, HIGH]:
-                gate.set_input(v0, v1)
-                gate.step()
-                print(gate)
-                self.assertEqual(gate.get_output(), truth_table[v0][v1])
+
+        truth_table = [
+            [[0, 0], 0],
+            [[0, 1], 1],
+            [[1, 0], 1],
+            [[1, 1], 1],
+        ]
+
+        for i in range(len(truth_table)):
+            gate.set_input(*truth_table[i][0])
+            gate.step()
+            self.assertEqual(gate.get_output(), truth_table[i][1])
 
     def test_OrN(self):
-        gate = OrN('or8', 8)
+        print('test_OrN')
+
+        n = 8
+        gate = OrN('or8', n)
         gate.power_on()
         gate.step()
-        print(gate.O.value)
-        for i in range(8):
-            gate.I[i].set()
+
+        for i in range(2**n):
+            bin = f'{i:08b}'[::-1]
+            for j in range(n):
+                gate.I[j].value = int(bin[j])
             gate.step()
-            print(gate.O.value)
-            gate.I[i].reset()
-            gate.step()
-            print(gate.O.value)
+            self.assertEqual(gate.O.value, 1 if i > 0 else 0)
 
     def test_Nand(self):
+        print('test_Nand')
+
         gate = Nand('nand1')
         gate.power_on()
-        truth_table = [[HIGH, HIGH], [HIGH, OPEN]]
-        for v0 in [OPEN, HIGH]:
-            for v1 in [OPEN, HIGH]:
-                gate.set_input(v0, v1)
-                gate.step()
-                print(gate)
-                self.assertEqual(gate.get_output(), truth_table[v0][v1])
+
+        truth_table = [
+            [[0, 0], 1],
+            [[0, 1], 1],
+            [[1, 0], 1],
+            [[1, 1], 0],
+        ]
+
+        for i in range(len(truth_table)):
+            gate.set_input(*truth_table[i][0])
+            gate.step()
+            self.assertEqual(gate.get_output(), truth_table[i][1])
 
     def test_Nor(self):
+        print('test_Nor')
+
         gate = Nor('nor1')
         gate.power_on()
-        truth_table = [[HIGH, OPEN], [OPEN, OPEN]]
-        for v0 in [OPEN, HIGH]:
-            for v1 in [OPEN, HIGH]:
-                gate.set_input(v0, v1)
-                gate.step()
-                print(gate)
-                self.assertEqual(gate.get_output(), truth_table[v0][v1])
+
+        truth_table = [
+            [[0, 0], 1],
+            [[0, 1], 0],
+            [[1, 0], 0],
+            [[1, 1], 0],
+        ]
+
+        for i in range(len(truth_table)):
+            gate.set_input(*truth_table[i][0])
+            gate.step()
+            self.assertEqual(gate.get_output(), truth_table[i][1])
+
+    def test_Xor(self):
+        print('test_Xor')
+
+        gate = Xor('xor1')
+        gate.power_on()
+
+        truth_table = [
+            [[0, 0], 0],
+            [[0, 1], 1],
+            [[1, 0], 1],
+            [[1, 1], 0],
+        ]
+
+        for i in range(len(truth_table)):
+            gate.set_input(*truth_table[i][0])
+            gate.step()
+            self.assertEqual(gate.get_output(), truth_table[i][1])
+
 
     def test_Buffer(self):
+        print('test_Buffer')
+
         gate = Buffer('buffer1')
         gate.power_on()
-        truth_table = [OPEN, HIGH]
-        for v0 in [OPEN, HIGH]:
-            gate.set_input(v0)
-            gate.step()
-            print(gate)
-            self.assertEqual(gate.get_output(), truth_table[v0])
     
+        truth_table = [
+            [0, 0],
+            [1, 1],
+        ]
+
+        for i in range(len(truth_table)):
+            gate.set_input(truth_table[i][0])
+            gate.step()
+            self.assertEqual(gate.get_output(), truth_table[i][1])
+
     def test_TriStateBuffer(self):
+        print('test_TriStateBuffer')
+
         gate = TriStateBuffer('tsb')
         gate.power_on()
-        truth_table = [[OPEN, OPEN], [OPEN, HIGH]]
-        for e in [OPEN, HIGH]:
-            for i in [OPEN, HIGH]:
-                gate.E.value = e
-                gate.I.value = i
-                gate.step()
-                print(gate)
-                self.assertEqual(gate.O.value, truth_table[e][i])
+
+        truth_table = [
+            [0, 0],
+            [1, 1],
+        ]
+
+        for i in range(len(truth_table)):
+            gate.I.value = truth_table[i][0]
+            gate.E.set()
+            gate.step()
+            self.assertEqual(gate.get_output(), truth_table[i][1])
+            gate.E.reset()
+            gate.step()
+            self.assertEqual(gate.get_output(), 0)
 
     def test_Inverter(self):
+        print('test_Inverter')
+
         gate = Inverter('inverter1')
         gate.power_on()
-        truth_table = [HIGH, OPEN]
-        for v0 in [OPEN, HIGH]:
-            gate.set_input(v0)
-            gate.step()
-            print(gate)
-            self.assertEqual(gate.get_output(), truth_table[v0])
     
+        truth_table = [
+            [0, 1],
+            [1, 0],
+        ]
+
+        for i in range(len(truth_table)):
+            gate.set_input(truth_table[i][0])
+            gate.step()
+            self.assertEqual(gate.get_output(), truth_table[i][1])
+
     def test_AndOr(self):
+        print('test_AndOr')
+
         and1 = And('and1')
         and2 = And('and2')
         or1 = Or('or1')
@@ -453,31 +540,34 @@ class TestGate(unittest.TestCase):
         and1.O >> or1.I0
         and2.O >> or1.I1
 
-        and1.I0.reset()
-        and1.I1.set()
-        and2.I0.set()
-        and2.I1.set()
+        truth_table = [
+            [[0, 0, 0, 0], 0],
+            [[0, 0, 0, 1], 0],
+            [[0, 0, 1, 0], 0],
+            [[0, 0, 1, 1], 1],
+            [[0, 1, 0, 0], 0],
+            [[0, 1, 0, 1], 0],
+            [[0, 1, 1, 0], 0],
+            [[0, 1, 1, 1], 1],
+            [[1, 0, 0, 0], 0],
+            [[1, 0, 0, 1], 0],
+            [[1, 0, 1, 0], 0],
+            [[1, 0, 1, 1], 1],
+            [[1, 1, 0, 0], 1],
+            [[1, 1, 0, 1], 1],
+            [[1, 1, 1, 0], 1],
+            [[1, 1, 1, 1], 1],
+        ]
 
-        for i in range(1):
+        for i in range(len(truth_table)):
+            and1.I0.value = truth_table[i][0][0]
+            and1.I1.value = truth_table[i][0][1]
+            and2.I0.value = truth_table[i][0][2]
+            and2.I1.value = truth_table[i][0][3]
             and1.step()
             and2.step()
             or1.step()
-
-        print(and1)
-        print(and2)
-        print(or1)
-
-    def test_Xor(self):
-        gate = Xor('xor1')
-        gate.power_on()
-        truth_table = [[OPEN, HIGH], [HIGH, OPEN]]
-        for v0 in [OPEN, HIGH]:
-            for v1 in [OPEN, HIGH]:
-                gate.set_input(v0, v1)
-                gate.step()
-                print(gate)
-                self.assertEqual(gate.get_output(), truth_table[v0][v1])
-
+            self.assertEqual(or1.O.value, truth_table[i][1])
 
 
 
