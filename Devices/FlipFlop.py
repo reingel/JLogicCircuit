@@ -1,9 +1,10 @@
 import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
+from Port import Port
 from Source import Power
 from Relay import Relay
-from Junction import Split, Split8
+from Junction import Split, Split8, Branch
 from Gate import And, Nor, Inverter
 
 class RSFlipFlop(SimulatedCircuit):
@@ -139,26 +140,21 @@ class Latch8bit(SimulatedCircuit):
         self.device_name = '8-Bit Latch'
 
         self.nbit = 8
-        self.split8 = Split8('split8')
-        self.latches = []
-        self.D = []
-        self.Q = []
 
-        self.update_sequence = [self.split8]
+        self.Clk = Port('I', self)
+        self.brn = Branch('brn')
+        self.latch = [EdgeTriggeredDtypeFlipFlop(f'latch{i:02d}') for i in range(self.nbit)]
+        # self.latch = [LevelTriggeredDtypeFlipFlop(f'latch{i:02d}') for i in range(self.nbit)]
 
+        self.Clk >> self.brn
         for i in range(self.nbit):
-            # create elements
-            latch = EdgeTriggeredDtypeFlipFlop(f'latch{i:02d}')
-            self.latches.append(latch)
-            # connect
-            self.split8.O[i] >> self.latches[i].Clk
-            # create access ports
-            self.D.append(self.latches[i].D)
-            self.Q.append(self.latches[i].Q)
-            # update sequences
-            self.update_sequence.append(self.latches[i])
-        
-        self.Clk = self.split8.I
+            self.brn >> self.latch[i].Clk
+
+        self.D = [self.latch[i].D for i in range(self.nbit)]
+        self.Q = [self.latch[i].Q for i in range(self.nbit)]
+
+        self.update_sequence = [self.brn]
+        self.update_sequence.extend([self.latch[i] for i in range(self.nbit)])
 
         super().__init__('Latch8bit', name)
         
@@ -215,7 +211,7 @@ class TestFlipFlop(unittest.TestCase):
             [[0, 0], 0],
             [[1, 0], 0],
             [[1, 1], 1],
-            [[0, 1], 0],
+            [[0, 1], 0], # Q goes down because Level Triggered Type
             [[0, 0], 0],
             [[0, 1], 0],
             [[0, 0], 0],
@@ -240,7 +236,7 @@ class TestFlipFlop(unittest.TestCase):
             [[0, 0], 0],
             [[1, 0], 0],
             [[1, 1], 1],
-            [[0, 1], 1],
+            [[0, 1], 1], # Q don't go down because Edge Triggered
             [[0, 0], 1],
             [[0, 1], 0],
             [[0, 0], 0],
@@ -287,7 +283,7 @@ class TestFlipFlop(unittest.TestCase):
         for i in range(10):
             inp = i*3 + 1
             dev.set_input(inp)
-            dev.step()
+            dev.step() # not needed if Level Triggered is used
 
             dev.Clk.set()
             dev.step()
