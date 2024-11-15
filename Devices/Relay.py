@@ -56,11 +56,11 @@ class Relay(SimulatedCircuit):
     def calc_output(self):
         if self.type == self.NORMAL:
             if self.X == HIGH: # coil is charged
-                self.ru.value = OPEN
+                self.ru.reset()
                 self.rd.value = self.up.value
             else: # coil is discharged
                 self.ru.value = self.up.value
-                self.rd.value = OPEN
+                self.rd.reset()
         else: # REVERSED
             if self.X == HIGH: # coil is charged
                 self.up.value = self.rd.value
@@ -84,13 +84,13 @@ class TestRelay(unittest.TestCase):
         pwr.power_on()
         pwr.step()
 
-        rly.le.value = HIGH
+        rly.le.set()
         rly.step()
         print(rly)
         rly.step()
         print(rly)
 
-        rly.le.value = OPEN
+        rly.le.reset()
         rly.step()
         print(rly)
         rly.step()
@@ -105,21 +105,21 @@ class TestRelay(unittest.TestCase):
         pwr.power_on()
         pwr.step()
 
-        rly.ru.value = OPEN
-        rly.rd.value = HIGH
-        rly.le.value = OPEN
+        rly.ru.reset()
+        rly.rd.set()
+        rly.le.reset()
         rly.step()
         print(rly)
-        rly.le.value = HIGH
+        rly.le.set()
         rly.step()
         print(rly)
 
-        rly.ru.value = HIGH
-        rly.rd.value = OPEN
-        rly.le.value = OPEN
+        rly.ru.set()
+        rly.rd.reset()
+        rly.le.reset()
         rly.step()
         print(rly)
-        rly.le.value = HIGH
+        rly.le.set()
         rly.step()
         print(rly)
 

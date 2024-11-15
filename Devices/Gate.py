@@ -381,10 +381,10 @@ class TestGate(unittest.TestCase):
         gate.step()
         print(gate.O.value)
         for i in range(8):
-            gate.I[i].value = HIGH
+            gate.I[i].set()
             gate.step()
             print(gate.O.value)
-            gate.I[i].value = OPEN
+            gate.I[i].reset()
             gate.step()
             print(gate.O.value)
 
@@ -453,10 +453,10 @@ class TestGate(unittest.TestCase):
         and1.O >> or1.I0
         and2.O >> or1.I1
 
-        and1.I0.value = OPEN
-        and1.I1.value = HIGH
-        and2.I0.value = HIGH
-        and2.I1.value = HIGH
+        and1.I0.reset()
+        and1.I1.set()
+        and2.I0.set()
+        and2.I1.set()
 
         for i in range(1):
             and1.step()

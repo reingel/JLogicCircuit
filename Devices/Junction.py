@@ -67,7 +67,7 @@ class Branch(SimulatedCircuit):
         elif HIGH in values and GND not in values:
             for p in self.inports:
                 if p.value == OPEN:
-                    p.value = HIGH
+                    p.set()
         elif GND in values and HIGH not in values:
             for p in self.inports:
                 if p.value == OPEN:
@@ -143,11 +143,11 @@ class Merge(Junction):
     
     def calc_output(self):
         if self.lu.value == OPEN and self.ld.value == OPEN:
-            self.ri.value = OPEN
+            self.ri.reset()
         elif (self.lu.value == HIGH and self.ld.value == OPEN) or \
             (self.lu.value == OPEN and self.ld.value == HIGH) or \
             (self.lu.value == HIGH and self.ld.value == HIGH):
-            self.ri.value = HIGH
+            self.ri.set()
         else:
             raise(RuntimeError)
     
@@ -226,16 +226,16 @@ class TestConnection(unittest.TestCase):
     # def test_merge(self):
     #     jnc = Merge('jnc1')
     #     print(jnc)
-    #     jnc.I0.value = HIGH
+    #     jnc.I0.set()
     #     jnc.step()
     #     print(jnc)
-    #     jnc.I1.value = HIGH
+    #     jnc.I1.set()
     #     jnc.step()
     #     print(jnc)
-    #     jnc.I0.value = OPEN
+    #     jnc.I0.reset()
     #     jnc.step()
     #     print(jnc)
-    #     jnc.I1.value = OPEN
+    #     jnc.I1.reset()
     #     jnc.step()
     #     print(jnc)
     
@@ -245,7 +245,7 @@ class TestConnection(unittest.TestCase):
     #     sp.step()
 
     #     print(sp)
-    #     sp.I.value = HIGH
+    #     sp.I.set()
     #     sp.step()
     #     print(sp)
     

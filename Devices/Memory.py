@@ -588,20 +588,20 @@ class TestMemory(unittest.TestCase):
     #     dev.power_on()
     #     dev.step()
 
-    #     dev.DI.value = HIGH
+    #     dev.DI.set()
     #     dev.step()
     #     print(dev.DO.value)
-    #     dev.W.value = HIGH
+    #     dev.W.set()
     #     dev.step()
     #     print(dev.DO.value)
-    #     dev.W.value = OPEN
+    #     dev.W.reset()
     #     dev.step()
     #     print(dev.DO.value)
-    #     dev.DI.value = OPEN
-    #     dev.W.value = HIGH
+    #     dev.DI.reset()
+    #     dev.W.set()
     #     dev.step()
     #     print(dev.DO.value)
-    #     dev.W.value = OPEN
+    #     dev.W.reset()
     #     dev.step()
     #     print(dev.DO.value)
 
@@ -615,11 +615,11 @@ class TestMemory(unittest.TestCase):
     #     dev.step()
     #     DO = dev.get_output()
     #     print(DO)
-    #     dev.W.value = HIGH
+    #     dev.W.set()
     #     dev.step()
     #     DO = dev.get_output()
     #     print(DO)
-    #     dev.W.value = OPEN
+    #     dev.W.reset()
     #     dev.step()
     #     DO = dev.get_output()
     #     print(DO)
@@ -629,10 +629,10 @@ class TestMemory(unittest.TestCase):
     #     dev.power_on()
     #     dev.step()
 
-    #     dev.DI.value = HIGH
+    #     dev.DI.set()
     #     for i in range(8):
     #         dev.set_addr(i)
-    #         dev.W.value = HIGH
+    #         dev.W.set()
     #         dev.step()
     #         print(dev)
     
@@ -644,7 +644,7 @@ class TestMemory(unittest.TestCase):
     #     for i in range(8):
     #         dev.set_input(0xF0)
     #         dev.set_addr(i)
-    #         dev.W.value = HIGH
+    #         dev.W.set()
     #         dev.step()
     #         print(dev)
 
@@ -657,13 +657,13 @@ class TestMemory(unittest.TestCase):
     #     for i in range(16):
     #         dev.set_input(i)
     #         dev.set_addr(i)
-    #         dev.W.value = HIGH
+    #         dev.W.set()
     #         dev.step()
     #         print(dev)
     #     for i in range(16):
     #         dev.set_addr(i)
-    #         dev.W.value = OPEN
-    #         dev.E.value = HIGH
+    #         dev.W.reset()
+    #         dev.E.set()
     #         dev.step()
     #         self.assertEqual(dev.get_output(), i)
 
@@ -672,7 +672,7 @@ class TestMemory(unittest.TestCase):
         dev.power_on()
         dev.step()
 
-        dev.W.value = HIGH
+        dev.W.set()
         for i in range(256):
             dev.set_addr(i)
             dev.set_input(i)
@@ -680,7 +680,7 @@ class TestMemory(unittest.TestCase):
             if i % 4 == 3:
                 print(dev)
 
-        dev.W.value = OPEN
+        dev.W.reset()
         for i in range(256):
             dev.set_addr(i)
             dev.E.set()
@@ -695,7 +695,7 @@ class TestMemory(unittest.TestCase):
     #     dev.power_on()
     #     dev.step()
 
-    #     dev.W.value = HIGH
+    #     dev.W.set()
     #     for i in range(4096):
     #         dev.set_addr(i)
     #         dev.set_input(i % 256)
@@ -703,13 +703,13 @@ class TestMemory(unittest.TestCase):
     #         if i % 4 == 3:
     #             print(dev)
 
-    #     dev.W.value = OPEN
+    #     dev.W.reset()
     #     for i in range(4096):
     #         dev.set_addr(i)
-    #         dev.E.value = HIGH
+    #         dev.E.set()
     #         dev.step()
     #         self.assertEqual(dev.get_output(), i)
-    #         dev.E.value = OPEN
+    #         dev.E.reset()
     #         dev.step()
     #         self.assertEqual(dev.get_output(), 0)
 

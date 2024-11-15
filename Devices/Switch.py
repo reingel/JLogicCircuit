@@ -37,7 +37,7 @@ class Switch(SimulatedCircuit):
         if self.state: # switch on
             self.ri.value = self.le.value
         else: # switch off
-            self.ri.value = OPEN
+            self.ri.reset()
     
     def update_state(self):
         pass # there is no state.
