@@ -274,7 +274,8 @@ class Decoder4to16(SimulatedCircuit):
         strO = ''
         for i in range(self.nmem):
             strO = f'{self.O[i].value}{strO}'
-        return strO
+        O = int(strO, 2)
+        return O
     
 class Selector16to1(SimulatedCircuit):
     # Signal: 1-D input signal to control output (0: not connect, 1: connect)
@@ -314,6 +315,13 @@ class Selector16to1(SimulatedCircuit):
     def update_inport(self):
         self.Signal.update_value()
 
+    def get_output(self):
+        strO = ''
+        for i in range(self.nmem):
+            strO = f'{self.O[i].value}{strO}'
+        O = int(strO, 2)
+        return O
+    
 
 class TestFlipFlop(unittest.TestCase):
     def test_module3to8(self):
@@ -323,12 +331,13 @@ class TestFlipFlop(unittest.TestCase):
         dec.power_on()
         dec.step()
 
-        dec.set_input(0xAA)
+        inp = 0xAA
+        dec.set_input(inp)
         for i in range(8):
             dec.set_addr(i)
             dec.step()
-
-            print(i, f'{dec.get_output():08b}')
+            # print(i, f'{dec.get_output():08b}')
+            self.assertEqual(dec.get_output() & (1 << i), inp & (1 << i))
 
     def test_decoder3to8(self):
         print('test_decoder3to8')
@@ -337,11 +346,19 @@ class TestFlipFlop(unittest.TestCase):
         dec.power_on()
         dec.step()
 
+        dec.W.set()
         for i in range(8):
             dec.set_addr(i)
-            dec.W.value = HIGH
             dec.step()
-            print(i, f'{dec.get_output():08b}')
+            # print(i, f'{dec.get_output():08b}')
+            self.assertEqual(dec.get_output() & (1 << i), 1 << i)
+
+        dec.W.reset()
+        for i in range(8):
+            dec.set_addr(i)
+            dec.step()
+            # print(i, f'{dec.get_output():08b}')
+            self.assertEqual(dec.get_output() & (1 << i), 0)
 
     def test_selector8to1(self):
         print('test_selector8to1')
@@ -350,13 +367,15 @@ class TestFlipFlop(unittest.TestCase):
         sel.power_on()
         sel.step()
 
-        sel.set_input(0x0F)
-        out = ''
+        inp = 0xAA
+        sel.set_input(inp)
+        # out = ''
         for i in range(8):
             sel.set_addr(i)
             sel.step()
-            out = str(sel.get_output()) + out
-        print(out)
+            # out = str(sel.get_output()) + out
+            self.assertEqual(sel.get_output(), (inp >> i) & 1)
+        # print(out)
     
     def test_decoder4to16(self):
         print('test_decoder4to16')
@@ -368,7 +387,8 @@ class TestFlipFlop(unittest.TestCase):
         for i in range(16):
             dec.set_addr(i)
             dec.step()
-            print(f'{i:2d}: {dec.get_output()}')
+            # print(f'{i:2d}: {dec.get_output():016b}')
+            self.assertEqual(dec.get_output(), 1 << i)
     
     def test_selector16to1(self):
         print('test_selector16to1')
@@ -379,16 +399,45 @@ class TestFlipFlop(unittest.TestCase):
 
         for i in range(16):
             for j in range(16):
-                sel.I[j].value = OPEN
-            sel.I[i].value = HIGH
+                sel.I[j].reset()
+            sel.I[i].set()
 
-            sel.Signal.value = HIGH
+            sel.Signal.set()
             sel.step()
-            print(sel)
-            sel.Signal.value = OPEN
+            # print(sel)
+            self.assertEqual(sel.get_output(), 1 << i)
+            sel.Signal.reset()
             sel.step()
-            print(sel)
+            # print(sel)
+            self.assertEqual(sel.get_output(), 0)
 
+    def test_decsel4to16to1(self):
+        print('test_decsel4to16to1')
+
+        dec = Decoder4to16('dec')
+        sel = Selector16to1('sel')
+        for i in range(16):
+            dec.O[i] >> sel.I[i]
+        dec.power_on()
+        sel.power_on()
+        dec.step()
+        sel.step()
+
+        sel.Signal.set()
+        for i in range(16):
+            dec.set_addr(i)
+            dec.step()
+            sel.step()
+            # print(f'{i:02d}: {dec.get_output():016b}  {sel.get_output():016b}')
+            self.assertEqual(sel.get_output(), 1 << i)
+
+        sel.Signal.reset()
+        for i in range(16):
+            dec.set_addr(i)
+            dec.step()
+            sel.step()
+            # print(f'{i:02d}: {dec.get_output():016b}  {sel.get_output():016b}')
+            self.assertEqual(sel.get_output(), 0)
 
 
 
