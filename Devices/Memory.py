@@ -1,4 +1,5 @@
 import unittest
+import random as rd
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
@@ -145,9 +146,9 @@ class RAM8x8(SimulatedCircuit):
 
         self.split8s = [Split8(f'split8s{i}') for i in range(self.naddr)]
         self.split8w = Split8('split8w')
-        self.ram8x1 = [RAM8x1(f'ram8x1_{i}') for i in range(self.nmem)]
+        self.ram8x1 = [RAM8x1(f'ram8x1_{i}') for i in range(self.nbus)]
 
-        for i in range(self.nmem):
+        for i in range(self.nbus):
             # connect
             for j in range(self.naddr):
                 self.split8s[j].O[i] >> self.ram8x1[i].S[j]
@@ -155,20 +156,20 @@ class RAM8x8(SimulatedCircuit):
             
         self.update_sequence = [self.split8s[i] for i in range(self.naddr)]
         self.update_sequence.append(self.split8w)
-        self.update_sequence.extend([self.ram8x1[i] for i in range(self.nmem)])
+        self.update_sequence.extend([self.ram8x1[i] for i in range(self.nbus)])
         
         self.S = [self.split8s[i].I for i in range(self.naddr)]
         self.W = self.split8w.I
-        self.DI = [self.ram8x1[i].DI for i in range(self.nmem)]
-        self.DO = [self.ram8x1[i].DO for i in range(self.nmem)]
+        self.DI = [self.ram8x1[i].DI for i in range(self.nbus)]
+        self.DO = [self.ram8x1[i].DO for i in range(self.nbus)]
 
         super().__init__('RAM8x8', name)
     
     def __repr__(self):
         out = ''
-        for i in range(self.nbus):
+        for i in range(self.nmem):
             o = ''
-            for j in range(self.nmem):
+            for j in range(self.nbus):
                 o = f'{self.ram8x1[j].memories[i].DO.value}{o}'
             t = f'{int(o, 2):02x} '.upper()
             out = t + out
@@ -186,12 +187,12 @@ class RAM8x8(SimulatedCircuit):
         if DI > 255 or DI < 0:
             raise(RuntimeError)
         strDI = f'{DI:08b}'[::-1]
-        for i in range(self.nmem):
+        for i in range(self.nbus):
             self.DI[i].value = int(strDI[i])
     
     def get_output(self):
         strDO = ''
-        for i in range(self.nmem):
+        for i in range(self.nbus):
             strDO = f'{self.DO[i].value}{strDO}'
         DO = int(strDO, 2)
         return DO
@@ -344,6 +345,9 @@ class RAM16x8(SimulatedCircuit):
         super().__init__('RAM16x8', name)
     
     def __repr__(self):
+        return f'RAM16x8({self.name})'
+
+    def print_cell(self):
         out = ''
         for j in range(self.nmem):
             strDO = ''
@@ -406,7 +410,7 @@ class RAM256x8(SimulatedCircuit):
         self.sele = Selector16to1('selector for E')
 
         self.brndi = [Branch(f'brndi{i}') for i in range(self.nbus)]
-        self.cell = [RAM16x8(f'ram16x8{j:02d}') for j in range(self.dec.nmem)]
+        self.cell = [RAM16x8(f'ram16x8_{j:02d}') for j in range(self.dec.nmem)]
         self.brndo = [Branch(f'brndo{i}') for i in range(self.nbus)]
 
         # connect
@@ -459,6 +463,17 @@ class RAM256x8(SimulatedCircuit):
         for i in range(self.nbus):
             self.DI[i].update_value()
         
+    # def step(self, n=1): # overloaded due to speed up
+    #     self.update_inport()
+    #     for device in self.update_sequence:
+    #         if isinstance(device, RAM16x8):
+    #             for j in range(self.dec.nmem):
+    #                 if self.dec.O[j].value == HIGH and device == self.cell[j]:
+    #                     device.step()
+    #                     print(device)
+    #         else:
+    #             device.step()
+
     def set_addr(self, addr):
         if addr < 0 or addr > self.nmem - 1:
             raise(RuntimeError)
@@ -668,13 +683,6 @@ class TestMemory(unittest.TestCase):
         dev.power_on()
         dev.step()
 
-        for i in range(8):
-            dev.set_input(0xF0)
-            dev.set_addr(i)
-            dev.W.set()
-            dev.step()
-            print(dev)
-
         io = [ # [[DI, W], DO],
             [[0xFF, 0], 0],
             [[0xFF, 1], 0xFF],
@@ -692,75 +700,64 @@ class TestMemory(unittest.TestCase):
                 self.assertEqual(dev.get_output(), io[i][1])
 
 
-    # def test_ram16x8(self):
-    #     print('test_ram16x8')
+    def _test_ram(self, dev, nmem, ntrial=0):
+        io = [ # [[DI, W, E], DO],
+            [[0xFF, 0, 0], 0],
+            [[0xFF, 1, 0], 0],
+            [[0xFF, 0, 0], 0],
+            [[0, 0, 1], 0xFF],
+            [[0, 0, 0], 0],
+            [[0, 1, 0], 0],
+            [[0, 0, 0], 0],
+            [[0, 0, 1], 0],
+            [[0, 0, 0], 0],
+        ]
 
-    #     # dev = RAM16x8_by_add('ram16x8')
-    #     dev = RAM16x8('ram16x8')
-    #     dev.power_on()
-    #     dev.step()
+        if ntrial == 0:
+            ntrial = nmem
+            mode = 'sequential'
+        else:
+            mode = 'random'
 
-    #     for i in range(16):
-    #         dev.set_input(i)
-    #         dev.set_addr(i)
-    #         dev.W.set()
-    #         dev.step()
-    #         print(dev)
-    #     for i in range(16):
-    #         dev.set_addr(i)
-    #         dev.W.reset()
-    #         dev.E.set()
-    #         dev.step()
-    #         self.assertEqual(dev.get_output(), i)
+        for j in range(ntrial):
+            if mode == 'random':
+                addr = rd.randint(0, nmem)
+            else:
+                addr = j
+            print(f'{addr}', end=' ')
+            dev.set_addr(addr)
+            for i in range(len(io)):
+                dev.set_input(io[i][0][0])
+                dev.W.value = io[i][0][1]
+                dev.E.value = io[i][0][2]
+                dev.step()
+                # print(f'{j}, DI = {io[i][0][0]:02X}, W = {io[i][0][1]}, E = {io[i][0][2]}, DO = {dev.get_output():02X}, DOreq = {io[i][1]:02X}')
+                self.assertEqual(dev.get_output(), io[i][1])
+        print('\n')
 
-    # def test_ram256x8(self):
-    #     print('test_ram256x8')
+    def test_ram16x8(self):
+        print('test_ram16x8')
 
-    #     dev = RAM256x8('ram256x8')
-    #     dev.power_on()
-    #     dev.step()
+        dev = RAM16x8('ram16x8')
+        dev.power_on()
+        dev.step()
+        self._test_ram(dev, 16)
 
-    #     dev.W.set()
-    #     for i in range(256):
-    #         dev.set_addr(i)
-    #         dev.set_input(i)
-    #         dev.step()
-    #         if i % 4 == 3:
-    #             print(dev)
+    def test_ram256x8(self):
+        print('test_ram256x8')
 
-    #     dev.W.reset()
-    #     for i in range(256):
-    #         dev.set_addr(i)
-    #         dev.E.set()
-    #         dev.step()
-    #         self.assertEqual(dev.get_output(), i)
-    #         dev.E.reset()
-    #         dev.step()
-    #         self.assertEqual(dev.get_output(), 0)
+        dev = RAM256x8('ram256x8')
+        dev.power_on()
+        dev.step()
+        self._test_ram(dev, 256, 16)
 
-    # def test_ram4096x8(self):
-    #     dev = RAM4096x8('ram4096x8')
-    #     dev.power_on()
-    #     dev.step()
+    def test_ram4096x8(self):
+        print('test_ram4096x8')
 
-    #     dev.W.set()
-    #     for i in range(4096):
-    #         dev.set_addr(i)
-    #         dev.set_input(i % 256)
-    #         dev.step()
-    #         if i % 4 == 3:
-    #             print(dev)
-
-    #     dev.W.reset()
-    #     for i in range(4096):
-    #         dev.set_addr(i)
-    #         dev.E.set()
-    #         dev.step()
-    #         self.assertEqual(dev.get_output(), i)
-    #         dev.E.reset()
-    #         dev.step()
-    #         self.assertEqual(dev.get_output(), 0)
-
+        dev = RAM4096x8('ram4096x8')
+        dev.power_on()
+        dev.step()
+        self._test_ram(dev, 4096, 4)
 
 
 
