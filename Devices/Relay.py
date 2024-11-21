@@ -81,7 +81,7 @@ class TestRelay(unittest.TestCase):
         tmp = SimulatedCircuit('SimulatedCircuit', 'tmp')
         pwr = Power('pwr')
         rly = Relay('rly', tmp, type=Relay.NORMAL)
-        pwr.out >> rly.up
+        pwr.O >> rly.up
 
         pwr.power_on()
         pwr.step()

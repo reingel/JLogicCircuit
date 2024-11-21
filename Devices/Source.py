@@ -10,12 +10,12 @@ class Power(SimulatedCircuit):
 
         self.state = OPEN
 
-        self.out = self.ri
+        self.O = self.ri
 
         super().__init__('Power', name)
 
     def __repr__(self):
-        return f"Power({self.name}, {self.out.value} -> )"
+        return f"Power({self.name}, {self.O.value} -> )"
 
     def on(self):
         self.state = HIGH
@@ -61,13 +61,13 @@ class TestSource(unittest.TestCase):
 
         pwr = Power('pwr1')
         pwr.step()
-        self.assertEqual(pwr.out.value, OPEN)
+        self.assertEqual(pwr.O.value, OPEN)
         pwr.power_on()
         pwr.step()
-        self.assertEqual(pwr.out.value, HIGH)
+        self.assertEqual(pwr.O.value, HIGH)
         pwr.off()
         pwr.step()
-        self.assertEqual(pwr.out.value, OPEN)
+        self.assertEqual(pwr.O.value, OPEN)
     
     def test_ground(self):
         print('test_ground')

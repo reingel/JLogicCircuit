@@ -38,7 +38,7 @@ class And(Gate):
         self.rly2 = Relay('rly2', self)
 
         # connect
-        self.pwr.ri >> self.rly1.up
+        self.pwr.O >> self.rly1.up
         self.rly1.rd >> self.rly2.up
 
         # create access points
@@ -66,7 +66,7 @@ class AndN(Gate):
         self.update_sequence = [self.pwr]
 
         # connect
-        self.pwr.ri >> self.rly[0].up
+        self.pwr.O >> self.rly[0].up
         for i in range(self.n - 1):
             self.rly[i].rd >> self.rly[i + 1].up
             self.I.append(self.rly[i].le)
@@ -103,8 +103,8 @@ class Or(Gate):
         self.jnc = Merge('jnc')
 
         # connect
-        self.pwr1.ri >> self.rly1.up
-        self.pwr2.ri >> self.rly2.up
+        self.pwr1.O >> self.rly1.up
+        self.pwr2.O >> self.rly2.up
         self.rly1.rd >> self.jnc.lu
         self.rly2.rd >> self.jnc.ld
 
@@ -135,7 +135,7 @@ class OrN(Gate):
 
         # connect
         for i in range(self.n):
-            self.pwr[i].ri >> self.rly[i].up
+            self.pwr[i].O >> self.rly[i].up
             self.I.append(self.rly[i].le)
             self.update_sequence.append(self.pwr[i])
             self.update_sequence.append(self.rly[i])
@@ -173,8 +173,8 @@ class Nand(Gate):
         self.O = Port('O', self)
 
         # connect
-        self.pwr1.ri >> self.rly1.up
-        self.pwr2.ri >> self.rly2.up
+        self.pwr1.O >> self.rly1.up
+        self.pwr2.O >> self.rly2.up
         self.brn.add_inport(self.rly1.ru)
         self.brn.add_inport(self.rly2.ru)
         self.brn.add_outport(self.O)
@@ -199,7 +199,7 @@ class Nor(Gate):
         self.rly2 = Relay('rly2', self)
 
         # connect
-        self.pwr.ri >> self.rly1.up
+        self.pwr.O >> self.rly1.up
         self.rly1.ru >> self.rly2.up
 
         # create access points
@@ -223,7 +223,7 @@ class Xor(Gate):
         self.rly2 = Relay('rly2', self, type=Relay.REVERSED)
 
         # connect
-        self.pwr.ri >> self.rly1.up
+        self.pwr.O >> self.rly1.up
         self.rly1.ru >> self.rly2.rd
         self.rly1.rd >> self.rly2.ru
 
@@ -247,7 +247,7 @@ class Buffer(Gate):
         self.rly = Relay('rly', self)
 
         # connect
-        self.pwr.ri >> self.rly.up
+        self.pwr.O >> self.rly.up
 
         # create access points
         self.I = self.rly.le
@@ -296,7 +296,7 @@ class Inverter(Gate):
         self.rly = Relay('rly', self)
 
         # connect
-        self.pwr.ri >> self.rly.up
+        self.pwr.O >> self.rly.up
 
         # create access points
         self.I = self.rly.le

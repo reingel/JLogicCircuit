@@ -50,7 +50,7 @@ class TestSwitch(unittest.TestCase):
 
         sw = Switch('sw1')
         pwr = Power('pwr1')
-        pwr.out >> sw.le
+        pwr.O >> sw.le
         pwr.on()
         pwr.step()
 
