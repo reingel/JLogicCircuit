@@ -21,7 +21,7 @@ class Relay(SimulatedCircuit):
     REVERSED = 1
 
     def __init__(self, name, parent, type=NORMAL):
-        #  NORMAL  type: input(up, le)     -> output(ru, rd)
+        #  NORMAL  type: input(le, up)     -> output(ru, rd)
         # REVERSED type: input(le, ru, rd) -> output(up)
         self.parent = parent
         self.type = type
@@ -75,10 +75,12 @@ class Relay(SimulatedCircuit):
             self.X = DISCHARGED
 
 class TestRelay(unittest.TestCase):
-    def test_relay(self):
+    def test_relay_normal(self):
+        print('test_relay_normal')
+
         tmp = SimulatedCircuit('SimulatedCircuit', 'tmp')
         pwr = Power('pwr')
-        rly = Relay('rly', tmp)
+        rly = Relay('rly', tmp, type=Relay.NORMAL)
         pwr.out >> rly.up
 
         pwr.power_on()
@@ -86,42 +88,49 @@ class TestRelay(unittest.TestCase):
 
         rly.le.set()
         rly.step()
-        print(rly)
-        rly.step()
-        print(rly)
+        self.assertEqual(rly.X, CHARGED)
+        self.assertEqual(rly.ru.value, OPEN)
+        self.assertEqual(rly.rd.value, rly.up.value)
 
         rly.le.reset()
         rly.step()
-        print(rly)
-        rly.step()
-        print(rly)
+        self.assertEqual(rly.X, DISCHARGED)
+        self.assertEqual(rly.ru.value, rly.up.value)
+        self.assertEqual(rly.rd.value, OPEN)
 
-    def test_relay_reserved(self):
+    def test_relay_reversed(self):
+        print('test_relay_reversed')
+
         tmp = SimulatedCircuit('SimulatedCircuit', 'tmp')
         pwr = Power('pwr')
-        rly = Relay('rly_rvs', tmp, type=Relay.NORMAL)
-        pwr.out >> rly.up
+        rly = Relay('rly_rvs', tmp, type=Relay.REVERSED)
 
         pwr.power_on()
         pwr.step()
 
+        rly.le.reset()
         rly.ru.reset()
         rly.rd.set()
-        rly.le.reset()
         rly.step()
-        print(rly)
+        self.assertEqual(rly.X, DISCHARGED)
+        self.assertEqual(rly.up.value, rly.ru.value)
+
         rly.le.set()
         rly.step()
-        print(rly)
+        self.assertEqual(rly.X, CHARGED)
+        self.assertEqual(rly.up.value, rly.rd.value)
 
+        rly.le.reset()
         rly.ru.set()
         rly.rd.reset()
-        rly.le.reset()
         rly.step()
-        print(rly)
+        self.assertEqual(rly.X, DISCHARGED)
+        self.assertEqual(rly.up.value, rly.ru.value)
+
         rly.le.set()
         rly.step()
-        print(rly)
+        self.assertEqual(rly.X, CHARGED)
+        self.assertEqual(rly.up.value, rly.rd.value)
 
 if __name__ == '__main__':
     unittest.main()

@@ -48,17 +48,9 @@ class Port:
 
 
 class TestPort(unittest.TestCase):
-    def update_print(self, p1, p2):
-        print(p1)
-        print('p1 is updated.')
-        p1.update_value()
-        print(p1)
-        print('p2 is updated.')
-        p2.update_value()
-        print(p1)
-        print('---')
-
     def test_port(self):
+        print('test_port')
+
         dev1 = And('and1')
         dev2 = And('and2')
         p1 = Port('p1', dev1)
@@ -70,9 +62,12 @@ class TestPort(unittest.TestCase):
                 try:
                     p1.value = v1
                     p2.value = v2
-                    self.update_print(p1, p2)
+                    p1.update_value()
+                    self.assertEqual(p1.value, p2.value)
+                    p2.update_value()
+                    self.assertEqual(p1.value, p2.value)
                 except NotImplementedError:
-                    print(' ')
+                    pass
     
 if __name__ == '__main__':
     from Gate import And
