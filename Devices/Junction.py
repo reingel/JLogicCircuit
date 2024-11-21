@@ -118,42 +118,6 @@ class Split(Junction):
         pass # there is no state.
 
 
-class Merge(Junction):
-    def __init__(self, name):
-        self.name = name
-
-        # create ports
-        self.lu = Port('lu', self)
-        self.ld = Port('ld', self)
-        self.ri = Port('ri', self)
-
-        # create access points
-        self.I0 = self.lu
-        self.I1 = self.ld
-        self.O = self.ri
-
-        super().__init__()
-    
-    def __repr__(self):
-        return f'Merge({self.name}, {strof(self.I0.value)} + {strof(self.I1.value)} -> {strof(self.O.value)})'
-    
-    def update_inport(self):
-        self.lu.update_value()
-        self.ld.update_value()
-    
-    def calc_output(self):
-        if self.lu.value == OPEN and self.ld.value == OPEN:
-            self.ri.reset()
-        elif (self.lu.value == HIGH and self.ld.value == OPEN) or \
-            (self.lu.value == OPEN and self.ld.value == HIGH) or \
-            (self.lu.value == HIGH and self.ld.value == HIGH):
-            self.ri.set()
-        else:
-            raise(RuntimeError)
-    
-    def update_state(self):
-        pass # there is no state.
-
 class Split8(Junction):
     def __init__(self, name):
         self.name = name
@@ -258,25 +222,6 @@ class TestConnection(unittest.TestCase):
             self.assertEqual(spl.I.value, spl.O0.value)
             self.assertEqual(spl.I.value, spl.O1.value)
     
-
-    def test_merge(self):
-        print('test_merge')
-
-        jnc = Merge('jnc1')
-
-        io = [
-            [[HIGH, HIGH], HIGH],
-            [[HIGH, OPEN], HIGH],
-            [[OPEN, HIGH], HIGH],
-            [[OPEN, OPEN], OPEN],
-        ]
-
-        for i in range(len(io)):
-            jnc.I0.value = io[i][0][0]
-            jnc.I1.value = io[i][0][1]
-            jnc.step()
-            self.assertEqual(jnc.O.value, io[i][1])
-
 
     def test_split8(self):
         print('test_split8')

@@ -4,7 +4,7 @@ from SimulatedCircuit import SimulatedCircuit
 from Source import Power
 from Port import Port
 from Relay import Relay
-from Junction import Branch, Merge
+from Junction import Branch
 
 class Gate(SimulatedCircuit):
     def __init__(self, device_name, name):
@@ -100,21 +100,22 @@ class Or(Gate):
         self.pwr2 = Power('pwr2')
         self.rly1 = Relay('rly1', self)
         self.rly2 = Relay('rly2', self)
-        self.jnc = Merge('jnc')
+        self.brn = Branch('brn')
+        self.O = Port('O', self)
 
         # connect
         self.pwr1.O >> self.rly1.up
         self.pwr2.O >> self.rly2.up
-        self.rly1.rd >> self.jnc.lu
-        self.rly2.rd >> self.jnc.ld
+        self.rly1.rd >> self.brn
+        self.rly2.rd >> self.brn
+        self.brn >> self.O
 
         # create access points
         self.I0 = self.rly1.le
         self.I1 = self.rly2.le
-        self.O = self.jnc.ri
 
         # update sequences
-        self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.jnc]
+        self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.brn]
     
         super().__init__(self.device_name, name)
 
@@ -125,33 +126,27 @@ class OrN(Gate):
             raise(RuntimeError)
         self.n = n
 
-        # creat update_sequence
-        self.pwr = [Power(f'pwr{i}') for i in range(self.n)]
+        # creat elements
+        self.pwr = Power('pwr')
+        self.brnpw = Branch('brnpw')
         self.rly = [Relay(f'rly{i}', self) for i in range(self.n)]
-        self.mrg = [Merge(f'mrg{i}') for i in range(self.n - 1)]
-        self.I = []
-
-        self.update_sequence = []
+        self.brno = Branch('brno')
+        self.O = Port('O', self)
 
         # connect
+        self.pwr.O >> self.brnpw
         for i in range(self.n):
-            self.pwr[i].O >> self.rly[i].up
-            self.I.append(self.rly[i].le)
-            self.update_sequence.append(self.pwr[i])
-            self.update_sequence.append(self.rly[i])
-        self.rly[0].rd >> self.mrg[0].lu
-        for i in range(self.n - 2):
-            self.rly[i+1].rd >> self.mrg[i].ld
-            self.mrg[i].ri >> self.mrg[i+1].lu
-            # update sequences
-            self.update_sequence.append(self.mrg[i])
-        self.rly[self.n - 1].rd >> self.mrg[self.n - 2].ld
+            self.brnpw >> self.rly[i].up
+            self.rly[i].rd >> self.brno
+        self.brno >> self.O
 
         # update sequences
-        self.update_sequence.append(self.mrg[self.n - 2])
+        self.update_sequence = [self.pwr, self.brnpw]
+        self.update_sequence.extend([self.rly[i] for i in range(self.n)])
+        self.update_sequence.append(self.brno)
 
         # create access points
-        self.O = self.mrg[self.n - 2].ri
+        self.I = [self.rly[i].le for i in range(self.n)]
     
         super().__init__('OrN', name)
 
