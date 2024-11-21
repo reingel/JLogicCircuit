@@ -57,20 +57,24 @@ class Ground(SimulatedCircuit):
 
 class TestSource(unittest.TestCase):
     def test_power(self):
+        print('test_power')
+
         pwr = Power('pwr1')
         pwr.step()
-        print(pwr)
+        self.assertEqual(pwr.out.value, OPEN)
         pwr.power_on()
         pwr.step()
-        print(pwr)
+        self.assertEqual(pwr.out.value, HIGH)
         pwr.off()
         pwr.step()
-        print(pwr)
+        self.assertEqual(pwr.out.value, OPEN)
     
     def test_ground(self):
+        print('test_ground')
+
         grd = Ground('grd1')
         grd.step()
-        print(grd)
+        self.assertEqual(grd.O.value, GND)
 
 
 if __name__ == '__main__':

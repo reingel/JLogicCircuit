@@ -32,8 +32,10 @@ class Switch(SimulatedCircuit):
     def set_state(self, state):
         self.state = state
     
-    def calc_output(self):
+    def update_inport(self):
         self.le.update_value()
+    
+    def calc_output(self):
         if self.state: # switch on
             self.ri.value = self.le.value
         else: # switch off
@@ -44,17 +46,25 @@ class Switch(SimulatedCircuit):
 
 class TestSwitch(unittest.TestCase):
     def test_switch(self):
+        print('test_switch')
+
         sw = Switch('sw1')
         pwr = Power('pwr1')
-        sw.le.connect(pwr.ri)
+        pwr.out >> sw.le
+        pwr.on()
+        pwr.step()
+
         sw.step()
-        print(sw)
+        self.assertEqual(sw.state, OPEN)
+        self.assertEqual(sw.O.value, OPEN)
         sw.invert()
         sw.step()
-        print(sw)
+        self.assertEqual(sw.state, HIGH)
+        self.assertEqual(sw.O.value, sw.I.value)
         sw.set_state(OPEN)
         sw.step()
-        print(sw)
+        self.assertEqual(sw.state, OPEN)
+        self.assertEqual(sw.O.value, OPEN)
 
 if __name__ == '__main__':
     unittest.main()
