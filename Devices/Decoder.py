@@ -294,10 +294,10 @@ class Selector16to1(SimulatedCircuit):
         # connect
         self.Signal >> self.brn
         for i in range(self.nmem):
-            self.brn >> self.ands[i].I1
+            self.brn >> self.ands[i].I[1]
 
         # create access points
-        self.I = [self.ands[i].I0 for i in range(self.nmem)]
+        self.I = [self.ands[i].I[0] for i in range(self.nmem)]
         self.O = [self.ands[i].O for i in range(self.nmem)]
 
         # update sequence

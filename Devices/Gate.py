@@ -28,68 +28,39 @@ class Gate(SimulatedCircuit):
             return self.O.value
 
 
-class And(Gate):
-    def __init__(self, name):
+class AndN(Gate):
+    def __init__(self, name, n):
         self.device_name = 'And'
+        self.name = name
+        self.n = n
 
         # creat update_sequence
         self.pwr = Power('pwr')
-        self.rly1 = Relay('rly1', self)
-        self.rly2 = Relay('rly2', self)
-
-        # connect
-        self.pwr.O >> self.rly1.up
-        self.rly1.rd >> self.rly2.up
-
-        # create access points
-        self.I0 = self.rly1.le
-        self.I1 = self.rly2.le
-        self.O = self.rly2.rd
-
-        # update sequences
-        self.update_sequence = [self.pwr, self.rly1, self.rly2]
-    
-        super().__init__(self.device_name, name)
-
-class AndN(Gate):
-    def __init__(self, name, n):
-        self.name = name
-        if n < 3:
-            raise(RuntimeError)
-        self.n = n
-
-        # create update_sequence
-        self.pwr = Power('pwr')
         self.rly = [Relay(f'rly{i}', self) for i in range(self.n)]
-        self.I = []
-
-        self.update_sequence = [self.pwr]
 
         # connect
         self.pwr.O >> self.rly[0].up
         for i in range(self.n - 1):
-            self.rly[i].rd >> self.rly[i + 1].up
-            self.I.append(self.rly[i].le)
-            self.update_sequence.append(self.rly[i])
-        self.I.append(self.rly[self.n - 1].le)
-        self.update_sequence.append(self.rly[self.n - 1])
+            self.rly[i].rd >> self.rly[i+1].up
 
         # create access points
+        self.I = [self.rly[i].le for i in range(self.n)]
         self.O = self.rly[self.n - 1].rd
-    
-        super().__init__('AndN', name)
 
-    def __repr__(self):
-        str = f'{self.device_name}({self.name}({self.n}), {[strof(self.I[i].value) for i in range(self.n)]} -> {strof(self.O.value)})'
-        return str
+        # update sequences
+        self.update_sequence = [self.pwr]
+        self.update_sequence.extend([self.rly[i] for i in range(self.n)])
     
-    @property
-    def nconnected(self):
-        n = 0
-        for i in range(self.n):
-            if self.I[i].connected:
-                n += 1
-        return n
+        super().__init__(self.device_name, name)
+
+
+class And(AndN):
+    def __init__(self, name):
+        self.device_name = 'And'
+        self.name = name
+
+        super().__init__(self.name, 2)
+
 
 class Or(Gate):
     def __init__(self, name):
@@ -325,7 +296,8 @@ class TestGate(unittest.TestCase):
         ]
 
         for i in range(len(truth_table)):
-            gate.set_input(*truth_table[i][0])
+            for j in range(2):
+                gate.I[j].value = truth_table[i][0][j]
             gate.step()
             self.assertEqual(gate.get_output(), truth_table[i][1])
 
@@ -360,27 +332,6 @@ class TestGate(unittest.TestCase):
             gate.step()
             self.assertEqual(gate.get_output(), truth_table[i][1])
 
-    
-    def test_AndN_connected(self):
-        print('test_AndN_connected')
-
-        and1 = And('and')
-        p1 = Port('p1', and1)
-        p2 = Port('p2', and1)
-        p3 = Port('p3', and1)
-        p4 = Port('p4', and1)
-
-        gate = AndN('andn', 4)
-        self.assertEqual(gate.nconnected, 0)
-        gate.I[0] >> p1
-        self.assertEqual(gate.nconnected, 1)
-        gate.I[1] >> p2
-        self.assertEqual(gate.nconnected, 2)
-        p3 >> gate.I[2]
-        self.assertEqual(gate.nconnected, 3)
-        p4 >> gate.I[3]
-        self.assertEqual(gate.nconnected, 4)
-
 
     def test_Or(self):
         print('test_Or')
@@ -399,6 +350,7 @@ class TestGate(unittest.TestCase):
             gate.set_input(*truth_table[i][0])
             gate.step()
             self.assertEqual(gate.get_output(), truth_table[i][1])
+
 
     def test_OrN(self):
         print('test_OrN')
@@ -555,10 +507,10 @@ class TestGate(unittest.TestCase):
         ]
 
         for i in range(len(truth_table)):
-            and1.I0.value = truth_table[i][0][0]
-            and1.I1.value = truth_table[i][0][1]
-            and2.I0.value = truth_table[i][0][2]
-            and2.I1.value = truth_table[i][0][3]
+            and1.I[0].value = truth_table[i][0][0]
+            and1.I[1].value = truth_table[i][0][1]
+            and2.I[0].value = truth_table[i][0][2]
+            and2.I[1].value = truth_table[i][0][3]
             and1.step()
             and2.step()
             or1.step()
