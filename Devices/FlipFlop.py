@@ -19,13 +19,13 @@ class RSFlipFlop(SimulatedCircuit):
 
         # connect
         self.nor1.O >> self.spl1.I
-        self.spl1.O1 >> self.nor2.I0
+        self.spl1.O1 >> self.nor2.I[0]
         self.nor2.O >> self.spl2.I
-        self.spl2.O0 >> self.nor1.I1
+        self.spl2.O0 >> self.nor1.I[1]
 
         # create access ports
-        self.R = self.nor1.I0
-        self.S = self.nor2.I1
+        self.R = self.nor1.I[0]
+        self.S = self.nor2.I[1]
         self.Q = self.spl1.O0
         self.Qbar = self.spl2.O1
 
@@ -64,10 +64,10 @@ class LevelTriggeredDtypeFlipFlop(DtypeFlipFlop):
 
         # connect
         self.spl1.O0 >> self.inv.I
-        self.inv.O >> self.and1.I0
-        self.spl1.O1 >> self.and2.I1
-        self.spl2.O0 >> self.and1.I1
-        self.spl2.O1 >> self.and2.I0
+        self.inv.O >> self.and1.I[0]
+        self.spl1.O1 >> self.and2.I[1]
+        self.spl2.O0 >> self.and1.I[1]
+        self.spl2.O1 >> self.and2.I[0]
         self.and1.O >> self.rsff.R
         self.and2.O >> self.rsff.S
 
@@ -105,17 +105,17 @@ class EdgeTriggeredDtypeFlipFlop(DtypeFlipFlop):
         self.splc1.O0 >> self.splc3.I
         self.splc1.O1 >> self.inv1.I
         self.inv1.O >> self.splc2.I
-        self.splc2.O0 >> self.and1.I1
-        self.splc2.O1 >> self.and2.I0
-        self.spld1.O0 >> self.and1.I0
+        self.splc2.O0 >> self.and1.I[1]
+        self.splc2.O1 >> self.and2.I[0]
+        self.spld1.O0 >> self.and1.I[0]
         self.spld1.O1 >> self.inv2.I
-        self.inv2.O >> self.and2.I1
+        self.inv2.O >> self.and2.I[1]
         self.and1.O >> self.rsff1.R
         self.and2.O >> self.rsff1.S
-        self.rsff1.Q >> self.and3.I0
-        self.rsff1.Qbar >> self.and4.I1
-        self.splc3.O0 >> self.and3.I1
-        self.splc3.O1 >> self.and4.I0
+        self.rsff1.Q >> self.and3.I[0]
+        self.rsff1.Qbar >> self.and4.I[1]
+        self.splc3.O0 >> self.and3.I[1]
+        self.splc3.O1 >> self.and4.I[0]
         self.and3.O >> self.rsff2.R
         self.and4.O >> self.rsff2.S
 

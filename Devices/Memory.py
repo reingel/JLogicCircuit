@@ -223,17 +223,17 @@ class RAM16x8_by_add(SimulatedCircuit): # implemented by adding two RAM8x8
             self.splitA[i].O0 >> self.ram8x8[0].S[i]
             self.splitA[i].O1 >> self.ram8x8[1].S[i]
         self.splitA[3].O0 >> self.inv.I
-        self.splitA[3].O1 >> self.and2[1].I1
-        self.inv.O >> self.and2[0].I0
-        self.splitW.O0 >> self.and2[0].I1
-        self.splitW.O1 >> self.and2[1].I0
+        self.splitA[3].O1 >> self.and2[1].I[1]
+        self.inv.O >> self.and2[0].I[0]
+        self.splitW.O0 >> self.and2[0].I[1]
+        self.splitW.O1 >> self.and2[1].I[0]
         for i in range(self.nram8):
             self.and2[i].O >> self.ram8x8[i].W
         for i in range(self.nbus):
             self.splitDI[i].O0 >> self.ram8x8[0].DI[i]
             self.splitDI[i].O1 >> self.ram8x8[1].DI[i]
-            self.ram8x8[0].DO[i] >> self.or8[i].I0
-            self.ram8x8[1].DO[i] >> self.or8[i].I1
+            self.ram8x8[0].DO[i] >> self.or8[i].I[0]
+            self.ram8x8[1].DO[i] >> self.or8[i].I[1]
 
         self.update_sequence = [self.splitA[i] for i in range(self.naddr)]
         self.update_sequence.append(self.inv)
@@ -749,7 +749,7 @@ class TestMemory(unittest.TestCase):
         dev = RAM256x8('ram256x8')
         dev.power_on()
         dev.step()
-        self._test_ram(dev, 256, 16)
+        self._test_ram(dev, 256, 8)
 
     def test_ram4096x8(self):
         print('test_ram4096x8')
@@ -757,7 +757,7 @@ class TestMemory(unittest.TestCase):
         dev = RAM4096x8('ram4096x8')
         dev.power_on()
         dev.step()
-        self._test_ram(dev, 4096, 4)
+        self._test_ram(dev, 4096, 2)
 
 
 

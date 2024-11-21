@@ -6,29 +6,8 @@ from Port import Port
 from Relay import Relay
 from Junction import Branch
 
-class Gate(SimulatedCircuit):
-    def __init__(self, device_name, name):
-        super().__init__(device_name, name)
-    
-    def __repr__(self):
-        if hasattr(self, 'I0') and hasattr(self, 'I1'):
-            str = f'{self.device_name}({self.name}, [{strof(self.I0.value)} {strof(self.I1.value)}] -> {strof(self.O.value)})'
-            # str += '\n'
-            # str += '  ' + self.rly1.__repr__() + '\n'
-            # str += '  ' + self.rly2.__repr__()
-            return str
 
-    def set_input(self, v0: BitValue, v1: BitValue):
-        if self.I0 and self.I1:
-            self.I0.value = v0
-            self.I1.value = v1
-    
-    def get_output(self):
-        if self.O:
-            return self.O.value
-
-
-class AndN(Gate):
+class AndN(SimulatedCircuit):
     def __init__(self, name, n):
         self.device_name = 'And'
         self.name = name
@@ -62,73 +41,49 @@ class And(AndN):
         super().__init__(self.name, 2)
 
 
-class Or(Gate):
-    def __init__(self, name):
-        self.device_name = 'Or'
-
-        # creat update_sequence
-        self.pwr1 = Power('pwr1')
-        self.pwr2 = Power('pwr2')
-        self.rly1 = Relay('rly1', self)
-        self.rly2 = Relay('rly2', self)
-        self.brn = Branch('brn')
-        self.O = Port('O', self)
-
-        # connect
-        self.pwr1.O >> self.rly1.up
-        self.pwr2.O >> self.rly2.up
-        self.rly1.rd >> self.brn
-        self.rly2.rd >> self.brn
-        self.brn >> self.O
-
-        # create access points
-        self.I0 = self.rly1.le
-        self.I1 = self.rly2.le
-
-        # update sequences
-        self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.brn]
-    
-        super().__init__(self.device_name, name)
-
-class OrN(Gate):
+class OrN(SimulatedCircuit):
     def __init__(self, name, n):
+        self.device_name = 'Or'
         self.name = name
-        if n < 3:
-            raise(RuntimeError)
         self.n = n
 
         # creat elements
         self.pwr = Power('pwr')
         self.brnpw = Branch('brnpw')
         self.rly = [Relay(f'rly{i}', self) for i in range(self.n)]
-        self.brno = Branch('brno')
+        self.brn = Branch('brn')
         self.O = Port('O', self)
 
         # connect
         self.pwr.O >> self.brnpw
         for i in range(self.n):
             self.brnpw >> self.rly[i].up
-            self.rly[i].rd >> self.brno
-        self.brno >> self.O
+            self.rly[i].rd >> self.brn
+        self.brn >> self.O
+
+        # create access points
+        self.I = [self.rly[i].le for i in range(self.n)]
 
         # update sequences
         self.update_sequence = [self.pwr, self.brnpw]
         self.update_sequence.extend([self.rly[i] for i in range(self.n)])
-        self.update_sequence.append(self.brno)
-
-        # create access points
-        self.I = [self.rly[i].le for i in range(self.n)]
+        self.update_sequence.append(self.brn)
     
-        super().__init__('OrN', name)
-
-    def __repr__(self):
-        str = f'{self.device_name}({self.name}, I = {[self.I[i].value for i in range(self.n)]} -> {self.O.value})'
-        return str
+        super().__init__(self.device_name, name)
 
 
-class Nand(Gate):
+class Or(OrN):
+    def __init__(self, name):
+        self.device_name = 'Or'
+        self.name = name
+
+        super().__init__(self.name, 2)
+
+
+class Nand(SimulatedCircuit):
     def __init__(self, name):
         self.device_name = 'Nand'
+        self.name = name
 
         # creat elements
         self.pwr1 = Power('pwr1')
@@ -141,13 +96,12 @@ class Nand(Gate):
         # connect
         self.pwr1.O >> self.rly1.up
         self.pwr2.O >> self.rly2.up
-        self.brn.add_inport(self.rly1.ru)
-        self.brn.add_inport(self.rly2.ru)
-        self.brn.add_outport(self.O)
+        self.rly1.ru >> self.brn
+        self.rly2.ru >> self.brn
+        self.brn >> self.O
 
         # create access points
-        self.I0 = self.rly1.le
-        self.I1 = self.rly2.le
+        self.I = [self.rly1.le, self.rly2.le]
 
         # update sequences
         self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.brn]
@@ -155,9 +109,10 @@ class Nand(Gate):
         super().__init__(self.device_name, name)
 
 
-class Nor(Gate):
+class Nor(SimulatedCircuit):
     def __init__(self, name):
         self.device_name = 'Nor'
+        self.name = name
 
         # creat update_sequence
         self.pwr = Power('pwr')
@@ -169,8 +124,7 @@ class Nor(Gate):
         self.rly1.ru >> self.rly2.up
 
         # create access points
-        self.I0 = self.rly1.le
-        self.I1 = self.rly2.le
+        self.I = [self.rly1.le, self.rly2.le]
         self.O = self.rly2.ru
 
         # update sequences
@@ -179,9 +133,10 @@ class Nor(Gate):
         super().__init__(self.device_name, name)
 
 
-class Xor(Gate):
+class Xor(SimulatedCircuit):
     def __init__(self, name):
         self.device_name = 'Xor'
+        self.name = name
 
         # creat update_sequence
         self.pwr = Power('pwr')
@@ -194,8 +149,7 @@ class Xor(Gate):
         self.rly1.rd >> self.rly2.ru
 
         # create access points
-        self.I0 = self.rly1.le
-        self.I1 = self.rly2.le
+        self.I = [self.rly1.le, self.rly2.le]
         self.O = self.rly2.up
 
         # update sequences
@@ -204,7 +158,7 @@ class Xor(Gate):
         super().__init__(self.device_name, name)
 
 
-class Buffer(Gate):
+class Buffer(SimulatedCircuit):
     def __init__(self, name):
         self.device_name = 'Buffer'
 
@@ -231,7 +185,7 @@ class Buffer(Gate):
         if self.I:
             self.I.value = v1
 
-class TriStateBuffer(Gate):
+class TriStateBuffer(SimulatedCircuit):
     def __init__(self, name):
         self.device_name = 'TriStateBuffer'
         self.name = name
@@ -253,7 +207,7 @@ class TriStateBuffer(Gate):
         return f'{self.device_name}({self.name}, {strof(self.E.value)}: {strof(self.I.value)} -> {strof(self.O.value)})'
 
 
-class Inverter(Gate):
+class Inverter(SimulatedCircuit):
     def __init__(self, name):
         self.device_name = 'Inverter'
 
@@ -299,7 +253,7 @@ class TestGate(unittest.TestCase):
             for j in range(2):
                 gate.I[j].value = truth_table[i][0][j]
             gate.step()
-            self.assertEqual(gate.get_output(), truth_table[i][1])
+            self.assertEqual(gate.O.value, truth_table[i][1])
 
     def test_And4(self):
         print('test_And4')
@@ -330,7 +284,7 @@ class TestGate(unittest.TestCase):
             for j in range(4):
                 gate.I[j].value = truth_table[i][0][j]
             gate.step()
-            self.assertEqual(gate.get_output(), truth_table[i][1])
+            self.assertEqual(gate.O.value, truth_table[i][1])
 
 
     def test_Or(self):
@@ -347,9 +301,10 @@ class TestGate(unittest.TestCase):
         ]
 
         for i in range(len(truth_table)):
-            gate.set_input(*truth_table[i][0])
+            for j in range(2):
+                gate.I[j].value = truth_table[i][0][j]
             gate.step()
-            self.assertEqual(gate.get_output(), truth_table[i][1])
+            self.assertEqual(gate.O.value, truth_table[i][1])
 
 
     def test_OrN(self):
@@ -381,9 +336,10 @@ class TestGate(unittest.TestCase):
         ]
 
         for i in range(len(truth_table)):
-            gate.set_input(*truth_table[i][0])
+            for j in range(2):
+                gate.I[j].value = truth_table[i][0][j]
             gate.step()
-            self.assertEqual(gate.get_output(), truth_table[i][1])
+            self.assertEqual(gate.O.value, truth_table[i][1])
 
     def test_Nor(self):
         print('test_Nor')
@@ -399,9 +355,10 @@ class TestGate(unittest.TestCase):
         ]
 
         for i in range(len(truth_table)):
-            gate.set_input(*truth_table[i][0])
+            for j in range(2):
+                gate.I[j].value = truth_table[i][0][j]
             gate.step()
-            self.assertEqual(gate.get_output(), truth_table[i][1])
+            self.assertEqual(gate.O.value, truth_table[i][1])
 
     def test_Xor(self):
         print('test_Xor')
@@ -417,9 +374,10 @@ class TestGate(unittest.TestCase):
         ]
 
         for i in range(len(truth_table)):
-            gate.set_input(*truth_table[i][0])
+            for j in range(2):
+                gate.I[j].value = truth_table[i][0][j]
             gate.step()
-            self.assertEqual(gate.get_output(), truth_table[i][1])
+            self.assertEqual(gate.O.value, truth_table[i][1])
 
 
     def test_Buffer(self):
@@ -436,7 +394,7 @@ class TestGate(unittest.TestCase):
         for i in range(len(truth_table)):
             gate.set_input(truth_table[i][0])
             gate.step()
-            self.assertEqual(gate.get_output(), truth_table[i][1])
+            self.assertEqual(gate.O.value, truth_table[i][1])
 
     def test_TriStateBuffer(self):
         print('test_TriStateBuffer')
@@ -453,10 +411,10 @@ class TestGate(unittest.TestCase):
             gate.I.value = truth_table[i][0]
             gate.E.set()
             gate.step()
-            self.assertEqual(gate.get_output(), truth_table[i][1])
+            self.assertEqual(gate.O.value, truth_table[i][1])
             gate.E.reset()
             gate.step()
-            self.assertEqual(gate.get_output(), 0)
+            self.assertEqual(gate.O.value, 0)
 
     def test_Inverter(self):
         print('test_Inverter')
@@ -472,7 +430,7 @@ class TestGate(unittest.TestCase):
         for i in range(len(truth_table)):
             gate.set_input(truth_table[i][0])
             gate.step()
-            self.assertEqual(gate.get_output(), truth_table[i][1])
+            self.assertEqual(gate.O.value, truth_table[i][1])
 
     def test_AndOr(self):
         print('test_AndOr')
@@ -484,8 +442,8 @@ class TestGate(unittest.TestCase):
         and2.power_on()
         or1.power_on()
 
-        and1.O >> or1.I0
-        and2.O >> or1.I1
+        and1.O >> or1.I[0]
+        and2.O >> or1.I[1]
 
         truth_table = [
             [[0, 0, 0, 0], 0],
