@@ -5,45 +5,61 @@ from Port import Port
 
 
 class Branch(SimulatedCircuit):
+    '''
+    I: list of input ports
+    O: list of output ports
+    state: state(HIGH, OPEN, or GND) of Branch
+    '''
     def __init__(self, name):
+        self.device_name = 'Branch'
         self.name = name
-        self.inports = []
-        self.outports = []
 
-        super().__init__('Branch', self.name)
+        self._state = OPEN
+        self._nI = 0
+        self._nO = 0
+
+        self.I = []
+        self.O = []
+
+        super().__init__(self.device_name, self.name)
     
     def __repr__(self):
-        return f'Branch({self.name}, in = {[strof(p.value) for p in self.inports]}, out = {[strof(p.value) for p in self.outports]})'
+        return f'Branch({self.name}, {[strof(p.value) for p in self.I]} -> {strof(self.state)} -> {[strof(p.value) for p in self.O]})'
     
     @property
-    def ninport(self):
-        return len(self.inports)
+    def state(self):
+        return self._state
     
     @property
-    def noutport(self):
-        return len(self.outports)
+    def nI(self):
+        return self._nI
     
     @property
-    def exists(self):
-        return self.ninport > 0 and self.noutport > 0
+    def nO(self):
+        return self._nO
     
     @property
-    def value(self):
-        if self.ninport > 0:
-            return self.inports[0].value
-        else:
-            return None
+    def is_not_empty(self):
+        return self.nI > 0 and self.nO > 0
 
     def add_inport(self, port):
         if isinstance(port, Port):
-            self.inports.append(port)
+            n = self.nI
+            p = Port(f'I{n + 1}', self)
+            port >> p
+            self.I.append(p)
+            self._nI += 1
             return self
         else:
             raise(RuntimeError)
 
     def add_outport(self, port):
         if isinstance(port, Port):
-            self.outports.append(port)
+            n = self.nO
+            p = Port(f'O{n + 1}', self)
+            p >> port
+            self.O.append(p)
+            self._nO += 1
         else:
             raise(RuntimeError)
     
@@ -57,31 +73,31 @@ class Branch(SimulatedCircuit):
         return self.__lshift__(port)
     
     def update_inport(self):
-        if self.ninport == 0:
-            return
-
-        values = set([p.value for p in self.inports])
-        if HIGH in values and GND in values:
-            print('Short circuit !!!')
-            raise(NotImplementedError)
-        elif HIGH in values and GND not in values:
-            for p in self.inports:
-                if p.value == OPEN:
-                    p.set()
-        elif GND in values and HIGH not in values:
-            for p in self.inports:
-                if p.value == OPEN:
-                    p.value = GND
-
-    def calc_output(self):
-        if not self.exists:
-            return
-        
-        for p in self.outports:
-            p.value = self.value
+        for p in self.I:
+            p.update_value()
 
     def update_state(self):
-        pass
+        if self.nI == 0:
+            return
+
+        values = set([p.value for p in self.I])
+        if HIGH in values and GND in values:
+            # print('Short circuit !!!')
+            raise(NotImplementedError)
+        elif HIGH in values:
+            self._state = HIGH
+        elif GND in values:
+            self._state = GND
+        else:
+            self._state = OPEN
+
+        for p in self.I:
+            p.value = self.state
+
+    def calc_output(self):
+        for p in self.O:
+            p.value = self.state
+
 
 class Junction(SimulatedCircuit):
     def __init__(self):
@@ -159,9 +175,13 @@ class TestConnection(unittest.TestCase):
         q3 = Port('q3', dev1)
 
         brn = Branch('brn1')
+        self.assertEqual(brn.is_not_empty, False)
         p1 >> brn >> q1
         p2 >> brn >> q2
         p3 >> brn >> q3
+        self.assertEqual(brn.nI, 3)
+        self.assertEqual(brn.nO, 3)
+        self.assertEqual(brn.is_not_empty, True)
 
         SHORT_CIRCUIT = 99
         io = [
@@ -202,10 +222,14 @@ class TestConnection(unittest.TestCase):
             p3.value = io[i][0][2]
             try:
                 brn.step()
-                self.assertEqual(brn.value, io[i][1])
-                self.assertEqual(q1.value, brn.value)
-                self.assertEqual(q2.value, brn.value)
-                self.assertEqual(q3.value, brn.value)
+                q1.update_value()
+                q2.update_value()
+                q3.update_value()
+                # print(brn, q1, q2, q3)
+                self.assertEqual(brn.state, io[i][1])
+                self.assertEqual(q1.value, brn.state)
+                self.assertEqual(q2.value, brn.state)
+                self.assertEqual(q3.value, brn.state)
             except NotImplementedError:
                 self.assertEqual(io[i][1], SHORT_CIRCUIT)
 
