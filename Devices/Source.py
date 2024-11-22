@@ -1,35 +1,36 @@
-import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 
 
 class Power(SimulatedCircuit):
+    '''
+    O: power output (HIGH or OPEN)
+    '''
     def __init__(self, name):
-        self.ri = Port('ri', self)
+        self.device_name = 'Power'
+        self.name = name
 
-        self.state = OPEN
+        self.O = Port('O', self)
 
-        self.O = self.ri
-
-        super().__init__('Power', name)
+        super().__init__(self.device_name, self.name)
 
     def __repr__(self):
         return f"Power({self.name}, {self.O.value} -> )"
 
     def on(self):
-        self.state = HIGH
+        self.O.set()
     
     def off(self):
-        self.state = OPEN
+        self.O.reset()
     
     def update_inport(self):
         pass
-    
-    def calc_output(self):
-        self.ri.value = self.state
 
     def update_state(self):
+        pass
+    
+    def calc_output(self):
         pass
 
 
@@ -54,6 +55,9 @@ class Ground(SimulatedCircuit):
         pass
 
 
+
+
+import unittest
 
 class TestSource(unittest.TestCase):
     def test_power(self):
