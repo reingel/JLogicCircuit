@@ -1,36 +1,40 @@
-import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
-from Source import Power
 from Port import Port
 from Relay import Relay
+from Source import Power
 from Junction import Branch
 
 
 class AndN(SimulatedCircuit):
+    '''
+    n: no. of inputs
+    I: Input signal vector (n x 1)
+    O: Output signal (HIGH or OPEN)
+    '''
     def __init__(self, name, n):
         self.device_name = 'And'
         self.name = name
         self.n = n
 
-        # creat update_sequence
+        # elements
         self.pwr = Power('pwr')
         self.rly = [Relay(f'rly{i}', self) for i in range(self.n)]
 
-        # connect
+        # connections
         self.pwr.O >> self.rly[0].up
         for i in range(self.n - 1):
             self.rly[i].rd >> self.rly[i+1].up
 
-        # create access points
+        # access points
         self.I = [self.rly[i].le for i in range(self.n)]
         self.O = self.rly[self.n - 1].rd
 
-        # update sequences
+        # update sequence
         self.update_sequence = [self.pwr]
         self.update_sequence.extend([self.rly[i] for i in range(self.n)])
     
-        super().__init__(self.device_name, name)
+        super().__init__(self.device_name, self.name)
 
 
 class And(AndN):
@@ -234,6 +238,9 @@ class Inverter(SimulatedCircuit):
         if self.I:
             self.I.value = v1
 
+
+
+import unittest
 
 class TestGate(unittest.TestCase):
     def test_And(self):
