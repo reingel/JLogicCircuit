@@ -199,7 +199,7 @@ class Selector8to1(SimulatedCircuit):
         super().__init__('Selector8to1', name)
 
     def __repr__(self):
-        return f'Decoder3to8({self.name}, I={[self.I[i].value for i in range(self.nbit)]}, S={[self.S[i].value for i in range(self.naddr)]} -> O={self.DO.value})'
+        return f'Selector8to1({self.name}, I={[self.I[i].value for i in range(self.nbit)]}, S={[self.S[i].value for i in range(self.naddr)]} -> O={self.DO.value})'
     
     def set_input(self, DI: int):
         if DI > 255 or DI < 0:
@@ -307,10 +307,7 @@ class Selector16to1(SimulatedCircuit):
         super().__init__('Selector16to1', self.name)
     
     def __repr__(self):
-        ret = ''
-        for i in range(self.nmem):
-            ret = str(self.O[i].value) + ' ' + ret
-        return ret
+        return f'Selector16to1({self.name}, Signal = {str(self.Signal.value)}, {''.join([str(self.I[i].value) for i in range(self.nmem)])[::-1]} -> {''.join([str(self.O[i].value) for i in range(self.nmem)])[::-1]})'
     
     def update_inport(self):
         self.Signal.update_value()
@@ -411,8 +408,8 @@ class TestFlipFlop(unittest.TestCase):
             # print(sel)
             self.assertEqual(sel.get_output(), 0)
 
-    def test_decsel4to16to1(self):
-        print('test_decsel4to16to1')
+    def test_dec_sel_4to16to1(self):
+        print('test_dec_sel_4to16to1')
 
         dec = Decoder4to16('dec')
         sel = Selector16to1('sel')
