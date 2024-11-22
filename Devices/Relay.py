@@ -133,4 +133,10 @@ class TestRelay(unittest.TestCase):
         self.assertEqual(rly.up.value, rly.rd.value)
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestRelay('test_relay_normal'),
+        TestRelay('test_relay_reversed'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

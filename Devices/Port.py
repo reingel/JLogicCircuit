@@ -71,6 +71,10 @@ class TestPort(unittest.TestCase):
     
 if __name__ == '__main__':
     from Gate import And
-    from Junction import Branch
 
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestPort('test_port'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

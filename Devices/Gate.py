@@ -56,17 +56,16 @@ class OrN(SimulatedCircuit):
         self.brnpw = Branch('brnpw')
         self.rly = [Relay(f'rly{i}', self) for i in range(self.n)]
         self.brn = Branch('brn')
-        self.O = Port('O', self)
 
         # connect
         self.pwr.O >> self.brnpw
         for i in range(self.n):
             self.brnpw >> self.rly[i].up
             self.rly[i].rd >> self.brn
-        self.brn >> self.O
 
         # create access points
         self.I = [self.rly[i].le for i in range(self.n)]
+        self.O = self.brn
 
         # update sequences
         self.update_sequence = [self.pwr, self.brnpw]
@@ -95,17 +94,16 @@ class Nand(SimulatedCircuit):
         self.rly1 = Relay('rly1', self)
         self.rly2 = Relay('rly2', self)
         self.brn = Branch('brn')
-        self.O = Port('O', self)
 
         # connect
         self.pwr1.O >> self.rly1.up
         self.pwr2.O >> self.rly2.up
         self.rly1.ru >> self.brn
         self.rly2.ru >> self.brn
-        self.brn >> self.O
 
         # create access points
         self.I = [self.rly1.le, self.rly2.le]
+        self.O = self.brn
 
         # update sequences
         self.update_sequence = [self.pwr1, self.pwr2, self.rly1, self.rly2, self.brn]
@@ -293,7 +291,6 @@ class TestGate(unittest.TestCase):
             gate.step()
             self.assertEqual(gate.O.value, truth_table[i][1])
 
-
     def test_Or(self):
         print('test_Or')
 
@@ -312,7 +309,6 @@ class TestGate(unittest.TestCase):
                 gate.I[j].value = truth_table[i][0][j]
             gate.step()
             self.assertEqual(gate.O.value, truth_table[i][1])
-
 
     def test_OrN(self):
         print('test_OrN')
@@ -385,7 +381,6 @@ class TestGate(unittest.TestCase):
                 gate.I[j].value = truth_table[i][0][j]
             gate.step()
             self.assertEqual(gate.O.value, truth_table[i][1])
-
 
     def test_Buffer(self):
         print('test_Buffer')
@@ -485,4 +480,19 @@ class TestGate(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestGate('test_And'),
+        TestGate('test_And4'),
+        TestGate('test_Or'),
+        TestGate('test_OrN'),
+        TestGate('test_Nand'),
+        TestGate('test_Nor'),
+        TestGate('test_Xor'),
+        TestGate('test_Buffer'),
+        TestGate('test_TriStateBuffer'),
+        TestGate('test_Inverter'),
+        TestGate('test_AndOr'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

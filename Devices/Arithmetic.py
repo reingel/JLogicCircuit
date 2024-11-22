@@ -137,6 +137,8 @@ class Adder8bit(SimulatedCircuit):
 
 class TestArithmetic(unittest.TestCase):
     def test_half_adder(self):
+        print('test_half_adder')
+
         ha = HalfAdder('ha1')
         ha.power_on()
         ha.step()
@@ -147,11 +149,13 @@ class TestArithmetic(unittest.TestCase):
                 ha.A.value = v0
                 ha.B.value = v1
                 ha.step()
-                print(ha)
+                # print(ha)
                 self.assertEqual(ha.S.value, truth_table_S[v0][v1])
                 self.assertEqual(ha.CO.value, truth_table_CO[v0][v1])
 
     def test_full_adder(self):
+        print('test_full_adder')
+
         fa = FullAdder('fa1')
         fa.power_on()
         fa.step()
@@ -164,11 +168,13 @@ class TestArithmetic(unittest.TestCase):
                     fa.A.value = v0
                     fa.B.value = v1
                     fa.step()
-                    print(fa)
+                    # print(fa)
                     self.assertEqual(fa.S.value, truth_table_S[ci][v0][v1])
                     self.assertEqual(fa.CO.value, truth_table_CO[ci][v0][v1])
 
     def test_adder8bit(self):
+        print('test_adder8bit')
+
         gnd = Ground('gnd')
         a8 = Adder8bit('a8')
         gnd.O >> a8.CI
@@ -182,20 +188,27 @@ class TestArithmetic(unittest.TestCase):
         a8.set_input(A, B)
         a8.step()
         S = a8.get_output()
-        print(f'{A} + {B} = {S}')
+        # print(f'{A} + {B} = {S}')
         self.assertEqual(S, (A + B) % 256)
         self.assertEqual(a8.CO.value, 1 if (A + B) >= 256 else 0)
-        print(a8)
+        # print(a8)
 
         A = 198
         B = 115
         a8.set_input(A, B)
         a8.step()
         S = a8.get_output()
-        print(f'{A} + {B} = {S}')
+        # print(f'{A} + {B} = {S}')
         self.assertEqual(S, (A + B) % 256)
         self.assertEqual(a8.CO.value, 1 if (A + B) >= 256 else 0)
-        print(a8)
+        # print(a8)
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestArithmetic('test_half_adder'),
+        TestArithmetic('test_full_adder'),
+        TestArithmetic('test_adder8bit'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

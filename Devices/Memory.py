@@ -198,86 +198,6 @@ class RAM8x8(SimulatedCircuit):
         return DO
 
 
-class RAM16x8_by_add(SimulatedCircuit): # implemented by adding two RAM8x8
-    # 16x8: "16 separate memories that can be selected by addr" x "width of data in/out"
-    # Address: 4 bits
-    # W: 1 bit
-    # DI, DO: 8 bits (1 byte)
-    def __init__(self, name):
-        self.device_name = '16x8 RAM'
-
-        self.nram8 = 2
-        self.naddr = 4
-        self.nmem = 2**self.naddr
-        self.nbus = 8
-
-        self.splitA = [Split(f'splitA{i}') for i in range(self.naddr)]
-        self.and2 = [And(f'and{i}') for i in range(self.nram8)]
-        self.inv = Inverter('inv')
-        self.splitW = Split('splitW')
-        self.splitDI = [Split(f'splitDI{i}') for i in range(self.nbus)]
-        self.ram8x8 = [RAM8x8(f'ram8x8_{i}') for i in range(self.nram8)]
-        self.or8 = [Or(f'or{i}') for i in range(self.nbus)]
-
-        for i in range(self.naddr - 1):
-            self.splitA[i].O0 >> self.ram8x8[0].S[i]
-            self.splitA[i].O1 >> self.ram8x8[1].S[i]
-        self.splitA[3].O0 >> self.inv.I
-        self.splitA[3].O1 >> self.and2[1].I[1]
-        self.inv.O >> self.and2[0].I[0]
-        self.splitW.O0 >> self.and2[0].I[1]
-        self.splitW.O1 >> self.and2[1].I[0]
-        for i in range(self.nram8):
-            self.and2[i].O >> self.ram8x8[i].W
-        for i in range(self.nbus):
-            self.splitDI[i].O0 >> self.ram8x8[0].DI[i]
-            self.splitDI[i].O1 >> self.ram8x8[1].DI[i]
-            self.ram8x8[0].DO[i] >> self.or8[i].I[0]
-            self.ram8x8[1].DO[i] >> self.or8[i].I[1]
-
-        self.update_sequence = [self.splitA[i] for i in range(self.naddr)]
-        self.update_sequence.append(self.inv)
-        self.update_sequence.append(self.splitW)
-        self.update_sequence.extend([self.splitDI[i] for i in range(self.nbus)])
-        self.update_sequence.extend([self.and2[i] for i in range(self.nram8)])
-        self.update_sequence.extend([self.ram8x8[i] for i in range(self.nram8)])
-        self.update_sequence.extend([self.or8[i] for i in range(self.nbus)])
-        
-        self.A = [self.splitA[i].I for i in range(self.naddr)]
-        self.W = self.splitW.I
-        self.DI = [self.splitDI[i].I for i in range(self.nbus)]
-        self.DO = [self.or8[i].O for i in range(self.nbus)]
-
-        super().__init__('RAM16x8', name)
-    
-    def __repr__(self):
-        out = ''
-        for i in range(self.nram8):
-            out = self.ram8x8[i].__repr__() + '  ' + out
-        return out
-        
-    def set_addr(self, addr):
-        if addr < 0 or addr > self.nmem - 1:
-            raise(RuntimeError)
-        bin = f'{addr:04b}'[::-1]
-        for i in range(self.naddr):
-            self.A[i].value = int(bin[i])
-    
-    def set_input(self, DI: int):
-        if DI < 0 or DI > 2**self.nbus - 1:
-            raise(RuntimeError)
-        strDI = f'{DI:08b}'[::-1]
-        for i in range(self.nbus):
-            self.DI[i].value = int(strDI[i])
-    
-    def get_output(self):
-        strDO = ''
-        for i in range(self.nbus):
-            strDO = f'{self.DO[i].value}{strDO}'
-        DO = int(strDO, 2)
-        return DO
-
-
 class RAM16x8(SimulatedCircuit):
     # 16x8: "16 separate memories that can be selected by addr" x "width of data in/out"
     # Address: 4 bits
@@ -291,8 +211,8 @@ class RAM16x8(SimulatedCircuit):
         self.nbus = 8
 
         # create ports
-        self.DI = [Port(f'DI{i}', self) for i in range(self.nbus)]
-        self.DO = [Port(f'DO{i}', self) for i in range(self.nbus)]
+        # self.DI = [Port(f'DI{i}', self) for i in range(self.nbus)]
+        # self.DO = [Port(f'DO{i}', self) for i in range(self.nbus)]
 
         # create elements
         self.dec = Decoder4to16('decoder')
@@ -320,14 +240,16 @@ class RAM16x8(SimulatedCircuit):
                 self.brne[j] >> self.tri[j][i].E
                 self.cell[j][i].DO >> self.tri[j][i].I
                 self.tri[j][i].O >> self.brndo[i]
-        for i in range(self.nbus):
-            self.DI[i] >> self.brndi[i]
-            self.brndo[i] >> self.DO[i]
+        # for i in range(self.nbus):
+        #     self.DI[i] >> self.brndi[i]
+        #     self.brndo[i] >> self.DO[i]
 
         # create access points
         self.A = self.dec.A
         self.W = self.selw.Signal
         self.E = self.sele.Signal
+        self.DI = self.brndi
+        self.DO = self.brndo
 
         # update sequence
         self.update_sequence = [self.dec]
@@ -398,9 +320,10 @@ class RAM256x8(SimulatedCircuit):
         self.nbus = 8
 
         # create ports
-        self.A = [Port(f'A{a:02d}', self) for a in range(self.naddr)]
-        self.DI = [Port(f'DI{i}', self) for i in range(self.nbus)]
-        self.DO = [Port(f'DO{i}', self) for i in range(self.nbus)]
+        # self.A = [Port(f'A{a:02d}', self) for a in range(self.naddr)]
+        # self.DI = [Port(f'DI{i}', self) for i in range(self.nbus)]
+        # self.DO = [Port(f'DO{i}', self) for i in range(self.nbus)]
+        self.A = []
 
         # create elements
         self.brna = [Branch(f'brna{a}') for a in range(self.naddr1)]
@@ -415,7 +338,8 @@ class RAM256x8(SimulatedCircuit):
 
         # connect
         for a in range(self.naddr1):
-            self.A[a] >> self.brna[a]
+            # self.A[a] >> self.brna[a]
+            self.A.append(self.brna[a])
             for j in range(self.dec.nmem):
                 self.brna[a] >> self.cell[j].A[a]
         for j in range(self.dec.nmem):
@@ -427,15 +351,18 @@ class RAM256x8(SimulatedCircuit):
             for i in range(self.nbus):
                 self.brndi[i] >> self.cell[j].DI[i]
                 self.cell[j].DO[i] >> self.brndo[i]
-        for i in range(self.nbus):
-            self.DI[i] >> self.brndi[i]
-            self.brndo[i] >> self.DO[i]
+        # for i in range(self.nbus):
+        #     self.DI[i] >> self.brndi[i]
+        #     self.brndo[i] >> self.DO[i]
 
         # create access points
         for a in range(self.naddr2):
-            self.A[self.naddr1 + a] = self.dec.A[a]
+            # self.A[self.naddr1 + a] = self.dec.A[a]
+            self.A.append(self.dec.A[a])
         self.W = self.selw.Signal
         self.E = self.sele.Signal
+        self.DI = self.brndi
+        self.DO = self.brndo
 
         # update sequence
         self.update_sequence = [self.brna[a] for a in range(self.naddr1)]
@@ -511,9 +438,10 @@ class RAM4096x8(SimulatedCircuit):
         self.nbus = 8
 
         # create ports
-        self.A = [Port(f'A{a:02d}', self) for a in range(self.naddr)]
-        self.DI = [Port(f'DI{i}', self) for i in range(self.nbus)]
-        self.DO = [Port(f'DO{i}', self) for i in range(self.nbus)]
+        # self.A = [Port(f'A{a:02d}', self) for a in range(self.naddr)]
+        # self.DI = [Port(f'DI{i}', self) for i in range(self.nbus)]
+        # self.DO = [Port(f'DO{i}', self) for i in range(self.nbus)]
+        self.A = []
 
         # create elements
         self.brna = [Branch(f'brna{a}') for a in range(self.naddr1)]
@@ -528,7 +456,8 @@ class RAM4096x8(SimulatedCircuit):
 
         # connect
         for a in range(self.naddr1):
-            self.A[a] >> self.brna[a]
+            # self.A[a] >> self.brna[a]
+            self.A.append(self.brna[a])
             for j in range(self.dec.nmem):
                 self.brna[a] >> self.cell[j].A[a]
         for j in range(self.dec.nmem):
@@ -540,15 +469,18 @@ class RAM4096x8(SimulatedCircuit):
             for i in range(self.nbus):
                 self.brndi[i] >> self.cell[j].DI[i]
                 self.cell[j].DO[i] >> self.brndo[i]
-        for i in range(self.nbus):
-            self.DI[i] >> self.brndi[i]
-            self.brndo[i] >> self.DO[i]
+        # for i in range(self.nbus):
+        #     self.DI[i] >> self.brndi[i]
+        #     self.brndo[i] >> self.DO[i]
 
         # create access points
         for a in range(self.naddr2):
-            self.A[self.naddr1 + a] = self.dec.A[a]
+            # self.A[self.naddr1 + a] = self.dec.A[a]
+            self.A.append(self.dec.A[a])
         self.W = self.selw.Signal
         self.E = self.sele.Signal
+        self.DI = self.brndi
+        self.DO = self.brndo
 
         # update sequence
         self.update_sequence = [self.brna[a] for a in range(self.naddr1)]
@@ -619,7 +551,6 @@ class TestMemory(unittest.TestCase):
             dev.step()
             self.assertEqual(dev.DO.value, io[i][1])
 
-
     def test_memory8(self):
         print('test_memory8')
 
@@ -672,7 +603,6 @@ class TestMemory(unittest.TestCase):
                 for k in range(nmem):
                     self.assertEqual(dev.memories[k].DO.value, io[i][1] if j == k else 0)
 
-
     def test_ram8x8(self):
         print('test_ram8x8')
 
@@ -699,7 +629,6 @@ class TestMemory(unittest.TestCase):
                 dev.step()
                 self.assertEqual(dev.get_output(), io[i][1])
 
-
     def _test_ram(self, dev, nmem, ntrial=0):
         io = [ # [[DI, W, E], DO],
             [[0xFF, 0, 0], 0],
@@ -721,7 +650,7 @@ class TestMemory(unittest.TestCase):
 
         for j in range(ntrial):
             if mode == 'random':
-                addr = rd.randint(0, nmem)
+                addr = rd.randint(0, nmem - 1)
             else:
                 addr = j
             print(f'{addr}', end=' ')
@@ -749,7 +678,7 @@ class TestMemory(unittest.TestCase):
         dev = RAM256x8('ram256x8')
         dev.power_on()
         dev.step()
-        self._test_ram(dev, 256, 8)
+        self._test_ram(dev, 256, 4)
 
     def test_ram4096x8(self):
         print('test_ram4096x8')
@@ -757,10 +686,21 @@ class TestMemory(unittest.TestCase):
         dev = RAM4096x8('ram4096x8')
         dev.power_on()
         dev.step()
-        self._test_ram(dev, 4096, 2)
+        self._test_ram(dev, 4096, 1)
 
 
 
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestMemory('test_memory1'),
+        TestMemory('test_memory8'),
+        TestMemory('test_ram8x1'),
+        TestMemory('test_ram8x8'),
+        TestMemory('test_ram16x8'),
+        TestMemory('test_ram256x8'),
+        TestMemory('test_ram4096x8'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

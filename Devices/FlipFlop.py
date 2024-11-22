@@ -199,7 +199,6 @@ class TestFlipFlop(unittest.TestCase):
             self.assertTrue(dev.Q.value == io[i][1])
             self.assertNotEqual(dev.Q.value, dev.Qbar.value)
 
-
     def test_ltdff(self):
         print('test_ltdff')
 
@@ -224,7 +223,6 @@ class TestFlipFlop(unittest.TestCase):
             self.assertTrue(ff.Q.value == io[i][1])
             self.assertNotEqual(ff.Q.value, ff.Qbar.value)
 
-
     def test_etdff(self):
         print('test_etdff')
 
@@ -248,7 +246,6 @@ class TestFlipFlop(unittest.TestCase):
             ff.step()
             self.assertTrue(ff.Q.value == io[i][1])
             self.assertNotEqual(ff.Q.value, ff.Qbar.value)
-
 
     def test_etdff_feedback(self):
         print('test_etdff_feedback')
@@ -298,4 +295,13 @@ class TestFlipFlop(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestFlipFlop('test_rsff'),
+        TestFlipFlop('test_ltdff'),
+        TestFlipFlop('test_etdff'),
+        TestFlipFlop('test_etdff_feedback'),
+        TestFlipFlop('test_latch8'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

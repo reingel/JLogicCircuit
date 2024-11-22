@@ -97,38 +97,44 @@ class RippleCounter4Bit(SimulatedCircuit):
 
 class TestClock(unittest.TestCase):
     def test_oscillator(self):
+        print('test_oscillator')
+
         osc = Oscillator('osc1')
         osc.power_on()
         osc.step()
-        print(osc.O.value, end=' ')
+        # print(osc.O.value, end=' ')
         self.assertEqual(osc.O.value, HIGH)
         for i in range(6):
             osc.step()
-            print(osc.O.value, end=' ')
+            # print(osc.O.value, end=' ')
             if i % 2 == 0:
                 self.assertEqual(osc.O.value, OPEN)
             else:
                 self.assertEqual(osc.O.value, HIGH)
-        print('\n')
+        # print('\n')
     
     def test_ripple_counter_2bit(self):
+        print('test_ripple_counter_2bit')
+
         rc = RippleCounter2Bit('rc')
         rc.power_on()
         rc.init()
         for i in range(10):
             rc.step()
-            print(rc.get_output())
+            # print(rc.get_output())
             ans = f'{i % 4:02b}'[::-1]
             for j in range(2):
                 self.assertEqual(rc.Q[j].value, int(ans[j]))
 
     def test_ripple_counter_4bit(self):
+        print('test_ripple_counter_4bit')
+
         rc = RippleCounter4Bit('rc')
         rc.power_on()
         rc.init()
         for i in range(20):
             rc.step()
-            print(rc.get_output())
+            # print(rc.get_output())
             ans = f'{i % 16:04b}'[::-1]
             for j in range(4):
                 self.assertEqual(rc.Q[j].value, int(ans[j]))
@@ -136,4 +142,11 @@ class TestClock(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestClock('test_oscillator'),
+        TestClock('test_ripple_counter_2bit'),
+        TestClock('test_ripple_counter_4bit'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

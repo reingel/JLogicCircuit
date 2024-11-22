@@ -82,4 +82,10 @@ class TestSource(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestSource('test_power'),
+        TestSource('test_ground'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

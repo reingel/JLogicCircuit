@@ -182,7 +182,7 @@ class Selector8to1(SimulatedCircuit):
 
         # create elements
         self.module = Module3to8('module')
-        self.or8 = OrN('or8', 8)
+        self.or8 = OrN('or8', self.nbit)
         
         # connect
         for i in range(self.nbit):
@@ -230,7 +230,6 @@ class Decoder4to16(SimulatedCircuit):
         self.nmem = 2**self.naddr
 
         # create elements
-        self.A = [Port(f'A{i}', self) for i in range(self.naddr)]
         self.brnd = [Branch(f'brnd{i}') for i in range(self.naddr)] # branch directly connected
         self.inv = [Inverter(f'inv{i}') for i in range(self.naddr)]
         self.brni = [Branch(f'brni{i}') for i in range(self.naddr)] # branch connected through inverter
@@ -238,13 +237,14 @@ class Decoder4to16(SimulatedCircuit):
         
         # connect
         for i in range(self.naddr):
-            self.A[i] >> self.brnd[i] >> self.inv[i].I
+            self.brnd[i] >> self.inv[i].I
             self.inv[i].O >> self.brni[i]
             for j in range(self.nmem):
                 bin = f'{j:04b}'[::-1]
                 (self.brnd[i] if bin[i] == '1' else self.brni[i]) >> self.ando[j].I[i]
 
         # create access points
+        self.A = self.brnd
         self.O = [self.ando[i].O for i in range(self.nmem)]
 
         # update sequences
@@ -257,10 +257,6 @@ class Decoder4to16(SimulatedCircuit):
 
     def __repr__(self):
         return f'Decoder4to16({self.name}, {[self.A[i].value for i in range(self.naddr)]} -> {[self.O[i].value for i in range(self.nmem)]})'
-    
-    def update_inport(self):
-        for i in range(self.naddr):
-            self.A[i].update_value()
     
     def set_addr(self, addr):
         if addr < 0 or addr > self.nmem - 1:
@@ -287,16 +283,15 @@ class Selector16to1(SimulatedCircuit):
         self.nmem = 16
 
         # create elements
-        self.Signal = Port('signal', self)
         self.brn = Branch('brn')
         self.ands = [And(f'and{i:02d}') for i in range(self.nmem)]
 
         # connect
-        self.Signal >> self.brn
         for i in range(self.nmem):
             self.brn >> self.ands[i].I[1]
 
         # create access points
+        self.Signal = self.brn
         self.I = [self.ands[i].I[0] for i in range(self.nmem)]
         self.O = [self.ands[i].O for i in range(self.nmem)]
 
@@ -309,9 +304,6 @@ class Selector16to1(SimulatedCircuit):
     def __repr__(self):
         return f'Selector16to1({self.name}, Signal = {str(self.Signal.value)}, {''.join([str(self.I[i].value) for i in range(self.nmem)])[::-1]} -> {''.join([str(self.O[i].value) for i in range(self.nmem)])[::-1]})'
     
-    def update_inport(self):
-        self.Signal.update_value()
-
     def get_output(self):
         strO = ''
         for i in range(self.nmem):
@@ -320,7 +312,7 @@ class Selector16to1(SimulatedCircuit):
         return O
     
 
-class TestFlipFlop(unittest.TestCase):
+class TestDecoder(unittest.TestCase):
     def test_module3to8(self):
         print('test_module3to8')
 
@@ -439,4 +431,14 @@ class TestFlipFlop(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestDecoder('test_module3to8'),
+        TestDecoder('test_decoder3to8'),
+        TestDecoder('test_selector8to1'),
+        TestDecoder('test_decoder4to16'),
+        TestDecoder('test_selector16to1'),
+        TestDecoder('test_dec_sel_4to16to1'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

@@ -26,10 +26,6 @@ class Branch(SimulatedCircuit):
         return f'Branch({self.name}, {[strof(p.value) for p in self.inport]} -> {strof(self.value)} -> {[strof(p.value) for p in self.outport]})'
     
     @property
-    def value(self):
-        return self._value
-    
-    @property
     def ninport(self):
         return self._ninport
     
@@ -37,14 +33,36 @@ class Branch(SimulatedCircuit):
     def noutport(self):
         return self._noutport
     
+    @property
+    def act_like_inport(self):
+        return self._ninport == 0
+    
+    @property
+    def act_like_outport(self):
+        return self._noutport == 0
+    
+    @property
+    def value(self): # In case of self.inport is empty, self acts like Port
+        return self._value
+    
+    @value.setter
+    def value(self, val): # In case of self.inport is empty, self acts like Port
+        if self.act_like_inport:
+            self._value = val
+        else:
+            raise(RuntimeError)
+    
     def set(self): # In case of self.inport is empty, self acts like Port
-        self._value = HIGH
+        self.value = HIGH
     
     def reset(self): # In case of self.inport is empty, self acts like Port
-        self._value = OPEN
+        self.value = OPEN
+    
+    def update_value(self): # In case of self.inport is empty, self acts like Port
+        pass
     
     def add_inport(self, port):
-        if isinstance(port, Port):
+        if isinstance(port, Port) or isinstance(port, Branch):
             n = self.ninport
             p = Port(f'inport{n + 1}', self)
             port >> p
@@ -55,7 +73,7 @@ class Branch(SimulatedCircuit):
             raise(RuntimeError)
 
     def add_outport(self, port):
-        if isinstance(port, Port):
+        if isinstance(port, Port) or isinstance(port, Branch):
             n = self.noutport
             p = Port(f'outport{n + 1}', self)
             p >> port
@@ -79,6 +97,9 @@ class Branch(SimulatedCircuit):
 
     def update_state(self):
         values = set([p.value for p in self.inport])
+        if len(values) == 0:
+            return
+
         if HIGH in values and GND in values:
             # print('Short circuit !!!')
             raise(NotImplementedError)
@@ -163,7 +184,7 @@ class Split8(Junction):
 
 import unittest
 
-class TestConnection(unittest.TestCase):
+class TestJunction(unittest.TestCase):
     def test_branch(self):
         print('test_branch')
 
@@ -262,16 +283,41 @@ class TestConnection(unittest.TestCase):
         dev.power_on()
         bf2.power_on()
 
+        dev.O[0] >> bf2.I # Branch acts like input Port
+
+        dev.I.value = HIGH
+        dev.step()
+        bf2.step()
+        self.assertEqual(bf2.O.value, HIGH)
+
+        dev.I.value = OPEN
+        dev.step()
+        bf2.step()
+        self.assertEqual(bf2.O.value, OPEN)
+
+        dev.I.set()
+        dev.step()
+        bf2.step()
+        self.assertEqual(bf2.O.value, HIGH)
+
+        dev.I.reset()
+        dev.step()
+        bf2.step()
+        self.assertEqual(bf2.O.value, OPEN)
+
         bf1.O >> dev.I
-        dev.O[0] >> bf2.I
 
         bf1.I.set()
-
         bf1.step()
         dev.step()
         bf2.step()
-
         self.assertEqual(bf2.O.value, HIGH)
+
+        bf1.I.reset()
+        bf1.step()
+        dev.step()
+        bf2.step()
+        self.assertEqual(bf2.O.value, OPEN)
     
     def test_branch_no_output(self):
         print('test_branch_no_output')
@@ -301,7 +347,7 @@ class TestConnection(unittest.TestCase):
         bf2.power_on()
 
         bf1.O >> dev.I[0]
-        dev.O >> bf2.I
+        dev.O >> bf2.I # Branch acts like output Port
 
         bf1.I.set()
 
@@ -311,8 +357,6 @@ class TestConnection(unittest.TestCase):
 
         self.assertEqual(bf2.O.value, HIGH)
     
-
-
     def test_split(self):
         print('test_split')
 
@@ -325,7 +369,6 @@ class TestConnection(unittest.TestCase):
             self.assertEqual(spl.I.value, spl.O0.value)
             self.assertEqual(spl.I.value, spl.O1.value)
     
-
     def test_split8(self):
         print('test_split8')
 
@@ -346,4 +389,13 @@ class TestConnection(unittest.TestCase):
 if __name__ == '__main__':
     from Gate import And
 
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestJunction('test_branch'),
+        TestJunction('test_branch_no_input'),
+        TestJunction('test_branch_no_output'),
+        TestJunction('test_split'),
+        TestJunction('test_split8'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

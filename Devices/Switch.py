@@ -67,4 +67,9 @@ class TestSwitch(unittest.TestCase):
         self.assertEqual(sw.O.value, OPEN)
 
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests([
+        TestSwitch('test_switch'),
+    ])
+    runner = unittest.TextTestRunner()
+    runner.run(suite)

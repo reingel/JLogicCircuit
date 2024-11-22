@@ -24,17 +24,14 @@ class SimulatedCircuit:
             self.off()
 
     def step(self, n=1):
-        if hasattr(self, 'update_inport'):
-            self.update_inport()
         if hasattr(self, 'update_sequence'):
             for device in self.update_sequence:
                 device.step()
-                a=1
         else:
             for i in range(n):
-                self.update_inport()
-                self.update_state()
-                self.calc_output()
-                a=1
-        if hasattr(self, 'calc_output'):
-            self.calc_output()
+                if hasattr(self, 'update_inport'):
+                    self.update_inport()
+                if hasattr(self, 'update_state'):
+                    self.update_state()
+                if hasattr(self, 'calc_output'):
+                    self.calc_output()
