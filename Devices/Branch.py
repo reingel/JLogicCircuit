@@ -62,25 +62,33 @@ class Branch(SimulatedCircuit):
     def update_value(self): # In case of self.inport is empty, self acts like Port
         pass
     
-    def add_inport(self, port):
-        if isinstance(port, Port) or isinstance(port, Branch):
+    def add_inport(self, obj):
+        if isinstance(obj, Iterable):
+            for p in obj:
+                self.add_inport(p)
+            return self
+        elif isinstance(obj, Port) or isinstance(obj, Branch):
             n = self.ninport
             p = Port(f'inport{n + 1}', self)
-            port >> p
+            obj >> p
             self.inport.append(p)
             self._ninport += 1
             return self
         else:
             raise(RuntimeError)
 
-    def add_outport(self, port):
-        if isinstance(port, Port) or isinstance(port, Branch):
+    def add_outport(self, obj):
+        if isinstance(obj, Iterable):
+            for p in obj:
+                self.add_outport(p)
+            return obj
+        elif isinstance(obj, Port) or isinstance(obj, Branch):
             n = self.noutport
             p = Port(f'outport{n + 1}', self)
-            p >> port
+            p >> obj
             self.outport.append(p)
             self._noutport += 1
-            return port
+            return obj
         else:
             raise(RuntimeError)
     
@@ -139,9 +147,8 @@ class TestJunction(unittest.TestCase):
         q3 = Port('q3', dev1)
 
         brn = Branch('brn1')
-        p1 >> brn >> q1
-        p2 >> brn >> q2
-        p3 >> brn >> q3
+        (p1, p2, p3) >> brn >> (q1, q2, q3)
+
         self.assertEqual(brn.ninport, 3)
         self.assertEqual(brn.noutport, 3)
 
@@ -207,8 +214,7 @@ class TestJunction(unittest.TestCase):
                 self.brn = Branch('brn')
                 self.bf = [Buffer('bf0'), Buffer('bf1')]
 
-                self.brn >> self.bf[0].I
-                self.brn >> self.bf[1].I
+                self.brn >> (self.bf[0].I, self.bf[1].I)
 
                 self.update_sequence = [self.brn, self.bf[0], self.bf[1]]
 
@@ -270,8 +276,7 @@ class TestJunction(unittest.TestCase):
                 self.bf = [Buffer('bf0'), Buffer('bf1')]
                 self.brn = Branch('brn')
 
-                self.bf[0].O >> self.brn
-                self.bf[1].O >> self.brn
+                (self.bf[0].O, self.bf[1].O) >> self.brn
 
                 self.update_sequence = [self.bf[0], self.bf[1], self.brn]
 

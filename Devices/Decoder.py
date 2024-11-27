@@ -135,10 +135,8 @@ class Decoder3to8(SimulatedCircuit):
         
         # connect
         for i in range(self.nbit - 2):
-            self.brnw[i] >> self.brnw[i+1]
-            self.brnw[i] >> self.module.I[i]
-        self.brnw[self.nbit - 2] >> self.module.I[self.nbit - 1]
-        self.brnw[self.nbit - 2] >> self.module.I[self.nbit - 2]
+            self.brnw[i] >> (self.brnw[i+1], self.module.I[i])
+        self.brnw[self.nbit - 2] >> (self.module.I[self.nbit - 1], self.module.I[self.nbit - 2])
 
         # create access points
         self.W = self.brnw[0]

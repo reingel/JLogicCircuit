@@ -89,8 +89,7 @@ class RAM8x1(SimulatedCircuit):
             split = Branch(f'S{i}')
             self.brna.append(split)
             # connect
-            self.brna[i] >> self.decoder.S[i]
-            self.brna[i] >> self.selector.S[i]
+            self.brna[i] >> (self.decoder.S[i], self.selector.S[i])
             # update sequences
             self.update_sequence.append(self.brna[i])
             
@@ -209,10 +208,6 @@ class RAM16x8(SimulatedCircuit):
         self.nmem = 2**self.naddr
         self.nbus = 8
 
-        # create ports
-        # self.DI = [Port(f'DI{i}', self) for i in range(self.nbus)]
-        # self.DO = [Port(f'DO{i}', self) for i in range(self.nbus)]
-
         # create elements
         self.dec = Decoder4to16('decoder')
         self.brndc = [Branch(f'brndc{j:02d}') for j in range(self.nmem)]
@@ -228,9 +223,7 @@ class RAM16x8(SimulatedCircuit):
 
         # connect
         for j in range(self.nmem):
-            self.dec.O[j] >> self.brndc[j]
-            self.brndc[j] >> self.selw.I[j]
-            self.brndc[j] >> self.sele.I[j]
+            self.dec.O[j] >> self.brndc[j] >> (self.selw.I[j], self.sele.I[j])
             self.selw.O[j] >> self.brnw[j]
             self.sele.O[j] >> self.brne[j]
             for i in range(self.nbus):
@@ -239,9 +232,6 @@ class RAM16x8(SimulatedCircuit):
                 self.brne[j] >> self.tri[j][i].E
                 self.cell[j][i].DO >> self.tri[j][i].I
                 self.tri[j][i].O >> self.brndo[i]
-        # for i in range(self.nbus):
-        #     self.DI[i] >> self.brndi[i]
-        #     self.brndo[i] >> self.DO[i]
 
         # create access points
         self.A = self.dec.A
@@ -341,9 +331,7 @@ class RAM256x8(SimulatedCircuit):
             for j in range(self.dec.nmem):
                 self.brna[a] >> self.cell[j].A[a]
         for j in range(self.dec.nmem):
-            self.dec.O[j] >> self.brndc[j]
-            self.brndc[j] >> self.selw.I[j]
-            self.brndc[j] >> self.sele.I[j]
+            self.dec.O[j] >> self.brndc[j] >> (self.selw.I[j], self.sele.I[j])
             self.selw.O[j] >> self.cell[j].W
             self.sele.O[j] >> self.cell[j].E
             for i in range(self.nbus):
@@ -451,9 +439,7 @@ class RAM4096x8(SimulatedCircuit):
             for j in range(self.dec.nmem):
                 self.brna[a] >> self.cell[j].A[a]
         for j in range(self.dec.nmem):
-            self.dec.O[j] >> self.brndc[j]
-            self.brndc[j] >> self.selw.I[j]
-            self.brndc[j] >> self.sele.I[j]
+            self.dec.O[j] >> self.brndc[j] >> (self.selw.I[j], self.sele.I[j])
             self.selw.O[j] >> self.cell[j].W
             self.sele.O[j] >> self.cell[j].E
             for i in range(self.nbus):

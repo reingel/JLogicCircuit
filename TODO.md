@@ -19,7 +19,7 @@
 - [x] Update Branch: act like Port
 - [x] Reimplement Split with Branch
 - [x] Split.O0/O1 -> O[0], O[1]
-- [ ] Branch >> (p1, p2, p3)
+- [x] Branch >> (p1, p2, p3)
 - [ ] aaa.O >> bbb.I -> aaa >> bbb
 - [ ] Pythonic code: for..append -> extend
 - [ ] nmem -> ncell?

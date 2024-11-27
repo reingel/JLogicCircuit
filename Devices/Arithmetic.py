@@ -17,10 +17,8 @@ class HalfAdder(SimulatedCircuit):
         self.and1 = And('and1')
 
         # connect
-        self.brn1 >> self.xor.I[0]
-        self.brn1 >> self.and1.I[0]
-        self.brn2 >> self.xor.I[1]
-        self.brn2 >> self.and1.I[1]
+        self.brn1 >> (self.xor.I[0], self.and1.I[0])
+        self.brn2 >> (self.xor.I[1], self.and1.I[1])
 
         # create access points
         self.A = self.brn1

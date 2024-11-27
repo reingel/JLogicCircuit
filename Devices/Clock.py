@@ -33,8 +33,7 @@ class RippleCounter2Bit(SimulatedCircuit):
 
         self.update_sequence = [self.osc, self.brn1, self.inv, self.etff1, self.brn2]
 
-        self.osc.O >> self.brn1 >> self.inv.I
-        self.brn1 >> self.etff1.Clk
+        self.osc.O >> self.brn1 >> (self.inv.I, self.etff1.Clk)
         self.etff1.Qbar >> self.brn2 >> self.etff1.D
 
         self.Q = [self.inv.O, self.etff1.Q]
@@ -64,13 +63,9 @@ class RippleCounter4Bit(SimulatedCircuit):
 
         self.update_sequence = [self.osc, self.brn1, self.inv, self.etff1, self.brn2, self.etff2, self.brn3, self.etff3, self.brn4]
 
-        self.osc.O >> self.brn1 >> self.inv.I
-        self.brn1 >> self.etff1.Clk
-        self.etff1.Qbar >> self.brn2
-        self.brn2 >> self.etff2.Clk
-        self.brn2 >> self.etff1.D
-        self.etff2.Qbar >> self.brn3 >> self.etff3.Clk
-        self.brn3 >> self.etff2.D
+        self.osc.O >> self.brn1 >> (self.inv.I, self.etff1.Clk)
+        self.etff1.Qbar >> self.brn2 >> (self.etff2.Clk, self.etff1.D)
+        self.etff2.Qbar >> self.brn3 >> (self.etff3.Clk, self.etff2.D)
         self.etff3.Qbar >> self.brn4 >> self.etff3.D
 
         self.Q = [self.inv.O, self.etff1.Q, self.etff2.Q, self.etff3.Q]

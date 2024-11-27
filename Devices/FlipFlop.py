@@ -16,10 +16,8 @@ class RSFlipFlop(SimulatedCircuit):
         self.brn2 = Branch('brn2')
 
         # connect
-        self.nor1.O >> self.brn1
-        self.brn1 >> self.nor2.I[0]
-        self.nor2.O >> self.brn2
-        self.brn2 >> self.nor1.I[1]
+        self.nor1.O >> self.brn1 >> self.nor2.I[0]
+        self.nor2.O >> self.brn2 >> self.nor1.I[1]
 
         # create access ports
         self.R = self.nor1.I[0]
@@ -64,8 +62,7 @@ class LevelTriggeredDtypeFlipFlop(DtypeFlipFlop):
         self.brn1 >> self.inv.I
         self.inv.O >> self.and1.I[0]
         self.brn1 >> self.and2.I[1]
-        self.brn2 >> self.and1.I[1]
-        self.brn2 >> self.and2.I[0]
+        self.brn2 >> (self.and1.I[1], self.and2.I[0])
         self.and1.O >> self.rsff.R
         self.and2.O >> self.rsff.S
 
@@ -100,20 +97,15 @@ class EdgeTriggeredDtypeFlipFlop(DtypeFlipFlop):
         self.rsff2 = RSFlipFlop('rsff2')
 
         # connect
-        self.brnc1 >> self.brnc3
-        self.brnc1 >> self.inv1.I
-        self.inv1.O >> self.brnc2
-        self.brnc2 >> self.and1.I[1]
-        self.brnc2 >> self.and2.I[0]
-        self.brnd1 >> self.and1.I[0]
-        self.brnd1 >> self.inv2.I
+        self.brnc1 >> (self.brnc3, self.inv1.I)
+        self.inv1.O >> self.brnc2 >> (self.and1.I[1], self.and2.I[0])
+        self.brnd1 >> (self.and1.I[0], self.inv2.I)
         self.inv2.O >> self.and2.I[1]
         self.and1.O >> self.rsff1.R
         self.and2.O >> self.rsff1.S
         self.rsff1.Q >> self.and3.I[0]
         self.rsff1.Qbar >> self.and4.I[1]
-        self.brnc3 >> self.and3.I[1]
-        self.brnc3 >> self.and4.I[0]
+        self.brnc3 >> (self.and3.I[1], self.and4.I[0])
         self.and3.O >> self.rsff2.R
         self.and4.O >> self.rsff2.S
 
