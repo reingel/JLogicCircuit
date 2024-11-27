@@ -2,7 +2,7 @@ import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
-from Junction import Split, Branch
+from Junction import Branch
 from Gate import And, Nor, Inverter
 
 class RSFlipFlop(SimulatedCircuit):
@@ -12,23 +12,23 @@ class RSFlipFlop(SimulatedCircuit):
         # create elements
         self.nor1 = Nor('nor1')
         self.nor2 = Nor('nor2')
-        self.spl1 = Split('spl1')
-        self.spl2 = Split('spl2')
+        self.brn1 = Branch('brn1')
+        self.brn2 = Branch('brn2')
 
         # connect
-        self.nor1.O >> self.spl1.I
-        self.spl1.O1 >> self.nor2.I[0]
-        self.nor2.O >> self.spl2.I
-        self.spl2.O0 >> self.nor1.I[1]
+        self.nor1.O >> self.brn1
+        self.brn1 >> self.nor2.I[0]
+        self.nor2.O >> self.brn2
+        self.brn2 >> self.nor1.I[1]
 
         # create access ports
         self.R = self.nor1.I[0]
         self.S = self.nor2.I[1]
-        self.Q = self.spl1.O0
-        self.Qbar = self.spl2.O1
+        self.Q = self.brn1
+        self.Qbar = self.brn2
 
         # update sequences
-        self.update_sequence = [self.nor2, self.spl2, self.nor1, self.spl1, self.nor2, self.spl2, self.nor1, self.spl1]
+        self.update_sequence = [self.nor2, self.brn2, self.nor1, self.brn1, self.nor2, self.brn2, self.nor1, self.brn1]
 
         super().__init__('RSFlipFlop', name)
     
@@ -53,30 +53,30 @@ class LevelTriggeredDtypeFlipFlop(DtypeFlipFlop):
         self.device_name = 'Level-Triggered D-type FlipFlop'
 
         # create elements
-        self.spl1 = Split('spl1') # for Data
-        self.spl2 = Split('spl2') # for Clock
+        self.brn1 = Branch('brn1') # for Data
+        self.brn2 = Branch('brn2') # for Clock
         self.inv = Inverter('inv')
         self.and1 = And('and1')
         self.and2 = And('and2')
         self.rsff = RSFlipFlop('rsff')
 
         # connect
-        self.spl1.O0 >> self.inv.I
+        self.brn1 >> self.inv.I
         self.inv.O >> self.and1.I[0]
-        self.spl1.O1 >> self.and2.I[1]
-        self.spl2.O0 >> self.and1.I[1]
-        self.spl2.O1 >> self.and2.I[0]
+        self.brn1 >> self.and2.I[1]
+        self.brn2 >> self.and1.I[1]
+        self.brn2 >> self.and2.I[0]
         self.and1.O >> self.rsff.R
         self.and2.O >> self.rsff.S
 
         # create access ports
-        self.D = self.spl1.I
-        self.Clk = self.spl2.I
+        self.D = self.brn1
+        self.Clk = self.brn2
         self.Q = self.rsff.Q
         self.Qbar = self.rsff.Qbar
 
         # update sequences
-        self.update_sequence = [self.spl1, self.spl2, self.inv, self.and1, self.and2, self.rsff]
+        self.update_sequence = [self.brn1, self.brn2, self.inv, self.and1, self.and2, self.rsff]
 
         super().__init__('LevelTriggeredDtypeFlipFlop', name)
 
@@ -86,10 +86,10 @@ class EdgeTriggeredDtypeFlipFlop(DtypeFlipFlop):
         self.device_name = 'Edge-Triggered D-type FlipFlop'
 
         # create elements
-        self.splc1 = Split('splc1') # for Clock 1
-        self.splc2 = Split('splc2') # for Clock 2
-        self.splc3 = Split('splc3') # for Clock 3
-        self.spld1 = Split('spld1') # for Data
+        self.brnc1 = Branch('brnc1') # for Clock 1
+        self.brnc2 = Branch('brnc2') # for Clock 2
+        self.brnc3 = Branch('brnc3') # for Clock 3
+        self.brnd1 = Branch('brnd1') # for Data
         self.inv1 = Inverter('inv1') # for Clock
         self.inv2 = Inverter('inv2') # for Data
         self.and1 = And('and1')
@@ -100,33 +100,33 @@ class EdgeTriggeredDtypeFlipFlop(DtypeFlipFlop):
         self.rsff2 = RSFlipFlop('rsff2')
 
         # connect
-        self.splc1.O0 >> self.splc3.I
-        self.splc1.O1 >> self.inv1.I
-        self.inv1.O >> self.splc2.I
-        self.splc2.O0 >> self.and1.I[1]
-        self.splc2.O1 >> self.and2.I[0]
-        self.spld1.O0 >> self.and1.I[0]
-        self.spld1.O1 >> self.inv2.I
+        self.brnc1 >> self.brnc3
+        self.brnc1 >> self.inv1.I
+        self.inv1.O >> self.brnc2
+        self.brnc2 >> self.and1.I[1]
+        self.brnc2 >> self.and2.I[0]
+        self.brnd1 >> self.and1.I[0]
+        self.brnd1 >> self.inv2.I
         self.inv2.O >> self.and2.I[1]
         self.and1.O >> self.rsff1.R
         self.and2.O >> self.rsff1.S
         self.rsff1.Q >> self.and3.I[0]
         self.rsff1.Qbar >> self.and4.I[1]
-        self.splc3.O0 >> self.and3.I[1]
-        self.splc3.O1 >> self.and4.I[0]
+        self.brnc3 >> self.and3.I[1]
+        self.brnc3 >> self.and4.I[0]
         self.and3.O >> self.rsff2.R
         self.and4.O >> self.rsff2.S
 
         # create access ports
-        self.D = self.spld1.I
-        self.Clk = self.splc1.I
+        self.D = self.brnd1
+        self.Clk = self.brnc1
         self.Q = self.rsff2.Q
         self.Qbar = self.rsff2.Qbar
 
         # update sequences
         self.update_sequence = [
-            self.splc1, self.inv1, self.splc2, self.splc3,
-            self.spld1, self.inv2,
+            self.brnc1, self.inv1, self.brnc2, self.brnc3,
+            self.brnd1, self.inv2,
             self.and1, self.and2, self.rsff1,
             self.and3, self.and4, self.rsff2,
             ]

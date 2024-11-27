@@ -80,6 +80,7 @@ class Branch(SimulatedCircuit):
             p >> port
             self.outport.append(p)
             self._noutport += 1
+            return port
         else:
             raise(RuntimeError)
     
@@ -87,7 +88,7 @@ class Branch(SimulatedCircuit):
         return self.add_inport(port)
 
     def __rshift__(self, port):
-        self.add_outport(port)
+        return self.add_outport(port)
     
     def __rrshift__(self, port):
         return self.__lshift__(port)
@@ -117,25 +118,6 @@ class Branch(SimulatedCircuit):
     def calc_output(self):
         for p in self.outport:
             p.value = self.value
-
-
-class Split(Branch):
-    def __init__(self, name):
-        self.name = name
-
-        super().__init__(self.name)
-    
-    @property
-    def I(self):
-        return self
-    
-    @property
-    def O0(self):
-        return self
-
-    @property
-    def O1(self):
-        return self
 
 
 
@@ -322,45 +304,6 @@ class TestJunction(unittest.TestCase):
 
         brn1 >> brn2
 
-    def test_split_old(self):
-        print('test_split_old')
-
-        spl = Split('spl1')
-
-        for v in [HIGH, OPEN, GND]:
-            spl.I.value = v
-            spl.step()
-            self.assertEqual(spl.I.value, v)
-            self.assertEqual(spl.I.value, spl.O0.value)
-            self.assertEqual(spl.I.value, spl.O1.value)
-    
-    def test_split(self):
-        print('test_split')
-
-        spl = Split('spl')
-        bf1 = Buffer('bf1')
-        bf2 = Buffer('bf2')
-        bf3 = Buffer('bf3')
-        spl.power_on()
-        bf1.power_on()
-        bf2.power_on()
-        bf3.power_on()
-
-        bf1.O >> spl >> bf2.I
-        spl >> bf3.I
-
-        bf1.I.set()
-        bf1.step()
-        spl.step()
-        bf2.step()
-        bf3.step()
-
-        self.assertEqual(spl.I.value, HIGH)
-        self.assertEqual(spl.O0.value, HIGH)
-        self.assertEqual(spl.O1.value, HIGH)
-        self.assertEqual(bf2.O.value, HIGH)
-        self.assertEqual(bf3.O.value, HIGH)
-    
 if __name__ == '__main__':
     from Gate import And, Buffer
 
@@ -370,7 +313,6 @@ if __name__ == '__main__':
         TestJunction('test_branch_no_input'),
         TestJunction('test_branch_no_output'),
         TestJunction('test_branch_branch'),
-        TestJunction('test_split'),
     ])
     runner = unittest.TextTestRunner()
     runner.run(suite)

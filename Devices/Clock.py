@@ -4,19 +4,18 @@ from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Gate import Inverter
 from FlipFlop import EdgeTriggeredDtypeFlipFlop
-from Junction import Split
+from Junction import Branch
 
 class Oscillator(SimulatedCircuit):
     def __init__(self, name):
         self.inv = Inverter('inv')
-        self.spl = Split('spl')
-        self.update_sequence = [self.inv, self.spl]
+        self.brn = Branch('brn')
+        self.update_sequence = [self.inv, self.brn]
 
-        self.inv.O >> self.spl.I
-        self.spl.O1 >> self.inv.I
+        self.inv.O >> self.brn >> self.inv.I
 
         self.I = self.inv.I
-        self.O = self.spl.O0
+        self.O = self.brn
 
         super().__init__('Oscillator', name)
     
@@ -29,16 +28,14 @@ class RippleCounter2Bit(SimulatedCircuit):
         self.osc = Oscillator('osc')
         self.inv = Inverter('inv')
         self.etff1 = EdgeTriggeredDtypeFlipFlop('etff1')
-        self.spl1 = Split('spl1')
-        self.spl2 = Split('spl2')
+        self.brn1 = Branch('brn1')
+        self.brn2 = Branch('brn2')
 
-        self.update_sequence = [self.osc, self.spl1, self.inv, self.etff1, self.spl2]
+        self.update_sequence = [self.osc, self.brn1, self.inv, self.etff1, self.brn2]
 
-        self.osc.O >> self.spl1.I
-        self.spl1.O0 >> self.inv.I
-        self.spl1.O1 >> self.etff1.Clk
-        self.etff1.Qbar >> self.spl2.I
-        self.spl2.O1 >> self.etff1.D
+        self.osc.O >> self.brn1 >> self.inv.I
+        self.brn1 >> self.etff1.Clk
+        self.etff1.Qbar >> self.brn2 >> self.etff1.D
 
         self.Q = [self.inv.O, self.etff1.Q]
 
@@ -60,24 +57,21 @@ class RippleCounter4Bit(SimulatedCircuit):
         self.etff1 = EdgeTriggeredDtypeFlipFlop('etff1')
         self.etff2 = EdgeTriggeredDtypeFlipFlop('etff2')
         self.etff3 = EdgeTriggeredDtypeFlipFlop('etff3')
-        self.spl1 = Split('spl1')
-        self.spl2 = Split('spl2')
-        self.spl3 = Split('spl3')
-        self.spl4 = Split('spl4')
+        self.brn1 = Branch('brn1')
+        self.brn2 = Branch('brn2')
+        self.brn3 = Branch('brn3')
+        self.brn4 = Branch('brn4')
 
-        self.update_sequence = [self.osc, self.spl1, self.inv, self.etff1, self.spl2, self.etff2, self.spl3, self.etff3, self.spl4]
+        self.update_sequence = [self.osc, self.brn1, self.inv, self.etff1, self.brn2, self.etff2, self.brn3, self.etff3, self.brn4]
 
-        self.osc.O >> self.spl1.I
-        self.spl1.O0 >> self.inv.I
-        self.spl1.O1 >> self.etff1.Clk
-        self.etff1.Qbar >> self.spl2.I
-        self.spl2.O0 >> self.etff2.Clk
-        self.spl2.O1 >> self.etff1.D
-        self.etff2.Qbar >> self.spl3.I
-        self.spl3.O0 >> self.etff3.Clk
-        self.spl3.O1 >> self.etff2.D
-        self.etff3.Qbar >> self.spl4.I
-        self.spl4.O1 >> self.etff3.D
+        self.osc.O >> self.brn1 >> self.inv.I
+        self.brn1 >> self.etff1.Clk
+        self.etff1.Qbar >> self.brn2
+        self.brn2 >> self.etff2.Clk
+        self.brn2 >> self.etff1.D
+        self.etff2.Qbar >> self.brn3 >> self.etff3.Clk
+        self.brn3 >> self.etff2.D
+        self.etff3.Qbar >> self.brn4 >> self.etff3.D
 
         self.Q = [self.inv.O, self.etff1.Q, self.etff2.Q, self.etff3.Q]
 

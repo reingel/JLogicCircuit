@@ -2,9 +2,8 @@ import unittest
 import random as rd
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
-from Port import Port
-from Gate import And, Or, Inverter, TriStateBuffer
-from Junction import Split, Split8, Branch
+from Gate import TriStateBuffer
+from Junction import Branch
 from FlipFlop import LevelTriggeredDtypeFlipFlop
 from Decoder import Decoder3to8, Selector8to1, Decoder4to16, Selector16to1
 
@@ -77,9 +76,9 @@ class RAM8x1(SimulatedCircuit):
 
         self.naddr = 3
         self.nbit = 8
-        self.splits = []
+        self.brna = []
         self.decoder = Decoder3to8('3-to-8 decoder')
-        self.split8 = Split8('split8')
+        self.brndi = Branch('brndi')
         self.memories = []
         self.selector = Selector8to1('8-to-1 selector')
 
@@ -87,16 +86,16 @@ class RAM8x1(SimulatedCircuit):
 
         for i in range(self.naddr):
             # create elements
-            split = Split(f'S{i}')
-            self.splits.append(split)
+            split = Branch(f'S{i}')
+            self.brna.append(split)
             # connect
-            self.splits[i].O0 >> self.decoder.S[i]
-            self.splits[i].O1 >> self.selector.S[i]
+            self.brna[i] >> self.decoder.S[i]
+            self.brna[i] >> self.selector.S[i]
             # update sequences
-            self.update_sequence.append(self.splits[i])
+            self.update_sequence.append(self.brna[i])
             
         self.update_sequence.append(self.decoder)
-        self.update_sequence.append(self.split8)
+        self.update_sequence.append(self.brndi)
 
         for i in range(self.nbit):
             # create elements
@@ -104,16 +103,16 @@ class RAM8x1(SimulatedCircuit):
             self.memories.append(memory)
             # connect
             self.decoder.O[i] >> self.memories[i].W
-            self.split8.O[i] >> self.memories[i].DI
+            self.brndi >> self.memories[i].DI
             self.memories[i].DO >> self.selector.I[i]
             # update sequences
             self.update_sequence.append(self.memories[i])
         
         self.update_sequence.append(self.selector)
         
-        self.S = [self.splits[i].I for i in range(self.naddr)]
+        self.S = [self.brna[i] for i in range(self.naddr)]
         self.W = self.decoder.W
-        self.DI = self.split8.I
+        self.DI = self.brndi
         self.DO = self.selector.DO
 
         super().__init__('RAM8x1', name)
@@ -144,22 +143,22 @@ class RAM8x8(SimulatedCircuit):
         self.nmem = 2**self.naddr
         self.nbus = 8
 
-        self.split8s = [Split8(f'split8s{i}') for i in range(self.naddr)]
-        self.split8w = Split8('split8w')
+        self.brns = [Branch(f'brns{i}') for i in range(self.naddr)]
+        self.brnw = Branch('brnw')
         self.ram8x1 = [RAM8x1(f'ram8x1_{i}') for i in range(self.nbus)]
 
         for i in range(self.nbus):
             # connect
             for j in range(self.naddr):
-                self.split8s[j].O[i] >> self.ram8x1[i].S[j]
-            self.split8w.O[i] >> self.ram8x1[i].W
+                self.brns[j] >> self.ram8x1[i].S[j]
+            self.brnw >> self.ram8x1[i].W
             
-        self.update_sequence = [self.split8s[i] for i in range(self.naddr)]
-        self.update_sequence.append(self.split8w)
+        self.update_sequence = [self.brns[i] for i in range(self.naddr)]
+        self.update_sequence.append(self.brnw)
         self.update_sequence.extend([self.ram8x1[i] for i in range(self.nbus)])
         
-        self.S = [self.split8s[i].I for i in range(self.naddr)]
-        self.W = self.split8w.I
+        self.S = [self.brns[i] for i in range(self.naddr)]
+        self.W = self.brnw
         self.DI = [self.ram8x1[i].DI for i in range(self.nbus)]
         self.DO = [self.ram8x1[i].DO for i in range(self.nbus)]
 
@@ -216,7 +215,7 @@ class RAM16x8(SimulatedCircuit):
 
         # create elements
         self.dec = Decoder4to16('decoder')
-        self.spl = [Split(f'spl{j:02d}') for j in range(self.nmem)]
+        self.brndc = [Branch(f'brndc{j:02d}') for j in range(self.nmem)]
         self.selw = Selector16to1('selector for W')
         self.sele = Selector16to1('selector for E')
 
@@ -229,9 +228,9 @@ class RAM16x8(SimulatedCircuit):
 
         # connect
         for j in range(self.nmem):
-            self.dec.O[j] >> self.spl[j].I
-            self.spl[j].O0 >> self.selw.I[j]
-            self.spl[j].O1 >> self.sele.I[j]
+            self.dec.O[j] >> self.brndc[j]
+            self.brndc[j] >> self.selw.I[j]
+            self.brndc[j] >> self.sele.I[j]
             self.selw.O[j] >> self.brnw[j]
             self.sele.O[j] >> self.brne[j]
             for i in range(self.nbus):
@@ -253,7 +252,7 @@ class RAM16x8(SimulatedCircuit):
 
         # update sequence
         self.update_sequence = [self.dec]
-        self.update_sequence.extend([self.spl[j] for j in range(self.nmem)])
+        self.update_sequence.extend([self.brndc[j] for j in range(self.nmem)])
         self.update_sequence.append(self.selw)
         self.update_sequence.append(self.sele)
         self.update_sequence.extend([self.brnw[j] for j in range(self.nmem)])
@@ -328,7 +327,7 @@ class RAM256x8(SimulatedCircuit):
         # create elements
         self.brna = [Branch(f'brna{a}') for a in range(self.naddr1)]
         self.dec = Decoder4to16('decoder')
-        self.spl = [Split(f'spl{j:02d}') for j in range(self.dec.nmem)]
+        self.brndc = [Branch(f'brndc{j:02d}') for j in range(self.dec.nmem)]
         self.selw = Selector16to1('selector for W')
         self.sele = Selector16to1('selector for E')
 
@@ -338,26 +337,21 @@ class RAM256x8(SimulatedCircuit):
 
         # connect
         for a in range(self.naddr1):
-            # self.A[a] >> self.brna[a]
             self.A.append(self.brna[a])
             for j in range(self.dec.nmem):
                 self.brna[a] >> self.cell[j].A[a]
         for j in range(self.dec.nmem):
-            self.dec.O[j] >> self.spl[j].I
-            self.spl[j].O0 >> self.selw.I[j]
-            self.spl[j].O1 >> self.sele.I[j]
+            self.dec.O[j] >> self.brndc[j]
+            self.brndc[j] >> self.selw.I[j]
+            self.brndc[j] >> self.sele.I[j]
             self.selw.O[j] >> self.cell[j].W
             self.sele.O[j] >> self.cell[j].E
             for i in range(self.nbus):
                 self.brndi[i] >> self.cell[j].DI[i]
                 self.cell[j].DO[i] >> self.brndo[i]
-        # for i in range(self.nbus):
-        #     self.DI[i] >> self.brndi[i]
-        #     self.brndo[i] >> self.DO[i]
 
         # create access points
         for a in range(self.naddr2):
-            # self.A[self.naddr1 + a] = self.dec.A[a]
             self.A.append(self.dec.A[a])
         self.W = self.selw.Signal
         self.E = self.sele.Signal
@@ -367,7 +361,7 @@ class RAM256x8(SimulatedCircuit):
         # update sequence
         self.update_sequence = [self.brna[a] for a in range(self.naddr1)]
         self.update_sequence.append(self.dec)
-        self.update_sequence.extend([self.spl[j] for j in range(self.dec.nmem)])
+        self.update_sequence.extend([self.brndc[j] for j in range(self.dec.nmem)])
         self.update_sequence.append(self.selw)
         self.update_sequence.append(self.sele)
         self.update_sequence.extend([self.brndi[i] for i in range(self.nbus)])
@@ -438,15 +432,12 @@ class RAM4096x8(SimulatedCircuit):
         self.nbus = 8
 
         # create ports
-        # self.A = [Port(f'A{a:02d}', self) for a in range(self.naddr)]
-        # self.DI = [Port(f'DI{i}', self) for i in range(self.nbus)]
-        # self.DO = [Port(f'DO{i}', self) for i in range(self.nbus)]
         self.A = []
 
         # create elements
         self.brna = [Branch(f'brna{a}') for a in range(self.naddr1)]
         self.dec = Decoder4to16('decoder')
-        self.spl = [Split(f'spl{j:02d}') for j in range(self.dec.nmem)]
+        self.brndc = [Branch(f'brndc{j:02d}') for j in range(self.dec.nmem)]
         self.selw = Selector16to1('selector for W')
         self.sele = Selector16to1('selector for E')
 
@@ -456,26 +447,21 @@ class RAM4096x8(SimulatedCircuit):
 
         # connect
         for a in range(self.naddr1):
-            # self.A[a] >> self.brna[a]
             self.A.append(self.brna[a])
             for j in range(self.dec.nmem):
                 self.brna[a] >> self.cell[j].A[a]
         for j in range(self.dec.nmem):
-            self.dec.O[j] >> self.spl[j].I
-            self.spl[j].O0 >> self.selw.I[j]
-            self.spl[j].O1 >> self.sele.I[j]
+            self.dec.O[j] >> self.brndc[j]
+            self.brndc[j] >> self.selw.I[j]
+            self.brndc[j] >> self.sele.I[j]
             self.selw.O[j] >> self.cell[j].W
             self.sele.O[j] >> self.cell[j].E
             for i in range(self.nbus):
                 self.brndi[i] >> self.cell[j].DI[i]
                 self.cell[j].DO[i] >> self.brndo[i]
-        # for i in range(self.nbus):
-        #     self.DI[i] >> self.brndi[i]
-        #     self.brndo[i] >> self.DO[i]
 
         # create access points
         for a in range(self.naddr2):
-            # self.A[self.naddr1 + a] = self.dec.A[a]
             self.A.append(self.dec.A[a])
         self.W = self.selw.Signal
         self.E = self.sele.Signal
@@ -485,7 +471,7 @@ class RAM4096x8(SimulatedCircuit):
         # update sequence
         self.update_sequence = [self.brna[a] for a in range(self.naddr1)]
         self.update_sequence.append(self.dec)
-        self.update_sequence.extend([self.spl[j] for j in range(self.dec.nmem)])
+        self.update_sequence.extend([self.brndc[j] for j in range(self.dec.nmem)])
         self.update_sequence.append(self.selw)
         self.update_sequence.append(self.sele)
         self.update_sequence.extend([self.brndi[i] for i in range(self.nbus)])

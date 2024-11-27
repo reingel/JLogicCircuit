@@ -2,7 +2,7 @@ import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Gate import And, Or, Xor
-from Junction import Split
+from Junction import Branch
 from Source import Ground
 
 
@@ -11,25 +11,25 @@ class HalfAdder(SimulatedCircuit):
         self.device_name = 'HalfAdder'
 
         # create elements
-        self.spl1 = Split('spl1')
-        self.spl2 = Split('spl2')
+        self.brn1 = Branch('brn1')
+        self.brn2 = Branch('brn2')
         self.xor = Xor('xor')
         self.and1 = And('and1')
 
         # connect
-        self.spl1.O0 >> self.xor.I[0]
-        self.spl1.O1 >> self.and1.I[0]
-        self.spl2.O0 >> self.xor.I[1]
-        self.spl2.O1 >> self.and1.I[1]
+        self.brn1 >> self.xor.I[0]
+        self.brn1 >> self.and1.I[0]
+        self.brn2 >> self.xor.I[1]
+        self.brn2 >> self.and1.I[1]
 
         # create access points
-        self.A = self.spl1.I
-        self.B = self.spl2.I
+        self.A = self.brn1
+        self.B = self.brn2
         self.S = self.xor.O
         self.CO = self.and1.O
 
         # update sequence
-        self.update_sequence = [self.spl1, self.spl2, self.xor, self.and1]
+        self.update_sequence = [self.brn1, self.brn2, self.xor, self.and1]
     
         super().__init__('HalfAdder', name)
 

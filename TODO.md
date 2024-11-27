@@ -17,9 +17,11 @@
 - [x] Correct Selector16to1.__repr__
 - [x] Update SimulatedCircuit: Either step() or update_sequence
 - [x] Update Branch: act like Port
+- [x] Reimplement Split with Branch
+- [x] Split.O0/O1 -> O[0], O[1]
 - [ ] Branch >> (p1, p2, p3)
-- [ ] Split.I0/I1 -> I[0], I[1]
-- [ ] Reimplement Split with Branch
+- [ ] aaa.O >> bbb.I -> aaa >> bbb
+- [ ] Pythonic code: for..append -> extend
 - [ ] nmem -> ncell?
 - [ ] Combine RAM256x8, RAM4096x8
 - [ ] Add function descriptions
