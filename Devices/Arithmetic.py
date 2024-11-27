@@ -2,7 +2,7 @@ import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Gate import And, Or, Xor
-from Junction import Branch
+from Branch import Branch
 from Source import Ground
 
 

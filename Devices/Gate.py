@@ -3,7 +3,7 @@ from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Relay import Relay
 from Source import Power
-from Junction import Branch
+from Branch import Branch
 
 
 class AndN(SimulatedCircuit):

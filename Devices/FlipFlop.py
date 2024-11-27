@@ -2,7 +2,7 @@ import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
-from Junction import Branch
+from Branch import Branch
 from Gate import And, Nor, Inverter
 
 class RSFlipFlop(SimulatedCircuit):

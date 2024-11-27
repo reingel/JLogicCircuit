@@ -3,7 +3,6 @@ from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Source import Power
-from Relay import Relay
 
 class Switch(SimulatedCircuit):
     def __init__(self, name):

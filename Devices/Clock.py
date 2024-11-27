@@ -4,7 +4,7 @@ from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Gate import Inverter
 from FlipFlop import EdgeTriggeredDtypeFlipFlop
-from Junction import Branch
+from Branch import Branch
 
 class Oscillator(SimulatedCircuit):
     def __init__(self, name):

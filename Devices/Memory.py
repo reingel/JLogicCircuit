@@ -3,7 +3,7 @@ import random as rd
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Gate import TriStateBuffer
-from Junction import Branch
+from Branch import Branch
 from FlipFlop import LevelTriggeredDtypeFlipFlop
 from Decoder import Decoder3to8, Selector8to1, Decoder4to16, Selector16to1
 

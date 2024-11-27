@@ -2,7 +2,7 @@ import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
-from Junction import Branch
+from Branch import Branch
 from Gate import And, AndN, OrN, Inverter
 
 class Module3to8(SimulatedCircuit):
