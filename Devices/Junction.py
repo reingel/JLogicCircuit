@@ -1,6 +1,7 @@
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
+from collections.abc import Iterable
 
 
 class Branch(SimulatedCircuit):
@@ -118,65 +119,23 @@ class Branch(SimulatedCircuit):
             p.value = self.value
 
 
-class Junction(SimulatedCircuit):
-    def __init__(self):
-        pass
-    
-
-class Split(Junction):
+class Split(Branch):
     def __init__(self, name):
         self.name = name
 
-        # create ports
-        self.le = Port('le', self)
-        self.ru = Port('ru', self)
-        self.rd = Port('rd', self)
-
-        # create access points
-        self.I = self.le
-        self.O0 = self.ru
-        self.O1 = self.rd
-
-        super().__init__()
-
-    def __repr__(self):
-        return f'Split({self.name}, {strof(self.I.value)} -> {strof(self.O0.value)} + {strof(self.O1.value)})'
+        super().__init__(self.name)
     
-    def update_inport(self):
-        self.le.update_value()
+    @property
+    def I(self):
+        return self
     
-    def calc_output(self):
-        self.ru.value = self.le.value
-        self.rd.value = self.le.value
-    
-    def update_state(self):
-        pass # there is no state.
+    @property
+    def O0(self):
+        return self
 
-
-class Split8(Junction):
-    def __init__(self, name):
-        self.name = name
-
-        self.n = 8
-
-        # create ports
-        self.I = Port('I', self)
-        self.O = [Port(f'O{i}', self) for i in range(self.n)]
-
-        super().__init__()
-
-    def __repr__(self):
-        return f'Split({self.name}, {strof(self.I.value)} -> {[strof(self.O[i].value) for i in range(self.n)]})'
-    
-    def update_inport(self):
-        self.I.update_value()
-    
-    def calc_output(self):
-        for i in range(self.n):
-            self.O[i].value = self.I.value
-    
-    def update_state(self):
-        pass # there is no state.
+    @property
+    def O1(self):
+        return self
 
 
 
@@ -357,8 +316,14 @@ class TestJunction(unittest.TestCase):
 
         self.assertEqual(bf2.O.value, HIGH)
     
-    def test_split(self):
-        print('test_split')
+    def test_branch_branch(self):
+        brn1 = Branch('brn1')
+        brn2 = Branch('brn2')
+
+        brn1 >> brn2
+
+    def test_split_old(self):
+        print('test_split_old')
 
         spl = Split('spl1')
 
@@ -369,33 +334,43 @@ class TestJunction(unittest.TestCase):
             self.assertEqual(spl.I.value, spl.O0.value)
             self.assertEqual(spl.I.value, spl.O1.value)
     
-    def test_split8(self):
-        print('test_split8')
+    def test_split(self):
+        print('test_split')
 
-        sp = Split8('split8')
-        sp.power_on()
-        sp.step()
+        spl = Split('spl')
+        bf1 = Buffer('bf1')
+        bf2 = Buffer('bf2')
+        bf3 = Buffer('bf3')
+        spl.power_on()
+        bf1.power_on()
+        bf2.power_on()
+        bf3.power_on()
 
-        sp.I.set()
-        sp.step()
-        for i in range(8):
-            self.assertEqual(sp.O[i].value, HIGH)
-        
-        sp.I.reset()
-        sp.step()
-        for i in range(8):
-            self.assertEqual(sp.O[i].value, OPEN)
+        bf1.O >> spl >> bf2.I
+        spl >> bf3.I
+
+        bf1.I.set()
+        bf1.step()
+        spl.step()
+        bf2.step()
+        bf3.step()
+
+        self.assertEqual(spl.I.value, HIGH)
+        self.assertEqual(spl.O0.value, HIGH)
+        self.assertEqual(spl.O1.value, HIGH)
+        self.assertEqual(bf2.O.value, HIGH)
+        self.assertEqual(bf3.O.value, HIGH)
     
 if __name__ == '__main__':
-    from Gate import And
+    from Gate import And, Buffer
 
     suite = unittest.TestSuite()
     suite.addTests([
         TestJunction('test_branch'),
         TestJunction('test_branch_no_input'),
         TestJunction('test_branch_no_output'),
+        TestJunction('test_branch_branch'),
         TestJunction('test_split'),
-        TestJunction('test_split8'),
     ])
     runner = unittest.TextTestRunner()
     runner.run(suite)

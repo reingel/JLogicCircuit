@@ -2,9 +2,7 @@ import unittest
 from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
-from Source import Power
-from Relay import Relay
-from Junction import Split, Split8, Branch
+from Junction import Split, Branch
 from Gate import And, Nor, Inverter
 
 class RSFlipFlop(SimulatedCircuit):

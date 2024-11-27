@@ -30,26 +30,26 @@ class Memory8bit(SimulatedCircuit):
         self.device_name = '8-Bit Memory'
 
         self.nbit = 8
-        self.split8 = Split8('split8')
+        self.brn = Branch('brn')
         self.latches = []
         self.DI = []
         self.DO = []
 
-        self.update_sequence = [self.split8]
+        self.update_sequence = [self.brn]
 
         for i in range(self.nbit):
             # create elements
             latch = Memory1bit(f'latch{i:02d}')
             self.latches.append(latch)
             # connect
-            self.split8.O[i] >> self.latches[i].W
+            self.brn >> self.latches[i].W
             # create access ports
             self.DI.append(self.latches[i].DI)
             self.DO.append(self.latches[i].DO)
             # update sequences
             self.update_sequence.append(self.latches[i])
         
-        self.W = self.split8.I
+        self.W = self.brn
 
         super().__init__('Memory8bit', name)
         

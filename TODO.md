@@ -15,14 +15,14 @@
 - [x] I0, I1 -> I[0], I[1]
 - [x] Remove Gate class
 - [x] Correct Selector16to1.__repr__
-- [ ] Add function descriptions
-- [ ] Update Branch: I, O Ports
-- [ ] Update SimulatedCircuit: Either step() or update_sequence
+- [x] Update SimulatedCircuit: Either step() or update_sequence
+- [x] Update Branch: act like Port
+- [ ] Branch >> (p1, p2, p3)
 - [ ] Split.I0/I1 -> I[0], I[1]
 - [ ] Reimplement Split with Branch
 - [ ] nmem -> ncell?
-- [ ] Branch >> (p1, p2, p3)
 - [ ] Combine RAM256x8, RAM4096x8
+- [ ] Add function descriptions
 
 
 
