@@ -4,7 +4,66 @@ from Port import Port
 from Relay import Relay
 from Source import Power
 from Branch import Branch
+from collections.abc import Iterable
 from Util import i2bi
+
+
+# class And(SimulatedCircuit):
+#     def __init__(self, name):
+#         self.device_name = 'And'
+#         self.name = name
+
+#         # elements
+#         self.pwr = Power('pwr')
+#         self.rly = []
+
+#         self._ninport = 0
+#         self._noutport = 0
+#         self.inport = []
+#         self.outport = []
+
+#         # connections
+#         self.pwr.O >> self.rly[0].up
+#         for i in range(self.n - 1):
+#             self.rly[i].rd >> self.rly[i+1].up
+
+#         # access points
+#         self.I = [self.rly[i].le for i in range(self.n)]
+#         self.O = self.rly[self.n - 1].rd
+
+#         # update sequence
+#         self.update_sequence = [self.pwr]
+#         self.update_sequence.extend([self.rly[i] for i in range(self.n)])
+    
+#         super().__init__(self.device_name, self.name)
+
+#     @property
+#     def ninport(self):
+#         return self._ninport
+    
+#     @property
+#     def noutport(self):
+#         return self._noutport
+    
+#     def add_inport(self, obj):
+#         if isinstance(obj, Iterable):
+#             for p in obj:
+#                 self.add_inport(p)
+#             return self
+#         elif isinstance(obj, Port) or isinstance(obj, Branch):
+#             n = self.ninport
+#             r = Relay(f'rly{n + 1}', self)
+#             if n == 0:
+#                 self.pwr.O >> r.up
+#             obj >> r.le
+#             self.rly.append(r)
+#             self._ninport += 1
+#             return self
+#         else:
+#             raise(RuntimeError)
+
+#     def add_outport(self, obj):
+#         pass
 
 
 class AndN(SimulatedCircuit):
