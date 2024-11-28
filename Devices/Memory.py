@@ -122,16 +122,18 @@ class RAM16x8(SimulatedCircuit):
         return DO
 
 
-class RAM256x8(SimulatedCircuit):
-    # 256x8: "256 separate memories that can be selected by addr" x "width of data in/out"
+class RAMnx8(SimulatedCircuit):
+    # nx8: "n separate memories that can be selected by addr" x "width of data in/out"
     # Address: 4 bits
     # W: 1 bit
     # DI, DO: 8 bits (1 byte)
-    def __init__(self, name):
-        self.device_name = '256x8 RAM'
+    def __init__(self, name, base_ram, base_ram_naddr):
+        self.device_name = 'RAMnx8'
+        self.name = name
+        self.base_ram = globals()[base_ram] # get class from string
 
-        self.naddr1 = 4 # A0 ~ A3
-        self.naddr2 = 4 # A4 ~ A7
+        self.naddr1 = base_ram_naddr # A0 ~ A3, naddr of base_ram
+        self.naddr2 = 4 # A4 ~ A7, added by self.dec
         self.naddr = self.naddr1 + self.naddr2
         self.nloc = 2**self.naddr
         self.nbus = 8
@@ -144,7 +146,7 @@ class RAM256x8(SimulatedCircuit):
         self.sele = Selector16to1('selector for E')
 
         self.brndi = [Branch(f'brndi{i}') for i in range(self.nbus)]
-        self.cell = [RAM16x8(f'ram16x8_{j:02d}') for j in range(self.dec.nloc)]
+        self.cell = [self.base_ram(f'ram16x8_{j:02d}') for j in range(self.dec.nloc)]
         self.brndo = [Branch(f'brndo{i}') for i in range(self.nbus)]
 
         # connect
@@ -182,8 +184,6 @@ class RAM256x8(SimulatedCircuit):
         out = '---\n'
         for j in range(self.dec.nloc):
             out += self.cell[j].__repr__() + '\n'
-            # if j % 2 == 1:
-            #     out += '\n'
         return out
         
     def update_inport(self):
@@ -195,14 +195,14 @@ class RAM256x8(SimulatedCircuit):
     def set_addr(self, addr):
         if addr < 0 or addr > self.nloc - 1:
             raise(RuntimeError)
-        bin = i2bi(addr, 8)
+        bin = i2bi(addr, self.naddr)
         for i in range(self.naddr):
             self.A[i].value = int(bin[i])
     
     def set_input(self, DI: int):
         if DI < 0 or DI > 2**self.nbus - 1:
             raise(RuntimeError)
-        strDI = i2bi(DI, 8)
+        strDI = i2bi(DI, self.nbus)
         for i in range(self.nbus):
             self.DI[i].value = int(strDI[i])
     
@@ -214,95 +214,13 @@ class RAM256x8(SimulatedCircuit):
         return DO
 
 
-class RAM4096x8(SimulatedCircuit):
-    # 4096x8: "4096 separate memories that can be selected by addr" x "width of data in/out"
-    # Address: 12 bits
-    # W: 1 bit
-    # DI, DO: 8 bits (1 byte)
+class RAM256x8(RAMnx8):
     def __init__(self, name):
-        self.device_name = '4096x8 RAM'
+        super().__init__(name, 'RAM16x8', 4)
 
-        self.naddr1 = 8 # A0 ~ A7
-        self.naddr2 = 4 # A8 ~ A11
-        self.naddr = self.naddr1 + self.naddr2
-        self.nloc = 2**self.naddr
-        self.nbus = 8
-
-        # create elements
-        self.brna = [Branch(f'brna{a}') for a in range(self.naddr1)]
-        self.dec = Decoder4to16('decoder')
-        self.brndc = [Branch(f'brndc{j:02d}') for j in range(self.dec.nloc)]
-        self.selw = Selector16to1('selector for W')
-        self.sele = Selector16to1('selector for E')
-
-        self.brndi = [Branch(f'brndi{i}') for i in range(self.nbus)]
-        self.cell = [RAM256x8(f'ram256x8{j:02d}') for j in range(self.dec.nloc)]
-        self.brndo = [Branch(f'brndo{i}') for i in range(self.nbus)]
-
-        # connect
-        for i in range(self.naddr1):
-            for j in range(self.dec.nloc):
-                self.brna[i] >> self.cell[j].A[i]
-        for j in range(self.dec.nloc):
-            self.dec.O[j] >> self.brndc[j] >> (self.selw.I[j], self.sele.I[j])
-            self.selw.O[j] >> self.cell[j].W
-            self.sele.O[j] >> self.cell[j].E
-            for i in range(self.nbus):
-                self.brndi[i] >> self.cell[j].DI[i]
-                self.cell[j].DO[i] >> self.brndo[i]
-
-        # create access points
-        self.A = [self.brna[i] for i in range(self.naddr1)] + [self.dec.A[i] for i in range(self.naddr2)]
-        self.W = self.selw.Signal
-        self.E = self.sele.Signal
-        self.DI = self.brndi
-        self.DO = self.brndo
-
-        # update sequence
-        self.update_sequence = [self.brna[a] for a in range(self.naddr1)]
-        self.update_sequence.append(self.dec)
-        self.update_sequence.extend([self.brndc[j] for j in range(self.dec.nloc)])
-        self.update_sequence.append(self.selw)
-        self.update_sequence.append(self.sele)
-        self.update_sequence.extend([self.brndi[i] for i in range(self.nbus)])
-        self.update_sequence.extend([self.cell[j] for j in range(self.dec.nloc)])
-        self.update_sequence.extend([self.brndo[i] for i in range(self.nbus)])
-
-        super().__init__('RAM4096x8', name)
-    
-    def __repr__(self):
-        out = '---\n'
-        # for j in range(self.dec.nloc):
-        for j in range(2):
-            out += self.cell[j].__repr__() + '\n'
-        return out
-        
-    def update_inport(self):
-        for i in range(self.naddr1):
-            self.A[i].update_value()
-        for i in range(self.nbus):
-            self.DI[i].update_value()
-        
-    def set_addr(self, addr):
-        if addr < 0 or addr > self.nloc - 1:
-            raise(RuntimeError)
-        bin = i2bi(addr, 12)
-        for i in range(self.naddr):
-            self.A[i].value = int(bin[i])
-    
-    def set_input(self, DI: int):
-        if DI < 0 or DI > 2**self.nbus - 1:
-            raise(RuntimeError)
-        strDI = i2bi(DI, 8)
-        for i in range(self.nbus):
-            self.DI[i].value = int(strDI[i])
-    
-    def get_output(self):
-        strDO = ''
-        for i in range(self.nbus):
-            strDO = f'{self.DO[i].value}{strDO}'
-        DO = int(strDO, 2)
-        return DO
+class RAM4096x8(RAMnx8):
+    def __init__(self, name):
+        super().__init__(name, 'RAM256x8', 8)
 
 
 class TestMemory(unittest.TestCase):
