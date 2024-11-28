@@ -153,10 +153,9 @@ class RAM256x8(SimulatedCircuit):
         self.brndo = [Branch(f'brndo{i}') for i in range(self.nbus)]
 
         # connect
-        for a in range(self.naddr1):
-            self.A.append(self.brna[a])
+        for i in range(self.naddr1):
             for j in range(self.dec.nmem):
-                self.brna[a] >> self.cell[j].A[a]
+                self.brna[i] >> self.cell[j].A[i]
         for j in range(self.dec.nmem):
             self.dec.O[j] >> self.brndc[j] >> (self.selw.I[j], self.sele.I[j])
             self.selw.O[j] >> self.cell[j].W
@@ -166,8 +165,7 @@ class RAM256x8(SimulatedCircuit):
                 self.cell[j].DO[i] >> self.brndo[i]
 
         # create access points
-        for a in range(self.naddr2):
-            self.A.append(self.dec.A[a])
+        self.A = [self.brna[i] for i in range(self.naddr1)] + [self.dec.A[i] for i in range(self.naddr2)]
         self.W = self.selw.Signal
         self.E = self.sele.Signal
         self.DI = self.brndi
@@ -261,10 +259,9 @@ class RAM4096x8(SimulatedCircuit):
         self.brndo = [Branch(f'brndo{i}') for i in range(self.nbus)]
 
         # connect
-        for a in range(self.naddr1):
-            self.A.append(self.brna[a])
+        for i in range(self.naddr1):
             for j in range(self.dec.nmem):
-                self.brna[a] >> self.cell[j].A[a]
+                self.brna[i] >> self.cell[j].A[i]
         for j in range(self.dec.nmem):
             self.dec.O[j] >> self.brndc[j] >> (self.selw.I[j], self.sele.I[j])
             self.selw.O[j] >> self.cell[j].W
@@ -274,8 +271,7 @@ class RAM4096x8(SimulatedCircuit):
                 self.cell[j].DO[i] >> self.brndo[i]
 
         # create access points
-        for a in range(self.naddr2):
-            self.A.append(self.dec.A[a])
+        self.A = [self.brna[i] for i in range(self.naddr1)] + [self.dec.A[i] for i in range(self.naddr2)]
         self.W = self.selw.Signal
         self.E = self.sele.Signal
         self.DI = self.brndi
@@ -418,7 +414,7 @@ if __name__ == '__main__':
         TestMemory('test_memory1'),
         TestMemory('test_ram16x8'),
         TestMemory('test_ram256x8'),
-        # TestMemory('test_ram4096x8'),
+        TestMemory('test_ram4096x8'),
     ])
     runner = unittest.TextTestRunner()
     runner.run(suite)
