@@ -5,7 +5,8 @@ from SimulatedCircuit import SimulatedCircuit
 from Gate import TriStateBuffer
 from Branch import Branch
 from FlipFlop import LevelTriggeredDtypeFlipFlop
-from Decoder import Decoder3to8, Selector8to1, Decoder4to16, Selector16to1
+from Decoder import Decoder4to16, Selector16to1
+from Util import i2bi
 
 
 class Memory1bit(SimulatedCircuit):
@@ -101,14 +102,14 @@ class RAM16x8(SimulatedCircuit):
     def set_addr(self, addr):
         if addr < 0 or addr > self.nmem - 1:
             raise(RuntimeError)
-        bin = f'{addr:04b}'[::-1]
+        bin = i2bi(addr, 4)
         for i in range(self.naddr):
             self.A[i].value = int(bin[i])
     
     def set_input(self, DI: int):
         if DI < 0 or DI > 2**self.nbus - 1:
             raise(RuntimeError)
-        strDI = f'{DI:08b}'[::-1]
+        strDI = i2bi(DI, 8)
         for i in range(self.nbus):
             self.DI[i].value = int(strDI[i])
     
@@ -212,14 +213,14 @@ class RAM256x8(SimulatedCircuit):
     def set_addr(self, addr):
         if addr < 0 or addr > self.nmem - 1:
             raise(RuntimeError)
-        bin = f'{addr:08b}'[::-1]
+        bin = i2bi(addr, 8)
         for i in range(self.naddr):
             self.A[i].value = int(bin[i])
     
     def set_input(self, DI: int):
         if DI < 0 or DI > 2**self.nbus - 1:
             raise(RuntimeError)
-        strDI = f'{DI:08b}'[::-1]
+        strDI = i2bi(DI, 8)
         for i in range(self.nbus):
             self.DI[i].value = int(strDI[i])
     
@@ -308,14 +309,14 @@ class RAM4096x8(SimulatedCircuit):
     def set_addr(self, addr):
         if addr < 0 or addr > self.nmem - 1:
             raise(RuntimeError)
-        bin = f'{addr:012b}'[::-1]
+        bin = i2bi(addr, 12)
         for i in range(self.naddr):
             self.A[i].value = int(bin[i])
     
     def set_input(self, DI: int):
         if DI < 0 or DI > 2**self.nbus - 1:
             raise(RuntimeError)
-        strDI = f'{DI:08b}'[::-1]
+        strDI = i2bi(DI, 8)
         for i in range(self.nbus):
             self.DI[i].value = int(strDI[i])
     

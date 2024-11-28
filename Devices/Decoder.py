@@ -4,9 +4,7 @@ from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Branch import Branch
 from Gate import And, AndN, OrN, Inverter
-
-def i2bi(n, len):
-    return bin(n)[2:].zfill(len)[::-1]
+from Util import i2bi
 
 
 class Decoder(SimulatedCircuit):
@@ -116,16 +114,6 @@ class Selector16to1(Selector):
 
 
 class TestDecoder(unittest.TestCase):
-    def test_i2bi(self):
-        print('test_i2bi')
-
-        self.assertEqual(i2bi(0, 3), '000')
-        self.assertEqual(i2bi(1, 3), '100')
-        self.assertEqual(i2bi(7, 3), '111')
-        self.assertEqual(i2bi(0, 4), '0000')
-        self.assertEqual(i2bi(1, 4), '1000')
-        self.assertEqual(i2bi(14, 4), '0111')
-
     def test_decoder4to16(self):
         print('test_decoder4to16')
 
@@ -193,7 +181,6 @@ class TestDecoder(unittest.TestCase):
 if __name__ == '__main__':
     suite = unittest.TestSuite()
     suite.addTests([
-        TestDecoder('test_i2bi'),
         TestDecoder('test_decoder4to16'),
         TestDecoder('test_selector16to1'),
         TestDecoder('test_dec_sel_4to16to1'),

@@ -4,6 +4,7 @@ from Port import Port
 from Relay import Relay
 from Source import Power
 from Branch import Branch
+from Util import i2bi
 
 
 class AndN(SimulatedCircuit):
@@ -319,7 +320,7 @@ class TestGate(unittest.TestCase):
         gate.step()
 
         for i in range(2**n):
-            bin = f'{i:08b}'[::-1]
+            bin = i2bi(i, 8)
             for j in range(n):
                 gate.I[j].value = int(bin[j])
             gate.step()
