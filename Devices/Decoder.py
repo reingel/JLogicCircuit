@@ -16,39 +16,39 @@ class Decoder(SimulatedCircuit):
         self.name = name
 
         self.naddr = n
-        self.nmem = 2**n
+        self.nloc = 2**n
 
         # create elements
         self.brnd = [Branch(f'brnd{i}') for i in range(self.naddr)] # branch directly connected
         self.inv = [Inverter(f'inv{i}') for i in range(self.naddr)]
         self.brni = [Branch(f'brni{i}') for i in range(self.naddr)] # branch connected through inverter
-        self.ando = [AndN(f'and{i}', 4) for i in range(self.nmem)]
+        self.ando = [AndN(f'and{i}', 4) for i in range(self.nloc)]
         
         # connect
         for i in range(self.naddr):
             self.brnd[i] >> self.inv[i].I
             self.inv[i].O >> self.brni[i]
-            for j in range(self.nmem):
+            for j in range(self.nloc):
                 bin = i2bi(j, self.naddr)
                 (self.brnd[i] if bin[i] == '1' else self.brni[i]) >> self.ando[j].I[i]
 
         # create access points
         self.A = self.brnd
-        self.O = [self.ando[i].O for i in range(self.nmem)]
+        self.O = [self.ando[i].O for i in range(self.nloc)]
 
         # update sequences
         self.update_sequence = [self.brnd[i] for i in range(self.naddr)]
         self.update_sequence.extend([self.inv[i] for i in range(self.naddr)])
         self.update_sequence.extend([self.brni[i] for i in range(self.naddr)])
-        self.update_sequence.extend([self.ando[j] for j in range(self.nmem)])
+        self.update_sequence.extend([self.ando[j] for j in range(self.nloc)])
 
         super().__init__(self.device_name, self.name)
 
     def __repr__(self):
-        return f'{self.device_name}{self.naddr}to{self.nmem}({self.name}, {[self.A[i].value for i in range(self.naddr)]} -> {[self.O[i].value for i in range(self.nmem)]})'
+        return f'{self.device_name}{self.naddr}to{self.nloc}({self.name}, {[self.A[i].value for i in range(self.naddr)]} -> {[self.O[i].value for i in range(self.nloc)]})'
     
     def set_addr(self, addr):
-        if addr < 0 or addr > self.nmem - 1:
+        if addr < 0 or addr > self.nloc - 1:
             raise(RuntimeError)
 
         bin = i2bi(addr, 4)
@@ -57,7 +57,7 @@ class Decoder(SimulatedCircuit):
     
     def get_output(self):
         strO = ''
-        for i in range(self.nmem):
+        for i in range(self.nloc):
             strO = f'{self.O[i].value}{strO}'
         O = int(strO, 2)
         return O
@@ -71,33 +71,33 @@ class Selector(SimulatedCircuit):
         self.name = name
 
         self.naddr = n
-        self.nmem = 2**n
+        self.nloc = 2**n
 
         # create elements
         self.brn = Branch('brn')
-        self.ands = [And(f'and{i}') for i in range(self.nmem)]
+        self.ands = [And(f'and{i}') for i in range(self.nloc)]
 
         # connect
-        for i in range(self.nmem):
+        for i in range(self.nloc):
             self.brn >> self.ands[i].I[1]
 
         # create access points
         self.Signal = self.brn
-        self.I = [self.ands[i].I[0] for i in range(self.nmem)]
-        self.O = [self.ands[i].O for i in range(self.nmem)]
+        self.I = [self.ands[i].I[0] for i in range(self.nloc)]
+        self.O = [self.ands[i].O for i in range(self.nloc)]
 
         # update sequence
         self.update_sequence = [self.brn]
-        self.update_sequence.extend([self.ands[i] for i in range(self.nmem)])
+        self.update_sequence.extend([self.ands[i] for i in range(self.nloc)])
 
         super().__init__(self.device_name, self.name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, Signal = {str(self.Signal.value)}, {''.join([str(self.I[i].value) for i in range(self.nmem)])[::-1]} -> {''.join([str(self.O[i].value) for i in range(self.nmem)])[::-1]})'
+        return f'{self.device_name}({self.name}, Signal = {str(self.Signal.value)}, {''.join([str(self.I[i].value) for i in range(self.nloc)])[::-1]} -> {''.join([str(self.O[i].value) for i in range(self.nloc)])[::-1]})'
     
     def get_output(self):
         strO = ''
-        for i in range(self.nmem):
+        for i in range(self.nloc):
             strO = f'{self.O[i].value}{strO}'
         O = int(strO, 2)
         return O

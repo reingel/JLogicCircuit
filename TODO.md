@@ -20,9 +20,9 @@
 - [x] Reimplement Split with Branch
 - [x] Split.O0/O1 -> O[0], O[1]
 - [x] Branch >> (p1, p2, p3)
-- [ ] Pythonic code: for..append -> extend
-- [ ] aaa.O >> bbb.I -> aaa >> bbb
+- [x] Pythonic code: for..append -> extend
 - [ ] nmem -> ncell?
+- [ ] aaa.O >> bbb.I -> aaa >> bbb
 - [ ] Combine RAM256x8, RAM4096x8
 - [ ] Generalize Gate like And -> AndN
 - [ ] Add function descriptions
