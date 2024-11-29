@@ -93,7 +93,7 @@ class Selector(SimulatedCircuit):
         super().__init__(self.device_name, self.name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, Signal = {str(self.Signal.value)}, {''.join([str(self.I[i].value) for i in range(self.nloc)])[::-1]} -> {''.join([str(self.O[i].value) for i in range(self.nloc)])[::-1]})'
+        return f"{self.device_name}({self.name}, Signal = {str(self.Signal.value)}, {''.join([str(self.I[i].value) for i in range(self.nloc)])[::-1]} -> {''.join([str(self.O[i].value) for i in range(self.nloc)])[::-1]})"
     
     def get_output(self):
         strO = ''

@@ -26,6 +26,8 @@
 - [ ] aaa.O >> bbb.I -> aaa >> bbb
 - [ ] Generalize Gate like And -> AndN
 - [ ] Add function descriptions
+- [ ] Refresh set_input, set_output
+- [ ] Inherit Branch from Port
 
 
 

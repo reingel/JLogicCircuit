@@ -92,14 +92,14 @@ class Branch(SimulatedCircuit):
         else:
             raise(RuntimeError)
     
-    def __lshift__(self, port):
-        return self.add_inport(port)
+    def __lshift__(self, obj):
+        return self.add_inport(obj)
 
-    def __rshift__(self, port):
-        return self.add_outport(port)
+    def __rshift__(self, obj):
+        return self.add_outport(obj)
     
-    def __rrshift__(self, port):
-        return self.__lshift__(port)
+    def __rrshift__(self, obj):
+        return self.__lshift__(obj)
     
     def update_inport(self):
         for p in self.inport:

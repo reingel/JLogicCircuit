@@ -8,64 +8,6 @@ from collections.abc import Iterable
 from Util import i2bi
 
 
-# class And(SimulatedCircuit):
-#     def __init__(self, name):
-#         self.device_name = 'And'
-#         self.name = name
-
-#         # elements
-#         self.pwr = Power('pwr')
-#         self.rly = []
-
-#         self._ninport = 0
-#         self._noutport = 0
-#         self.inport = []
-#         self.outport = []
-
-#         # connections
-#         self.pwr.O >> self.rly[0].up
-#         for i in range(self.n - 1):
-#             self.rly[i].rd >> self.rly[i+1].up
-
-#         # access points
-#         self.I = [self.rly[i].le for i in range(self.n)]
-#         self.O = self.rly[self.n - 1].rd
-
-#         # update sequence
-#         self.update_sequence = [self.pwr]
-#         self.update_sequence.extend([self.rly[i] for i in range(self.n)])
-    
-#         super().__init__(self.device_name, self.name)
-
-#     @property
-#     def ninport(self):
-#         return self._ninport
-    
-#     @property
-#     def noutport(self):
-#         return self._noutport
-    
-#     def add_inport(self, obj):
-#         if isinstance(obj, Iterable):
-#             for p in obj:
-#                 self.add_inport(p)
-#             return self
-#         elif isinstance(obj, Port) or isinstance(obj, Branch):
-#             n = self.ninport
-#             r = Relay(f'rly{n + 1}', self)
-#             if n == 0:
-#                 self.pwr.O >> r.up
-#             obj >> r.le
-#             self.rly.append(r)
-#             self._ninport += 1
-#             return self
-#         else:
-#             raise(RuntimeError)
-
-#     def add_outport(self, obj):
-#         pass
-
-
 class AndN(SimulatedCircuit):
     '''
     n: no. of inputs
@@ -76,6 +18,8 @@ class AndN(SimulatedCircuit):
         self.device_name = 'And'
         self.name = name
         self.n = n
+        self._nconnected = 0
+        self._outconnected = False
 
         # elements
         self.pwr = Power('pwr')
@@ -84,25 +28,68 @@ class AndN(SimulatedCircuit):
         # connections
         self.pwr.O >> self.rly[0].up
         for i in range(self.n - 1):
-            self.rly[i].rd >> self.rly[i+1].up
+            self.rly[i].rd >> self.rly[i + 1].up
 
         # access points
         self.I = [self.rly[i].le for i in range(self.n)]
-        self.O = self.rly[self.n - 1].rd
+        self.O = self.rly[-1].rd
 
         # update sequence
         self.update_sequence = [self.pwr]
         self.update_sequence.extend([self.rly[i] for i in range(self.n)])
     
         super().__init__(self.device_name, self.name)
+    
+    @property
+    def nconnected(self):
+        return self._nconnected
+    
+    def connect_input(self, obj):
+        if isinstance(obj, Iterable):
+            for p in obj:
+                self.connect_input(p)
+            return self
+        elif isinstance(obj, Port) or isinstance(obj, Branch):
+            i = self.nconnected
+            if i >= self.n:
+                raise(RuntimeError)
+            obj >> self.I[i]
+            self._nconnected += 1
+            return self
+        elif hasattr(obj, 'O') and (isinstance(obj.O, Port) or isinstance(obj.O, Branch)):
+            return self.connect_input(obj.O)
+        else:
+            raise(RuntimeError)
+    
+    def connect_output(self, obj):
+        if isinstance(obj, Iterable):
+            for p in obj:
+                self.connect_output(p)
+            return self
+        elif isinstance(obj, Port) or isinstance(obj, Branch):
+            if self._outconnected:
+                raise(RuntimeError)
+            self.O >> obj
+            self._outconnected = True
+            return self
+        elif hasattr(obj, 'O') and (isinstance(obj.I, Port) or isinstance(obj.I, Branch)):
+            return self.connect_output(obj.I)
+        else:
+            raise(RuntimeError)
+    
+    def __lshift__(self, obj):
+        return self.connect_input(obj)
 
+    def __rshift__(self, obj):
+        return self.connect_output(obj)
+
+    def __rrshift__(self, obj):
+        return self.connect_input(obj)
+    
 
 class And(AndN):
     def __init__(self, name):
-        self.device_name = 'And'
-        self.name = name
-
-        super().__init__(self.name, 2)
+        super().__init__(name, 2)
 
 
 class OrN(SimulatedCircuit):
@@ -137,10 +124,7 @@ class OrN(SimulatedCircuit):
 
 class Or(OrN):
     def __init__(self, name):
-        self.device_name = 'Or'
-        self.name = name
-
-        super().__init__(self.name, 2)
+        super().__init__(name, 2)
 
 
 class Nand(SimulatedCircuit):
@@ -243,9 +227,17 @@ class Buffer(SimulatedCircuit):
     def __repr__(self):
         return f'{self.device_name}({self.name}, {strof(self.I.value)} -> {strof(self.O.value)})'
 
+    # def __rshift__(self, obj):
+    #     if isinstance(obj, Port) or isinstance(obj, Branch):
+    #         self.O >> obj
+    #         return obj
+    #     else:
+    #         return self.O
+    
     def set_input(self, v1: BitValue):
         if self.I:
             self.I.value = v1
+
 
 class TriStateBuffer(SimulatedCircuit):
     def __init__(self, name):
@@ -500,12 +492,12 @@ class TestGate(unittest.TestCase):
         and1 = And('and1')
         and2 = And('and2')
         or1 = Or('or1')
+        and1 >> or1.I[0]
+        and2 >> or1.I[1]
         and1.power_on()
         and2.power_on()
         or1.power_on()
 
-        and1.O >> or1.I[0]
-        and2.O >> or1.I[1]
 
         truth_table = [
             [[0, 0, 0, 0], 0],
@@ -536,6 +528,38 @@ class TestGate(unittest.TestCase):
             or1.step()
             self.assertEqual(or1.O.value, truth_table[i][1])
 
+    def test_And_connect(self):
+        bf1 = Buffer('bf1')
+        bf2 = Buffer('bf2')
+        bf3 = Buffer('bf3')
+        and1 = And('and1')
+
+        (bf1, bf2) >> and1 >> bf3
+
+        bf1.power_on()
+        bf2.power_on()
+        bf3.power_on()
+        and1.power_on()
+
+        truth_table = [
+            [[0, 0], 0],
+            [[0, 1], 0],
+            [[1, 0], 0],
+            [[1, 1], 1],
+        ]
+
+        for i in range(len(truth_table)):
+            bf1.I.value = truth_table[i][0][0]
+            bf2.I.value = truth_table[i][0][1]
+
+            bf1.step()
+            bf2.step()
+            and1.step()
+            bf3.step()
+
+            self.assertEqual(bf3.O.value, truth_table[i][1])
+
+
 
 
 
@@ -553,6 +577,7 @@ if __name__ == '__main__':
         TestGate('test_TriStateBuffer'),
         TestGate('test_Inverter'),
         TestGate('test_AndOr'),
+        TestGate('test_And_connect'),
     ])
     runner = unittest.TextTestRunner()
     runner.run(suite)
