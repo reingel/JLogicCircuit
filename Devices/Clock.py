@@ -13,7 +13,7 @@ class Oscillator(SimulatedCircuit):
         self.brn = Branch('brn')
         self.update_sequence = [self.inv, self.brn]
 
-        self.inv.O >> self.brn >> self.inv.I
+        self.inv >> self.brn >> self.inv
 
         self.I = self.inv.I
         self.O = self.brn
@@ -34,7 +34,7 @@ class RippleCounter2Bit(SimulatedCircuit):
 
         self.update_sequence = [self.osc, self.brn1, self.inv, self.etff1, self.brn2]
 
-        self.osc.O >> self.brn1 >> (self.inv.I, self.etff1.Clk)
+        self.osc.O >> self.brn1 >> (self.inv, self.etff1.Clk)
         self.etff1.Qbar >> self.brn2 >> self.etff1.D
 
         self.Q = [self.inv.O, self.etff1.Q]
@@ -64,7 +64,7 @@ class RippleCounter4Bit(SimulatedCircuit):
 
         self.update_sequence = [self.osc, self.brn1, self.inv, self.etff1, self.brn2, self.etff2, self.brn3, self.etff3, self.brn4]
 
-        self.osc.O >> self.brn1 >> (self.inv.I, self.etff1.Clk)
+        self.osc.O >> self.brn1 >> (self.inv, self.etff1.Clk)
         self.etff1.Qbar >> self.brn2 >> (self.etff2.Clk, self.etff1.D)
         self.etff2.Qbar >> self.brn3 >> (self.etff3.Clk, self.etff2.D)
         self.etff3.Qbar >> self.brn4 >> self.etff3.D

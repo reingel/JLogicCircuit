@@ -74,8 +74,10 @@ class Branch(SimulatedCircuit):
             self.inport.append(p)
             self._ninport += 1
             return self
+        elif hasattr(obj, 'O') and (isinstance(obj.O, Port) or isinstance(obj.O, Branch)):
+            return self.add_inport(obj.O)
         else:
-            raise(RuntimeError)
+            raise(NotImplementedError)
 
     def add_outport(self, obj):
         if isinstance(obj, Iterable):
@@ -89,8 +91,10 @@ class Branch(SimulatedCircuit):
             self.outport.append(p)
             self._noutport += 1
             return obj
+        elif hasattr(obj, 'I') and (isinstance(obj.I, Port) or isinstance(obj.I, Branch)):
+            return self.add_outport(obj.I)
         else:
-            raise(RuntimeError)
+            raise(NotImplementedError)
     
     def __lshift__(self, obj):
         return self.add_inport(obj)
@@ -214,7 +218,7 @@ class TestJunction(unittest.TestCase):
                 self.brn = Branch('brn')
                 self.bf = [Buffer('bf0'), Buffer('bf1')]
 
-                self.brn >> (self.bf[0].I, self.bf[1].I)
+                self.brn >> (self.bf[0], self.bf[1])
 
                 self.update_sequence = [self.brn, self.bf[0], self.bf[1]]
 
@@ -230,7 +234,7 @@ class TestJunction(unittest.TestCase):
         dev.power_on()
         bf2.power_on()
 
-        dev.O[0] >> bf2.I # Branch acts like input Port
+        dev.O[0] >> bf2 # Branch acts like input Port
 
         dev.I.value = HIGH
         dev.step()
@@ -252,7 +256,7 @@ class TestJunction(unittest.TestCase):
         bf2.step()
         self.assertEqual(bf2.O.value, OPEN)
 
-        bf1.O >> dev.I
+        bf1 >> dev.I
 
         bf1.I.set()
         bf1.step()
@@ -276,7 +280,7 @@ class TestJunction(unittest.TestCase):
                 self.bf = [Buffer('bf0'), Buffer('bf1')]
                 self.brn = Branch('brn')
 
-                (self.bf[0].O, self.bf[1].O) >> self.brn
+                (self.bf[0], self.bf[1]) >> self.brn
 
                 self.update_sequence = [self.bf[0], self.bf[1], self.brn]
 
@@ -292,7 +296,7 @@ class TestJunction(unittest.TestCase):
         dev.power_on()
         bf2.power_on()
 
-        bf1.O >> dev.I[0]
+        bf1 >> dev.I[0]
         dev.O >> bf2.I # Branch acts like output Port
 
         bf1.I.set()

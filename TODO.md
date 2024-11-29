@@ -23,11 +23,13 @@
 - [x] Pythonic code: for..append -> extend
 - [x] nmem -> ncell?
 - [x] Combine RAM256x8, RAM4096x8
-- [ ] aaa.O >> bbb.I -> aaa >> bbb
-- [ ] Generalize Gate like And -> AndN
-- [ ] Add function descriptions
+- [x] And.I, And.O -> And
+- [x] Or.I, Or.O -> Or
+- [ ] buffer.I -> buffer, inverter.I -> inverter
+- [ ] Remove other .I, .O
 - [ ] Refresh set_input, set_output
 - [ ] Inherit Branch from Port
+- [ ] Add function descriptions
 
 
 

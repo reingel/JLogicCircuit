@@ -26,8 +26,8 @@ class Decoder(SimulatedCircuit):
         
         # connect
         for i in range(self.naddr):
-            self.brnd[i] >> self.inv[i].I
-            self.inv[i].O >> self.brni[i]
+            self.brnd[i] >> self.inv[i]
+            self.inv[i] >> self.brni[i]
             for j in range(self.nloc):
                 bin = i2bi(j, self.naddr)
                 (self.brnd[i] if bin[i] == '1' else self.brni[i]) >> self.ando[j].I[i]
@@ -75,20 +75,20 @@ class Selector(SimulatedCircuit):
 
         # create elements
         self.brn = Branch('brn')
-        self.ands = [And(f'and{i}') for i in range(self.nloc)]
+        self.ando = [And(f'and{i}') for i in range(self.nloc)]
 
         # connect
         for i in range(self.nloc):
-            self.brn >> self.ands[i].I[1]
+            self.brn >> self.ando[i].I[1]
 
         # create access points
         self.Signal = self.brn
-        self.I = [self.ands[i].I[0] for i in range(self.nloc)]
-        self.O = [self.ands[i].O for i in range(self.nloc)]
+        self.I = [self.ando[i].I[0] for i in range(self.nloc)]
+        self.O = [self.ando[i].O for i in range(self.nloc)]
 
         # update sequence
         self.update_sequence = [self.brn]
-        self.update_sequence.extend([self.ands[i] for i in range(self.nloc)])
+        self.update_sequence.extend([self.ando[i] for i in range(self.nloc)])
 
         super().__init__(self.device_name, self.name)
     
