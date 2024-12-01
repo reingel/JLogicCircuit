@@ -25,11 +25,12 @@
 - [x] Combine RAM256x8, RAM4096x8
 - [x] And.I, And.O -> And
 - [x] Or.I, Or.O -> Or
-- [ ] buffer.I -> buffer, inverter.I -> inverter
+- [x] buffer.I -> buffer, inverter.I -> inverter
 - [ ] Remove other .I, .O
 - [ ] Refresh set_input, set_output
 - [ ] Inherit Branch from Port
 - [ ] Add function descriptions
+- [ ] Generalize RippleCounter
 
 
 
