@@ -24,65 +24,51 @@ class Oscillator(SimulatedCircuit):
         return f'{self.device_name}({self.name}, {self.O.value})'
     
 
-class RippleCounter2Bit(SimulatedCircuit):
-    def __init__(self, name):
+class RippleCounter(SimulatedCircuit):
+    def __init__(self, name, nbit):
+        self.device_name = 'RippleCounter'
+        self.name = name
+        self.nbit = nbit
+
         self.osc = Oscillator('osc')
         self.inv = Inverter('inv')
-        self.etff1 = EdgeTriggeredDtypeFlipFlop('etff1')
-        self.brn1 = Branch('brn1')
-        self.brn2 = Branch('brn2')
+        self.etff = [EdgeTriggeredDtypeFlipFlop(f'etff{i}') for i in range(self.nbit - 1)]
+        self.brn = [Branch(f'brn{i}') for i in range(self.nbit)]
 
-        self.update_sequence = [self.osc, self.brn1, self.inv, self.etff1, self.brn2]
+        self.update_sequence = [self.osc, self.brn[0], self.inv]
+        for i in range(self.nbit - 1):
+            self.update_sequence.extend([self.etff[i], self.brn[i + 1]])
 
-        self.osc.O >> self.brn1 >> (self.inv, self.etff1.Clk)
-        self.etff1.Qbar >> self.brn2 >> self.etff1.D
+        self.osc.O >> self.brn[0] >> (self.inv, self.etff[0].Clk)
+        if self.nbit > 2:
+            for i in range(self.nbit - 2):
+                self.etff[i].Qbar >> self.brn[i + 1] >> (self.etff[i + 1].Clk, self.etff[i].D)
+        self.etff[self.nbit - 2].Qbar >> self.brn[self.nbit - 1] >> self.etff[self.nbit - 2].D
 
-        self.Q = [self.inv.O, self.etff1.Q]
+        self.Q = [self.inv.O]
+        self.Q.extend([self.etff[i].Q for i in range(self.nbit - 1)])
 
-        super().__init__('RippleCounter2Bit', name)
+        super().__init__(self.device_name, self.name)
     
     def __repr__(self):
         return f'{self.device_name}({self.name}, {self.get_output()})'
     
     def get_output(self):
         return f'{" ".join([str(self.Q[i].value) for i in range(2)][::-1])}'
-
+    
     def init(self):
-        self.etff1.step()
+        for i in range(self.nbit - 1):
+            self.etff[i].step()
 
-class RippleCounter4Bit(SimulatedCircuit):
+
+class RippleCounter2Bit(RippleCounter):
     def __init__(self, name):
-        self.osc = Oscillator('osc')
-        self.inv = Inverter('inv')
-        self.etff1 = EdgeTriggeredDtypeFlipFlop('etff1')
-        self.etff2 = EdgeTriggeredDtypeFlipFlop('etff2')
-        self.etff3 = EdgeTriggeredDtypeFlipFlop('etff3')
-        self.brn1 = Branch('brn1')
-        self.brn2 = Branch('brn2')
-        self.brn3 = Branch('brn3')
-        self.brn4 = Branch('brn4')
+        super().__init__(name, 2)
 
-        self.update_sequence = [self.osc, self.brn1, self.inv, self.etff1, self.brn2, self.etff2, self.brn3, self.etff3, self.brn4]
 
-        self.osc.O >> self.brn1 >> (self.inv, self.etff1.Clk)
-        self.etff1.Qbar >> self.brn2 >> (self.etff2.Clk, self.etff1.D)
-        self.etff2.Qbar >> self.brn3 >> (self.etff3.Clk, self.etff2.D)
-        self.etff3.Qbar >> self.brn4 >> self.etff3.D
-
-        self.Q = [self.inv.O, self.etff1.Q, self.etff2.Q, self.etff3.Q]
-
-        super().__init__('RippleCounter4Bit', name)
-    
-    def __repr__(self):
-        return f'{self.device_name}({self.name}, {self.get_output()})'
-    
-    def get_output(self):
-        return f'{" ".join([str(self.Q[i].value) for i in range(4)][::-1])}'
-
-    def init(self):
-        self.etff1.step()
-        self.etff2.step()
-        self.etff3.step()
+class RippleCounter4Bit(RippleCounter):
+    def __init__(self, name):
+        super().__init__(name, 4)
 
 
 class TestClock(unittest.TestCase):
@@ -111,7 +97,7 @@ class TestClock(unittest.TestCase):
         rc.init()
         for i in range(10):
             rc.step()
-            # print(rc.get_output())
+            print(rc.get_output())
             ans = i2bi(i % 4, 2)
             for j in range(2):
                 self.assertEqual(rc.Q[j].value, int(ans[j]))

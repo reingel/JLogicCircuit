@@ -27,9 +27,9 @@
 - [x] Or.I, Or.O -> Or
 - [x] buffer.I -> buffer, inverter.I -> inverter
 - [x] Refresh set_input, set_output
-- [ ] Remove other .I, .O
+- [x] Generalize RippleCounter
+- [ ] Remove other .I, .O: Oscillator, Power, Ground
 - [ ] Add function descriptions
-- [ ] Generalize RippleCounter
 
 
 
