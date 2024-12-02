@@ -26,9 +26,8 @@
 - [x] And.I, And.O -> And
 - [x] Or.I, Or.O -> Or
 - [x] buffer.I -> buffer, inverter.I -> inverter
+- [x] Refresh set_input, set_output
 - [ ] Remove other .I, .O
-- [ ] Refresh set_input, set_output
-- [ ] Inherit Branch from Port
 - [ ] Add function descriptions
 - [ ] Generalize RippleCounter
 
