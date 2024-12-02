@@ -96,10 +96,6 @@ class RAM16x8(SimulatedCircuit):
             out = f'{DO:02x}'.upper() + ('   ' if j == 8 else ' ') + out
         return out
     
-    def update_inport(self):
-        for i in range(self.nbus):
-            self.DI[i].update_value()
-        
     def set_addr(self, addr):
         if addr < 0 or addr > self.nloc - 1:
             raise(RuntimeError)
@@ -185,12 +181,6 @@ class RAMnx8(SimulatedCircuit):
         for j in range(self.dec.nloc):
             out += self.cell[j].__repr__() + '\n'
         return out
-        
-    def update_inport(self):
-        for i in range(self.naddr1):
-            self.A[i].update_value()
-        for i in range(self.nbus):
-            self.DI[i].update_value()
         
     def set_addr(self, addr):
         if addr < 0 or addr > self.nloc - 1:
