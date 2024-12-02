@@ -97,7 +97,7 @@ class TestClock(unittest.TestCase):
         rc.init()
         for i in range(10):
             rc.step()
-            print(rc.get_output())
+            # print(rc.get_output())
             ans = i2bi(i % 4, 2)
             for j in range(2):
                 self.assertEqual(rc.Q[j].value, int(ans[j]))

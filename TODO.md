@@ -1,7 +1,7 @@
 
 
 # Function Development
-
+- [ ] Implement RippleCounter with Clk inport and without Oscillator
 
 
 

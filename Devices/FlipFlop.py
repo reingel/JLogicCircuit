@@ -129,12 +129,11 @@ class Latch8bit(SimulatedCircuit):
 
         self.nbit = 8
 
-        self.Clk = Port('I', self)
         self.brn = Branch('brn')
         self.latch = [EdgeTriggeredDtypeFlipFlop(f'latch{i:02d}') for i in range(self.nbit)]
         # self.latch = [LevelTriggeredDtypeFlipFlop(f'latch{i:02d}') for i in range(self.nbit)]
 
-        self.Clk >> self.brn
+        self.Clk = self.brn
         for i in range(self.nbit):
             self.brn >> self.latch[i].Clk
 
