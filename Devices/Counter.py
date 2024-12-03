@@ -30,23 +30,19 @@ class RippleCounter(SimulatedCircuit):
         self.name = name
         self.nbit = nbit
 
-        self.osc = Oscillator('osc')
-        self.inv = Inverter('inv')
-        self.etff = [EdgeTriggeredDtypeFlipFlop(f'etff{i}') for i in range(self.nbit - 1)]
+        self.etff = [EdgeTriggeredDtypeFlipFlop(f'etff{i}') for i in range(self.nbit)]
         self.brn = [Branch(f'brn{i}') for i in range(self.nbit)]
 
-        self.update_sequence = [self.osc, self.brn[0], self.inv]
         for i in range(self.nbit - 1):
-            self.update_sequence.extend([self.etff[i], self.brn[i + 1]])
+            self.etff[i].Qbar >> self.brn[i] >> (self.etff[i + 1].Clk, self.etff[i].D)
+        self.etff[self.nbit - 1].Qbar >> self.brn[self.nbit - 1] >> self.etff[self.nbit - 1].D
 
-        self.osc.O >> self.brn[0] >> (self.inv, self.etff[0].Clk)
-        if self.nbit > 2:
-            for i in range(self.nbit - 2):
-                self.etff[i].Qbar >> self.brn[i + 1] >> (self.etff[i + 1].Clk, self.etff[i].D)
-        self.etff[self.nbit - 2].Qbar >> self.brn[self.nbit - 1] >> self.etff[self.nbit - 2].D
+        self.update_sequence = []
+        for i in range(self.nbit):
+            self.update_sequence.extend([self.etff[i], self.brn[i]])
 
-        self.Q = [self.inv.O]
-        self.Q.extend([self.etff[i].Q for i in range(self.nbit - 1)])
+        self.Clk = self.etff[0].Clk
+        self.Q = [self.etff[i].Q for i in range(self.nbit)]
 
         super().__init__(self.device_name, self.name)
     
@@ -54,10 +50,10 @@ class RippleCounter(SimulatedCircuit):
         return f'{self.device_name}({self.name}, {self.get_output()})'
     
     def get_output(self):
-        return f'{" ".join([str(self.Q[i].value) for i in range(2)][::-1])}'
+        return f'{" ".join([str(self.Q[i].value) for i in range(self.nbit)][::-1])}'
     
     def init(self):
-        for i in range(self.nbit - 1):
+        for i in range(self.nbit):
             self.etff[i].step()
 
 
@@ -92,11 +88,16 @@ class TestClock(unittest.TestCase):
     def test_ripple_counter_2bit(self):
         print('test_ripple_counter_2bit')
 
+        osc1 = Oscillator('osc1')
         rc = RippleCounter2Bit('rc')
+        osc1.O >> rc.Clk
+        osc1.power_on()
         rc.power_on()
         rc.init()
         for i in range(10):
-            rc.step()
+            for k in range(2):
+                osc1.step()
+                rc.step()
             # print(rc.get_output())
             ans = i2bi(i % 4, 2)
             for j in range(2):
@@ -105,11 +106,16 @@ class TestClock(unittest.TestCase):
     def test_ripple_counter_4bit(self):
         print('test_ripple_counter_4bit')
 
+        osc1 = Oscillator('osc1')
         rc = RippleCounter4Bit('rc')
+        osc1.O >> rc.Clk
+        osc1.power_on()
         rc.power_on()
         rc.init()
         for i in range(20):
-            rc.step()
+            for k in range(2):
+                osc1.step()
+                rc.step()
             # print(rc.get_output())
             ans = i2bi(i % 16, 4)
             for j in range(4):
