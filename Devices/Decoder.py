@@ -3,7 +3,7 @@ from BitValue import *
 from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Branch import Branch
-from Gate import And, AndN, OrN, Inverter
+from Gate import And, AndN, OrN, Or, Inverter
 from Util import i2bi
 
 
@@ -62,6 +62,12 @@ class Decoder(SimulatedCircuit):
         O = int(strO, 2)
         return O
     
+
+class Decoder4to16(Decoder):
+    def __init__(self, name):
+        super().__init__(name, 4)
+
+
 class Selector(SimulatedCircuit):
     # Signal: 1-D input signal to control output (0: not connect, 1: connect)
     # I: input
@@ -103,14 +109,35 @@ class Selector(SimulatedCircuit):
         return O
 
 
-class Decoder4to16(Decoder):
-    def __init__(self, name):
-        super().__init__(name, 4)
-
-
 class Selector16to1(Selector):
     def __init__(self, name):
         super().__init__(name, 4)
+
+
+class Selector2to1(SimulatedCircuit):
+    def __init__(self, name):
+        self.device_name = 'Selector2to1'
+        self.name = name
+
+        self.brn = Branch('brn')
+        self.inv = Inverter('inv')
+        self.andA = And('andA')
+        self.andB = And('andB')
+        self.orO = Or('orO')
+
+        self.brn >> (self.inv, self.andB.I[0])
+        self.inv >> self.andA.I[1]
+        self.andA.O >> self.orO.I[0]
+        self.andB.O >> self.orO.I[1]
+
+        self.Select = self.brn
+        self.A = self.andA.I[0]
+        self.B = self.andB.I[1]
+        self.O = self.orO.O
+
+        self.update_sequence = [self.brn, self.inv, self.andA, self.andB, self.orO]
+
+        super().__init__(self.device_name, self.name)
 
 
 class TestDecoder(unittest.TestCase):
@@ -176,6 +203,27 @@ class TestDecoder(unittest.TestCase):
             # print(f'{i:02d}: {dec.get_output():016b}  {sel.get_output():016b}')
             self.assertEqual(sel.get_output(), 0)
 
+    def test_selector2to1(self):
+        sel = Selector2to1('sel')
+        sel.power_on()
+
+        sel.A.set()
+        sel.B.reset()
+        sel.Select.reset()
+        sel.step()
+        self.assertEqual(sel.O.value, HIGH)
+        sel.Select.set()
+        sel.step()
+        self.assertEqual(sel.O.value, OPEN)
+
+        sel.A.reset()
+        sel.B.set()
+        sel.Select.reset()
+        sel.step()
+        self.assertEqual(sel.O.value, OPEN)
+        sel.Select.set()
+        sel.step()
+        self.assertEqual(sel.O.value, HIGH)
 
 
 if __name__ == '__main__':
@@ -184,6 +232,7 @@ if __name__ == '__main__':
         TestDecoder('test_decoder4to16'),
         TestDecoder('test_selector16to1'),
         TestDecoder('test_dec_sel_4to16to1'),
+        TestDecoder('test_selector2to1'),
     ])
     runner = unittest.TextTestRunner()
     runner.run(suite)
