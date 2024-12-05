@@ -326,8 +326,14 @@ class TestAccumulator(unittest.TestCase):
         print('test_automatedaccumulatingadder')
 
         data = [
-            0x01,
-            0x02,
+            0x35,
+            0x1B,
+            0x09,
+            0x31,
+            0x1E,
+            0x12,
+            0x23,
+            0x0C,
         ]
         ndata = len(data)
         s = sum(data)
@@ -338,16 +344,20 @@ class TestAccumulator(unittest.TestCase):
         aaa.write_data(data)
         # print(aaa.ram)
 
-        for i in range(20):
+        correct = False
+        for i in range(40):
             aaa.step()
-            if aaa.read_data(ndata) != 0:
-                self.assertEqual(aaa.read_data(ndata), s)
+            res = aaa.read_data(ndata)
+            if res != 0:
+                self.assertEqual(res, s)
+                correct = True
                 break
             # print(' '.join([str(aaa.adder.brndi[i].value) for i in range(8)])[::-1])
             # print(' '.join([str(aaa.adder.brndo[i].value) for i in range(8)])[::-1])
             # print(aaa.cs)
             # print(aaa.counter)
-            # print(aaa.ram.cell[0])
+        self.assertTrue(correct)
+        print(aaa.ram.cell[0])
 
 
 if __name__ == '__main__':
