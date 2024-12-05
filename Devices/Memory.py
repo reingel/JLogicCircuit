@@ -84,7 +84,7 @@ class RAM16x8(SimulatedCircuit):
         super().__init__('RAM16x8', name)
     
     def __repr__(self):
-        return f'RAM16x8({self.name})'
+        return f'RAM16x8({self.name}, {self.print_cell()})'
 
     def print_cell(self):
         out = ''
@@ -142,7 +142,7 @@ class RAMnx8(SimulatedCircuit):
         self.sele = Selector16to1('selector for E')
 
         self.brndi = [Branch(f'brndi{i}') for i in range(self.nbus)]
-        self.cell = [self.base_ram(f'ram16x8_{j:02d}') for j in range(self.dec.nloc)]
+        self.cell = [self.base_ram(f'base_ram_{j:02d}') for j in range(self.dec.nloc)]
         self.brndo = [Branch(f'brndo{i}') for i in range(self.nbus)]
 
         # connect

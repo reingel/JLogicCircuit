@@ -1,7 +1,7 @@
 
 
 # Function Development
-- [ ] Implement RippleCounter with Clk inport and without Oscillator
+- [x] Implement RippleCounter with Clk inport and without Oscillator
 
 
 
@@ -29,7 +29,11 @@
 - [x] Refresh set_input, set_output
 - [x] Generalize RippleCounter
 - [ ] Remove other .I, .O: Oscillator, Power, Ground
+- [ ] Funtionize get_output()
 - [ ] Add function descriptions
+
+# Debug
+- [x] Why cs.counter starts with 0 1 0 1?
 
 
 

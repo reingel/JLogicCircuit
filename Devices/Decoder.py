@@ -209,19 +209,19 @@ class TestDecoder(unittest.TestCase):
 
         sel.A.set()
         sel.B.reset()
-        sel.Select.reset()
+        sel.Select.reset() # A -> O
         sel.step()
         self.assertEqual(sel.O.value, HIGH)
-        sel.Select.set()
+        sel.Select.set() # B -> O
         sel.step()
         self.assertEqual(sel.O.value, OPEN)
 
         sel.A.reset()
         sel.B.set()
-        sel.Select.reset()
+        sel.Select.reset() # A -> O
         sel.step()
         self.assertEqual(sel.O.value, OPEN)
-        sel.Select.set()
+        sel.Select.set() # B -> O
         sel.step()
         self.assertEqual(sel.O.value, HIGH)
 
