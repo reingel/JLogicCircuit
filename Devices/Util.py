@@ -3,13 +3,15 @@ import unittest
 
 def i2b_r(num, len):
     '''
-    Convert integer to binary string, fill zeros and reverse the order
+    Convert integer to binary string, fill zeros
+    and reverse the order
     '''
     return bin(num)[2:].zfill(len)[::-1]
 
 def i2b_ri(num, len):
     '''
-    Convert integer to binary string, fill zeros, reverse the order and convert back to integer
+    Convert integer to binary string, fill zeros,
+    reverse the order and convert back to integer
     '''
     return list(map(int, i2b_r(num, len)))
 
