@@ -4,7 +4,7 @@ from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Branch import Branch
 from Gate import And, Nor, Inverter
-from Util import i2b_r
+from Util import i2b_ri
 
 class RSFlipFlop(SimulatedCircuit):
     def __init__(self, name):
@@ -148,9 +148,9 @@ class Latch8bit(SimulatedCircuit):
     def set_input(self, D: int):
         if D > 255 or D < 0:
             raise(RuntimeError)
-        strD = i2b_r(D, 8)
+        strD = i2b_ri(D, 8)
         for i in range(self.nbit):
-            self.D[i].value = int(strD[i])
+            self.D[i].value = strD[i]
     
     def get_output(self):
         strQ = ''

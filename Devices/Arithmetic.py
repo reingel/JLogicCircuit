@@ -4,7 +4,7 @@ from SimulatedCircuit import SimulatedCircuit
 from Gate import And, Or, Xor
 from Branch import Branch
 from Source import Ground
-from Util import i2b_r
+from Util import i2b_ri
 
 
 class HalfAdder(SimulatedCircuit):
@@ -108,11 +108,11 @@ class Adder8bit(SimulatedCircuit):
     def set_input(self, A: int, B: int):
         if A > 255 or A < 0 or B > 255 or B < 0:
             raise(RuntimeError)
-        strA = i2b_r(A, 8)
-        strB = i2b_r(B, 8)
+        strA = i2b_ri(A, 8)
+        strB = i2b_ri(B, 8)
         for i in range(self.num_adder):
-            self.A[i].value = int(strA[i])
-            self.B[i].value = int(strB[i])
+            self.A[i].value = strA[i]
+            self.B[i].value = strB[i]
     
     def get_output(self):
         strS = ''

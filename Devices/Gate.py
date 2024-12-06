@@ -5,7 +5,7 @@ from Relay import Relay
 from Source import Power
 from Branch import Branch
 from collections.abc import Iterable
-from Util import i2b_r
+from Util import i2b_ri
 
 
 class AndN(SimulatedCircuit):
@@ -433,9 +433,9 @@ class TestGate(unittest.TestCase):
         gate.step()
 
         for i in range(2**n):
-            bin = i2b_r(i, 8)
+            bin = i2b_ri(i, 8)
             for j in range(n):
-                gate.I[j].value = int(bin[j])
+                gate.I[j].value = bin[j]
             gate.step()
             self.assertEqual(gate.O.value, 1 if i > 0 else 0)
 

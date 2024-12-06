@@ -5,7 +5,7 @@ from Port import Port
 from Gate import Inverter
 from FlipFlop import EdgeTriggeredDtypeFlipFlop
 from Branch import Branch
-from Util import i2b_r
+from Util import i2b_ri
 
 class Oscillator(SimulatedCircuit):
     def __init__(self, name):
@@ -99,9 +99,9 @@ class TestClock(unittest.TestCase):
                 osc1.step()
                 rc.step()
             # print(rc.get_output())
-            ans = i2b_r(i % 4, 2)
+            ans = i2b_ri(i % 4, 2)
             for j in range(2):
-                self.assertEqual(rc.Q[j].value, int(ans[j]))
+                self.assertEqual(rc.Q[j].value, ans[j])
 
     def test_ripple_counter_4bit(self):
         print('test_ripple_counter_4bit')
@@ -117,9 +117,9 @@ class TestClock(unittest.TestCase):
                 osc1.step()
                 rc.step()
             # print(rc.get_output())
-            ans = i2b_r(i % 16, 4)
+            ans = i2b_ri(i % 16, 4)
             for j in range(4):
-                self.assertEqual(rc.Q[j].value, int(ans[j]))
+                self.assertEqual(rc.Q[j].value, ans[j])
 
 
 

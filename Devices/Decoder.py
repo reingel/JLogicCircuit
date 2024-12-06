@@ -4,7 +4,7 @@ from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Branch import Branch
 from Gate import And, AndN, OrN, Or, Inverter
-from Util import i2b_r
+from Util import i2b_ri
 
 
 class Decoder(SimulatedCircuit):
@@ -29,8 +29,8 @@ class Decoder(SimulatedCircuit):
             self.brnd[i] >> self.inv[i]
             self.inv[i] >> self.brni[i]
             for j in range(self.nloc):
-                bin = i2b_r(j, self.naddr)
-                (self.brnd[i] if bin[i] == '1' else self.brni[i]) >> self.ando[j].I[i]
+                bin = i2b_ri(j, self.naddr)
+                (self.brnd[i] if bin[i] == 1 else self.brni[i]) >> self.ando[j].I[i]
 
         # create access points
         self.A = self.brnd
@@ -51,9 +51,9 @@ class Decoder(SimulatedCircuit):
         if addr < 0 or addr > self.nloc - 1:
             raise(RuntimeError)
 
-        bin = i2b_r(addr, 4)
+        bin = i2b_ri(addr, 4)
         for i in range(self.naddr):
-            self.A[i].value = int(bin[i])
+            self.A[i].value = bin[i]
     
     def get_output(self):
         strO = ''

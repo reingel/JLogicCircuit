@@ -8,7 +8,7 @@ from Arithmetic import Adder8bit
 from Counter import Oscillator, RippleCounter4Bit
 from FlipFlop import EdgeTriggeredDtypeFlipFlop, Latch8bit
 from Memory import RAM256x8
-from Util import i2b_r
+from Util import i2b_ri
 
 
 class Selector2to1xN(SimulatedCircuit):
@@ -54,30 +54,30 @@ class Selector2to1xN(SimulatedCircuit):
     def set_addrA(self, addr):
         if addr < 0 or addr > 2**self.naddr - 1:
             raise(RuntimeError)
-        bin = i2b_r(addr, self.naddr)
+        bin = i2b_ri(addr, self.naddr)
         for i in range(self.naddr):
-            self.addrA[i].value = int(bin[i])
+            self.addrA[i].value = bin[i]
     
     def set_inputA(self, DI: int):
         if DI < 0 or DI > 2**self.nbit - 1:
             raise(RuntimeError)
-        strDI = i2b_r(DI, self.nbit)
+        strDI = i2b_ri(DI, self.nbit)
         for i in range(self.nbit):
-            self.diA[i].value = int(strDI[i])
+            self.diA[i].value = strDI[i]
 
     def set_addrB(self, addr):
         if addr < 0 or addr > 2**self.naddr - 1:
             raise(RuntimeError)
-        bin = i2b_r(addr, self.naddr)
+        bin = i2b_ri(addr, self.naddr)
         for i in range(self.naddr):
-            self.addrB[i].value = int(bin[i])
+            self.addrB[i].value = bin[i]
     
     def set_inputB(self, DI: int):
         if DI < 0 or DI > 2**self.nbit - 1:
             raise(RuntimeError)
-        strDI = i2b_r(DI, self.nbit)
+        strDI = i2b_ri(DI, self.nbit)
         for i in range(self.nbit):
-            self.diB[i].value = int(strDI[i])
+            self.diB[i].value = strDI[i]
 
     def get_addrO(self):
         strO = ''
@@ -166,9 +166,9 @@ class AccumulatingAdder(SimulatedCircuit):
     def set_input(self, DI: int):
         if DI < 0 or DI > 2**self.nbit - 1:
             raise(RuntimeError)
-        strDI = i2b_r(DI, self.nbit)
+        strDI = i2b_ri(DI, self.nbit)
         for i in range(self.nbit):
-            self.DI[i].value = int(strDI[i])
+            self.DI[i].value = strDI[i]
 
     def get_output(self):
         strO = ''
