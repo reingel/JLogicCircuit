@@ -4,7 +4,7 @@ from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Branch import Branch
 from Gate import And, AndN, OrN, Or, Inverter
-from Util import i2b_ri
+from Util import i2b_ri, pav2i
 
 
 class Decoder(SimulatedCircuit):
@@ -56,11 +56,7 @@ class Decoder(SimulatedCircuit):
             self.A[i].value = bin[i]
     
     def get_output(self):
-        strO = ''
-        for i in range(self.nloc):
-            strO = f'{self.O[i].value}{strO}'
-        O = int(strO, 2)
-        return O
+        return pav2i(self.O, self.nloc)
     
 
 class Decoder4to16(Decoder):
@@ -102,11 +98,7 @@ class Selector(SimulatedCircuit):
         return f"{self.device_name}({self.name}, Signal = {str(self.Signal.value)}, {''.join([str(self.I[i].value) for i in range(self.nloc)])[::-1]} -> {''.join([str(self.O[i].value) for i in range(self.nloc)])[::-1]})"
     
     def get_output(self):
-        strO = ''
-        for i in range(self.nloc):
-            strO = f'{self.O[i].value}{strO}'
-        O = int(strO, 2)
-        return O
+        return pav2i(self.O, self.nloc)
 
 
 class Selector16to1(Selector):

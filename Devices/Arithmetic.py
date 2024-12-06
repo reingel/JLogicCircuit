@@ -4,7 +4,7 @@ from SimulatedCircuit import SimulatedCircuit
 from Gate import And, Or, Xor
 from Branch import Branch
 from Source import Ground
-from Util import i2b_ri
+from Util import i2b_ri, pav2i
 
 
 class HalfAdder(SimulatedCircuit):
@@ -115,11 +115,7 @@ class Adder8bit(SimulatedCircuit):
             self.B[i].value = strB[i]
     
     def get_output(self):
-        strS = ''
-        for i in range(self.num_adder):
-            strS = f'{self.S[i].value}{strS}'
-        S = int(strS, 2)
-        return S
+        return pav2i(self.S, self.num_adder)
 
 
 class TestArithmetic(unittest.TestCase):

@@ -6,7 +6,7 @@ from Gate import TriStateBuffer
 from Branch import Branch
 from FlipFlop import LevelTriggeredDtypeFlipFlop
 from Decoder import Decoder4to16, Selector16to1
-from Util import i2b_ri
+from Util import i2b_ri, pav2i
 
 
 class Memory1bit(SimulatedCircuit):
@@ -111,11 +111,7 @@ class RAM16x8(SimulatedCircuit):
             self.DI[i].value = strDI[i]
     
     def get_output(self):
-        strDO = ''
-        for i in range(self.nbus):
-            strDO = f'{self.DO[i].value}{strDO}'
-        DO = int(strDO, 2)
-        return DO
+        return pav2i(self.DO, self.nbus)
 
 
 class RAMnx8(SimulatedCircuit):
@@ -197,11 +193,7 @@ class RAMnx8(SimulatedCircuit):
             self.DI[i].value = strDI[i]
     
     def get_output(self):
-        strDO = ''
-        for i in range(self.nbus):
-            strDO = f'{self.DO[i].value}{strDO}'
-        DO = int(strDO, 2)
-        return DO
+        return pav2i(self.DO, self.nbus)
 
 
 class RAM256x8(RAMnx8):

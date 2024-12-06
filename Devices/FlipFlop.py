@@ -4,7 +4,8 @@ from SimulatedCircuit import SimulatedCircuit
 from Port import Port
 from Branch import Branch
 from Gate import And, Nor, Inverter
-from Util import i2b_ri
+from Util import i2b_ri, pav2i
+
 
 class RSFlipFlop(SimulatedCircuit):
     def __init__(self, name):
@@ -153,11 +154,7 @@ class Latch8bit(SimulatedCircuit):
             self.D[i].value = strD[i]
     
     def get_output(self):
-        strQ = ''
-        for i in range(self.nbit):
-            strQ = f'{self.Q[i].value}{strQ}'
-        Q = int(strQ, 2)
-        return Q
+        return pav2i(self.Q, self.nbit)
 
 
 

@@ -8,7 +8,7 @@ from Arithmetic import Adder8bit
 from Counter import Oscillator, RippleCounter4Bit
 from FlipFlop import EdgeTriggeredDtypeFlipFlop, Latch8bit
 from Memory import RAM256x8
-from Util import i2b_ri
+from Util import i2b_ri, pav2i
 
 
 class Selector2to1xN(SimulatedCircuit):
@@ -80,18 +80,10 @@ class Selector2to1xN(SimulatedCircuit):
             self.diB[i].value = strDI[i]
 
     def get_addrO(self):
-        strO = ''
-        for i in range(self.naddr):
-            strO = f'{self.addrO[i].value}{strO}'
-        O = int(strO, 2)
-        return O
+        return pav2i(self.addrO, self.naddr)
 
     def get_inputO(self):
-        strO = ''
-        for i in range(self.nbit):
-            strO = f'{self.diO[i].value}{strO}'
-        O = int(strO, 2)
-        return O
+        return pav2i(self.diO, self.nbit)
 
 
 class ControlSignal(SimulatedCircuit):
@@ -171,11 +163,7 @@ class AccumulatingAdder(SimulatedCircuit):
             self.DI[i].value = strDI[i]
 
     def get_output(self):
-        strO = ''
-        for i in range(self.nbit):
-            strO = f'{self.DO[i].value}{strO}'
-        O = int(strO, 2)
-        return O
+        return pav2i(self.DO, self.nbit)
 
 
 class AutomatedAccumulatingAdder(SimulatedCircuit):

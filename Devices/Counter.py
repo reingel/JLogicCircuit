@@ -5,7 +5,8 @@ from Port import Port
 from Gate import Inverter
 from FlipFlop import EdgeTriggeredDtypeFlipFlop
 from Branch import Branch
-from Util import i2b_ri
+from Util import i2b_ri, pav2i
+
 
 class Oscillator(SimulatedCircuit):
     def __init__(self, name):
@@ -50,7 +51,7 @@ class RippleCounter(SimulatedCircuit):
         return f'{self.device_name}({self.name}, {self.get_output()})'
     
     def get_output(self):
-        return f'{" ".join([str(self.Q[i].value) for i in range(self.nbit)][::-1])}'
+        return pav2i(self.Q, self.nbit)
     
     def init(self):
         for i in range(self.nbit):
