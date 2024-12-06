@@ -6,7 +6,7 @@ from Gate import TriStateBuffer
 from Branch import Branch
 from FlipFlop import LevelTriggeredDtypeFlipFlop
 from Decoder import Decoder4to16, Selector16to1
-from Util import i2bi
+from Util import i2b_r
 
 
 class Memory1bit(SimulatedCircuit):
@@ -99,14 +99,14 @@ class RAM16x8(SimulatedCircuit):
     def set_addr(self, addr):
         if addr < 0 or addr > self.nloc - 1:
             raise(RuntimeError)
-        bin = i2bi(addr, 4)
+        bin = i2b_r(addr, 4)
         for i in range(self.naddr):
             self.A[i].value = int(bin[i])
     
     def set_input(self, DI: int):
         if DI < 0 or DI > 2**self.nbus - 1:
             raise(RuntimeError)
-        strDI = i2bi(DI, 8)
+        strDI = i2b_r(DI, 8)
         for i in range(self.nbus):
             self.DI[i].value = int(strDI[i])
     
@@ -185,14 +185,14 @@ class RAMnx8(SimulatedCircuit):
     def set_addr(self, addr):
         if addr < 0 or addr > self.nloc - 1:
             raise(RuntimeError)
-        bin = i2bi(addr, self.naddr)
+        bin = i2b_r(addr, self.naddr)
         for i in range(self.naddr):
             self.A[i].value = int(bin[i])
     
     def set_input(self, DI: int):
         if DI < 0 or DI > 2**self.nbus - 1:
             raise(RuntimeError)
-        strDI = i2bi(DI, self.nbus)
+        strDI = i2b_r(DI, self.nbus)
         for i in range(self.nbus):
             self.DI[i].value = int(strDI[i])
     

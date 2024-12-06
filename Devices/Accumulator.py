@@ -8,7 +8,7 @@ from Arithmetic import Adder8bit
 from Counter import Oscillator, RippleCounter4Bit
 from FlipFlop import EdgeTriggeredDtypeFlipFlop, Latch8bit
 from Memory import RAM256x8
-from Util import i2bi
+from Util import i2b_r
 
 
 class Selector2to1xN(SimulatedCircuit):
@@ -54,28 +54,28 @@ class Selector2to1xN(SimulatedCircuit):
     def set_addrA(self, addr):
         if addr < 0 or addr > 2**self.naddr - 1:
             raise(RuntimeError)
-        bin = i2bi(addr, self.naddr)
+        bin = i2b_r(addr, self.naddr)
         for i in range(self.naddr):
             self.addrA[i].value = int(bin[i])
     
     def set_inputA(self, DI: int):
         if DI < 0 or DI > 2**self.nbit - 1:
             raise(RuntimeError)
-        strDI = i2bi(DI, self.nbit)
+        strDI = i2b_r(DI, self.nbit)
         for i in range(self.nbit):
             self.diA[i].value = int(strDI[i])
 
     def set_addrB(self, addr):
         if addr < 0 or addr > 2**self.naddr - 1:
             raise(RuntimeError)
-        bin = i2bi(addr, self.naddr)
+        bin = i2b_r(addr, self.naddr)
         for i in range(self.naddr):
             self.addrB[i].value = int(bin[i])
     
     def set_inputB(self, DI: int):
         if DI < 0 or DI > 2**self.nbit - 1:
             raise(RuntimeError)
-        strDI = i2bi(DI, self.nbit)
+        strDI = i2b_r(DI, self.nbit)
         for i in range(self.nbit):
             self.diB[i].value = int(strDI[i])
 
@@ -166,7 +166,7 @@ class AccumulatingAdder(SimulatedCircuit):
     def set_input(self, DI: int):
         if DI < 0 or DI > 2**self.nbit - 1:
             raise(RuntimeError)
-        strDI = i2bi(DI, self.nbit)
+        strDI = i2b_r(DI, self.nbit)
         for i in range(self.nbit):
             self.DI[i].value = int(strDI[i])
 
@@ -323,7 +323,7 @@ class TestAccumulator(unittest.TestCase):
             self.assertEqual(aaa.read_data(i), data[i])
 
     def test_automated_accumulating_adder(self):
-        print('test_automatedaccumulatingadder')
+        print('test_automated_accumulating_adder')
 
         data = [
             0x35,
