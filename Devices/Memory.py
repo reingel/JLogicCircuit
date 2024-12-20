@@ -57,7 +57,7 @@ class RAM16x8(SimulatedCircuit):
             for i in range(self.nbus):
                 self.brnw[j] >> self.cell[j][i].W
                 self.brndi[i] >> self.cell[j][i].DI
-                self.brne[j] >> self.tri[j][i].E
+                self.brne[j] >> self.tri[j][i].Enable
                 self.cell[j][i].DO >> self.tri[j][i].I
                 self.tri[j][i].O >> self.brndo[i]
 

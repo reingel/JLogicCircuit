@@ -298,7 +298,7 @@ class TriStateBuffer(SimulatedCircuit):
         self.rly = Relay('rly', self)
 
         # create access points
-        self.E = self.rly.le
+        self.Enable = self.rly.le
         self.I = self.rly.up
         self.O = self.rly.rd
 
@@ -308,7 +308,7 @@ class TriStateBuffer(SimulatedCircuit):
         super().__init__(self.device_name, name)
     
     def __repr__(self):
-        return f'{self.device_name}({self.name}, {strof(self.E.value)}: {strof(self.I.value)} -> {strof(self.O.value)})'
+        return f'{self.device_name}({self.name}, {strof(self.Enable.value)}: {strof(self.I.value)} -> {strof(self.O.value)})'
 
     def __rshift__(self, obj):
         self.O >> obj
@@ -525,10 +525,10 @@ class TestGate(unittest.TestCase):
 
         for i in range(len(truth_table)):
             gate.I.value = truth_table[i][0]
-            gate.E.set()
+            gate.Enable.set()
             gate.step()
             self.assertEqual(gate.O.value, truth_table[i][1])
-            gate.E.reset()
+            gate.Enable.reset()
             gate.step()
             self.assertEqual(gate.O.value, 0)
 
@@ -580,13 +580,13 @@ class TestGate(unittest.TestCase):
         ]
 
         for i in range(len(truth_table)):
-            dev.tri1.E.set()
-            dev.tri2.E.set()
+            dev.tri1.Enable.set()
+            dev.tri2.Enable.set()
             dev.I.value = truth_table[i][0]
             dev.step()
             self.assertEqual(dev.O.value, truth_table[i][1])
-            dev.tri1.E.reset()
-            dev.tri2.E.set()
+            dev.tri1.Enable.reset()
+            dev.tri2.Enable.set()
             dev.I.value = truth_table[i][0]
             dev.step()
             self.assertEqual(dev.O.value, OPEN)
