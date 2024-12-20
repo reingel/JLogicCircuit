@@ -319,6 +319,36 @@ class TriStateBuffer(SimulatedCircuit):
         return self
 
 
+class TriStateNbit(SimulatedCircuit):
+    def __init__(self, name, nbit):
+        self.device_name = 'TriStateNbit'
+        self.name = name
+        self.nbit = nbit
+
+        self.brn = Branch('brn')
+        self.tri = [TriStateBuffer(f'tsb_{i}') for i in range(self.nbit)]
+
+        for i in range(self.nbit):
+            self.brn >> self.tri[i].Enable
+
+        self.Enable = self.brn
+        self.I = [self.tri[i].I for i in range(self.nbit)]
+        self.O = [self.tri[i].O for i in range(self.nbit)]
+
+        self.update_sequence = [self.brn]
+        self.update_sequence.extend([self.tri[i] for i in range(self.nbit)])
+
+
+class TriState8bit(TriStateNbit):
+    def __init__(self, name):
+        super().__init__(name, 8)
+
+
+class TriState9bit(TriStateNbit):
+    def __init__(self, name):
+        super().__init__(name, 9)
+
+
 class Inverter(SimulatedCircuit):
     def __init__(self, name):
         self.device_name = 'Inverter'
@@ -547,6 +577,45 @@ class TestGate(unittest.TestCase):
             gate.I.value = truth_table[i][0]
             gate.step()
             self.assertEqual(gate.O.value, truth_table[i][1])
+    
+    def test_TriState8bit(self):
+        print('test_TriState8bit')
+
+        gate = TriState8bit('tsb8')
+        gate.power_on()
+
+        truth_table = [
+            [0, 0],
+            [1, 1],
+        ]
+
+        for i in range(len(truth_table)):
+            for k in range(8):
+                gate.I[k].value = truth_table[i][0]
+            gate.Enable.set()
+            gate.step()
+            for k in range(8):
+                self.assertEqual(gate.O[k].value, truth_table[i][1])
+            gate.Enable.reset()
+            gate.step()
+            for k in range(8):
+                self.assertEqual(gate.O[k].value, 0)
+
+    def test_Inverter(self):
+        print('test_Inverter')
+
+        gate = Inverter('inverter1')
+        gate.power_on()
+    
+        truth_table = [
+            [0, 1],
+            [1, 0],
+        ]
+
+        for i in range(len(truth_table)):
+            gate.I.value = truth_table[i][0]
+            gate.step()
+            self.assertEqual(gate.O.value, truth_table[i][1])
 
     def test_Buffer_Inverter_connect(self):
         print('test_Buffer_Inverter_connect')
@@ -625,7 +694,6 @@ class TestGate(unittest.TestCase):
 
         self.assertEqual(inv2.O.value, 1)
         self.assertEqual(inv3.O.value, 1)
-
 
     def test_AndOr(self):
         print('test_AndOr')
@@ -747,6 +815,7 @@ if __name__ == '__main__':
         TestGate('test_Xor'),
         TestGate('test_Buffer'),
         TestGate('test_TriStateBuffer'),
+        TestGate('test_TriState8bit'),
         TestGate('test_Inverter'),
         TestGate('test_Buffer_Inverter_connect'),
         TestGate('test_And_Inverter_connect'),
