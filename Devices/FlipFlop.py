@@ -124,15 +124,14 @@ class EdgeTriggeredDtypeFlipFlop(DtypeFlipFlop):
 
         super().__init__('EdgeTriggeredDtypeFlipFlop', name)
 
-class Latch8bit(SimulatedCircuit):
-    def __init__(self, name):
-        self.device_name = '8-Bit Latch'
 
-        self.nbit = 8
+class LatchNbit(SimulatedCircuit):
+    def __init__(self, name, nbit):
+        self.device_name = 'N-Bit Latch'
+        self.nbit = nbit
 
         self.brn = Branch('brn')
         self.latch = [EdgeTriggeredDtypeFlipFlop(f'latch{i:02d}') for i in range(self.nbit)]
-        # self.latch = [LevelTriggeredDtypeFlipFlop(f'latch{i:02d}') for i in range(self.nbit)]
 
         self.Clk = self.brn
         for i in range(self.nbit):
@@ -144,18 +143,27 @@ class Latch8bit(SimulatedCircuit):
         self.update_sequence = [self.brn]
         self.update_sequence.extend([self.latch[i] for i in range(self.nbit)])
 
-        super().__init__('Latch8bit', name)
+        super().__init__(self.device_name, name)
         
     def set_input(self, D: int):
-        if D > 255 or D < 0:
+        if D > 2**self.nbit - 1 or D < 0:
             raise(RuntimeError)
-        strD = i2b_ri(D, 8)
+        strD = i2b_ri(D, self.nbit)
         for i in range(self.nbit):
             self.D[i].value = strD[i]
     
     def get_output(self):
         return pav2i(self.Q, self.nbit)
 
+
+class Latch8bit(LatchNbit):
+    def __init__(self, name):
+        super().__init__(name, 8)
+
+
+class Latch9bit(LatchNbit):
+    def __init__(self, name):
+        super().__init__(name, 9)
 
 
 
