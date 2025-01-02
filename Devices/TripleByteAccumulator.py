@@ -166,16 +166,16 @@ class AccumulatingAdder(SimulatedCircuit):
 
         self.update_sequence = [self.orci, self.adder, self.brnco]
         self.update_sequence.extend([self.brnla[i] for i in range(self.nbit)])
-        self.update_sequence.extend([self.latchH, self.latchM, self.latchL])
-        self.update_sequence.extend([self.triH, self.triM, self.triL])
+        self.update_sequence.extend([self.latchL, self.latchM, self.latchH])
+        self.update_sequence.extend([self.triL, self.triM, self.triH])
         self.update_sequence.append(self.brnci)
         self.update_sequence.extend([self.brntr[i] for i in range(self.nbit)])
 
         self.A = [self.adder.A[i] for i in range(self.nbit)]
         self.CI = self.orci.I[0]
         self.toRAM_DI = [self.brntr[i] for i in range(self.nbit)]
-        self.Clk = [self.latchH.Clk, self.latchM.Clk, self.latchL.Clk]
-        self.Enable = [self.triH.Enable, self.triM.Enable, self.triL.Enable]
+        self.Clk = [self.latchL.Clk, self.latchM.Clk, self.latchH.Clk]
+        self.Enable = [self.triL.Enable, self.triM.Enable, self.triH.Enable]
 
         super().__init__(self.device_name, self.name)
     
@@ -269,8 +269,8 @@ class TestAccumulator(unittest.TestCase):
         print('test_accumulating_adder')
 
         data = [
-            [0xC8, 0xAF, 0x00],
-            [0xB8, 0x88, 0x00],
+            [[0xC8, 0xAF, 0x00], [0xC8, 0xAF, 0x00]],
+            [[0xB8, 0x88, 0x00], [0x80, 0x38, 0x01]],
         ]
         ndata = len(data)
 
@@ -279,17 +279,21 @@ class TestAccumulator(unittest.TestCase):
 
         sum = 0
         for i in range(ndata):
-            sum += data[i][0] + data[i][1]*(2**8) + data[i][2]*(2**16)
-
             for k in range(3):
-                aa.set_input(data[i][k])
+                for j in range(3):
+                    aa.Enable[j].reset()
+                aa.Enable[k].set()
+                aa.set_input(data[i][0][k])
                 for j in range(3):
                     aa.Clk[j].reset()
-                    aa.Enable[j].reset()
-                aa.Clk[k].set()
-                aa.Enable[k].set()
                 aa.step()
-            self.assertEqual(aa.get_output(), sum)
+                v = aa.get_output()
+                print(v)
+                aa.Clk[k].set()
+                aa.step()
+                v = aa.get_output()
+                print(v)
+                self.assertEqual(v, data[i][1][k])
 
     def test_ram_write_read(self):
         print('test_ram_write_read')
